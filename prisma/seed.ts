@@ -1,9 +1,29 @@
-import path from "path";
 import { PrismaClient } from "@prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+import dotenv from "dotenv";
 
-const dbPath = path.join(process.cwd(), "prisma", "dev.db");
-const adapter = new PrismaBetterSqlite3({ url: `file:${dbPath}` });
+dotenv.config({ path: ".env.local" });
+dotenv.config();
+
+const connectionString =
+  process.env.POSTGRES_PRISMA_URL ||
+  process.env.POSTGRES_URL ||
+  process.env.DATABASE_URL;
+
+// מסיר sslmode מה-URL כדי ש-ssl option ינצח (דרוש בחיבור מ-Mac מקומי ל-Supabase)
+let cleanedUrl = connectionString || "";
+try {
+  const parsed = new URL(cleanedUrl);
+  parsed.searchParams.delete("sslmode");
+  cleanedUrl = parsed.toString();
+} catch { /* fallback to original */ }
+
+const pool = new Pool({
+  connectionString: cleanedUrl || undefined,
+  ssl: { rejectUnauthorized: false },
+});
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
