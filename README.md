@@ -172,3 +172,4 @@ npm run db:push      # דחיפת schema ל-DB
 npm run db:seed      # נתוני דמה
 npm run db:studio    # Prisma Studio (ממשק ויזואלי ל-DB)
 ```
+# studio-site
