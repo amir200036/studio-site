@@ -6,12 +6,13 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// מנקה פרמטרים שה-pg driver לא מכיר (pgbouncer, supa)
+// מנקה פרמטרים ש-pg לא מכיר, ומסיר sslmode כדי שה-ssl option ינצח
 function cleanUrl(url: string): string {
   try {
     const parsed = new URL(url);
     parsed.searchParams.delete("pgbouncer");
     parsed.searchParams.delete("supa");
+    parsed.searchParams.delete("sslmode");
     return parsed.toString();
   } catch {
     return url;
@@ -26,7 +27,10 @@ function createClient() {
     "";
 
   const connectionString = raw ? cleanUrl(raw) : undefined;
-  const pool = new Pool({ connectionString });
+  const pool = new Pool({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+  });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }
