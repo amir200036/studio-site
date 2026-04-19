@@ -6,13 +6,27 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+// מנקה פרמטרים שה-pg driver לא מכיר (pgbouncer, supa)
+function cleanUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    parsed.searchParams.delete("pgbouncer");
+    parsed.searchParams.delete("supa");
+    return parsed.toString();
+  } catch {
+    return url;
+  }
+}
+
 function createClient() {
-  const connectionString =
+  const raw =
     process.env.POSTGRES_PRISMA_URL ||
     process.env.POSTGRES_URL ||
-    process.env.DATABASE_URL;
+    process.env.DATABASE_URL ||
+    "";
 
-  const pool = new Pool({ connectionString: connectionString || undefined });
+  const connectionString = raw ? cleanUrl(raw) : undefined;
+  const pool = new Pool({ connectionString });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }
