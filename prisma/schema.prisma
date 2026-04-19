@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// סדנאות
+model Workshop {
+  id              String    @id @default(cuid())
+  name            String
+  date            DateTime
+  durationHours   Float
+  description     String
+  imageUrl        String?
+  pricePerPerson  Float
+  maxParticipants Int
+  status          String    @default("active")
+  bookings        Booking[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// הזמנות
+model Booking {
+  id              String    @id @default(cuid())
+  workshopId      String
+  workshop        Workshop  @relation(fields: [workshopId], references: [id], onDelete: Cascade)
+  customerName    String
+  customerEmail   String
+  seats           Int
+  totalAmount     Float
+  stripeSessionId String?   @unique
+  paymentStatus   String    @default("pending")  // "paid" | "pending" | "refunded" | "cancelled"
+  cancelledAt     DateTime?
+  refundId        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// ביקורות לקוחות
+model Review {
+  id         String   @id @default(cuid())
+  authorName String
+  content    String
+  rating     Int      @default(5)
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+// שאלות נפוצות
+model FAQ {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// אירועים מיוחדים
+model Event {
+  id               String   @id @default(cuid())
+  name             String
+  description      String
+  imageUrl         String?
+  whatsappMessage  String?
+  active           Boolean  @default(true)
+  order            Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// תמונות גלריה
+model GalleryImage {
+  id        String   @id @default(cuid())
+  url       String
+  caption   String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+// תוכן עריך (Hero, About, הגדרות)
+model SiteContent {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
+// חסימות זמן
+model TimeBlock {
+  id        String   @id @default(cuid())
+  blockedAt DateTime
+  reason    String?
+  createdAt DateTime @default(now())
+}
