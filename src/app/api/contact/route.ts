@@ -17,6 +17,19 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "כל השדות נדרשים." }, { status: 400 });
     }
 
+    if (typeof name !== "string" || typeof email !== "string" || typeof message !== "string") {
+      return NextResponse.json({ error: "קלט לא תקין." }, { status: 400 });
+    }
+
+    if (name.length > 100 || message.length > 2000) {
+      return NextResponse.json({ error: "הקלט ארוך מדי." }, { status: 400 });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email) || email.length > 254) {
+      return NextResponse.json({ error: "כתובת מייל לא תקינה." }, { status: 400 });
+    }
+
     const adminEmail = process.env.ADMIN_EMAIL || "";
     await sendCustomEmail(
       adminEmail,
