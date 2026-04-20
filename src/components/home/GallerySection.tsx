@@ -2,13 +2,14 @@ import type { GalleryImage } from "@prisma/client";
 
 interface Props {
   images: GalleryImage[];
+  transparent?: boolean;
 }
 
-export function GallerySection({ images }: Props) {
+export function GallerySection({ images, transparent }: Props) {
   if (images.length === 0) return null;
 
   return (
-    <section className="py-20 bg-stone-50">
+    <section className={`py-20 ${transparent ? "" : "bg-stone-50"}`}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
           <div className="w-12 h-1 bg-amber-500 rounded-full mx-auto mb-4" />

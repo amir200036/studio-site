@@ -1,8 +1,9 @@
 interface Props {
   content: Record<string, string>;
+  transparent?: boolean;
 }
 
-export function AboutSection({ content }: Props) {
+export function AboutSection({ content, transparent }: Props) {
   const title = content.about_title || "על הסטודיו שלנו";
   const text =
     content.about_text ||
@@ -10,7 +11,7 @@ export function AboutSection({ content }: Props) {
   const imageUrl = content.about_image || "";
 
   return (
-    <section className="py-20 bg-white">
+    <section className={`py-20 ${transparent ? "" : "bg-white"}`}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* תמונה */}

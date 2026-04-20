@@ -2,29 +2,32 @@ import Link from "next/link";
 
 interface Props {
   content: Record<string, string>;
+  transparent?: boolean;
 }
 
-export function HeroSection({ content }: Props) {
+export function HeroSection({ content, transparent }: Props) {
   const title = content.hero_title || "יצירה מהלב, מהחמר";
   const subtitle = content.hero_subtitle || "סדנאות קדרות לכולם — מתחילים ועד מנוסים";
   const cta = content.hero_cta || "לסדנאות שלנו";
 
   return (
-    <section className="relative bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100 overflow-hidden">
-      {/* רקע דקורטיבי */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-10 right-10 w-64 h-64 bg-amber-400 rounded-full blur-3xl" />
-        <div className="absolute bottom-10 left-10 w-48 h-48 bg-stone-400 rounded-full blur-3xl" />
-      </div>
+    <section className={`relative overflow-hidden ${transparent ? "" : "bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100"}`}>
+      {transparent && <div className="absolute inset-0 bg-black/30" />}
+      {!transparent && (
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 right-10 w-64 h-64 bg-amber-400 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 left-10 w-48 h-48 bg-stone-400 rounded-full blur-3xl" />
+        </div>
+      )}
 
       <div className="relative max-w-6xl mx-auto px-4 py-24 md:py-36 flex flex-col items-center text-center gap-6">
         <div className="text-6xl mb-2 animate-bounce" style={{ animationDuration: "3s" }}>🏺</div>
 
-        <h1 className="text-4xl md:text-6xl font-extrabold text-amber-900 leading-tight text-balance">
+        <h1 className={`text-4xl md:text-6xl font-extrabold leading-tight text-balance ${transparent ? "text-white drop-shadow-lg" : "text-amber-900"}`}>
           {title}
         </h1>
 
-        <p className="text-lg md:text-2xl text-stone-600 max-w-2xl text-balance">
+        <p className={`text-lg md:text-2xl max-w-2xl text-balance ${transparent ? "text-white/90" : "text-stone-600"}`}>
           {subtitle}
         </p>
 
