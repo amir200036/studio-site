@@ -493,8 +493,7 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
     { key: "bg_workshops", imgKey: "bg_image_workshops", label: "סדנאות" },
     { key: "bg_events", imgKey: "bg_image_events", label: "אירועים מיוחדים" },
     { key: "bg_faq", imgKey: "bg_image_faq", label: "שאלות נפוצות" },
-    { key: "bg_contact", imgKey: "bg_image_contact", label: "צרו קשר" },
-    { key: "bg_info", imgKey: "bg_image_info", label: "מידע והגעה" },
+    { key: "bg_contact", imgKey: "bg_image_contact", label: "צרו קשר ומידע" },
   ];
 
   const allKeys = pages.flatMap((p) => [p.key, p.imgKey]);

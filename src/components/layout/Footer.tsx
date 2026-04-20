@@ -39,8 +39,7 @@ export async function Footer() {
             <Link href="/workshops" className="text-stone-400 hover:text-amber-400 transition-colors">סדנאות</Link>
             <Link href="/events" className="text-stone-400 hover:text-amber-400 transition-colors">אירועים מיוחדים</Link>
             <Link href="/faq" className="text-stone-400 hover:text-amber-400 transition-colors">שאלות נפוצות</Link>
-            <Link href="/contact" className="text-stone-400 hover:text-amber-400 transition-colors">צרו קשר</Link>
-            <Link href="/info" className="text-stone-400 hover:text-amber-400 transition-colors">מידע והגעה</Link>
+            <Link href="/contact" className="text-stone-400 hover:text-amber-400 transition-colors">צרו קשר ומידע</Link>
             <Link href="/terms" className="text-stone-400 hover:text-amber-400 transition-colors">תקנון</Link>
           </nav>
         </div>

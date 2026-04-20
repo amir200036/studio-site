@@ -3,9 +3,11 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatPrice } from "@/lib/utils";
-import { ExternalLink, TrendingUp, Users, CreditCard, Calendar } from "lucide-react";
+import { TrendingUp, Users, CreditCard, Calendar } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+
+const DAY_LABELS = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
 
 export default async function StatsPage() {
   const session = await getServerSession(authOptions);
@@ -16,6 +18,8 @@ export default async function StatsPage() {
   const startOfWeek = new Date(startOfToday);
   startOfWeek.setDate(startOfToday.getDate() - 7);
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOf14Days = new Date(startOfToday);
+  startOf14Days.setDate(startOfToday.getDate() - 13);
   const startOf30Days = new Date(startOfToday);
   startOf30Days.setDate(startOfToday.getDate() - 30);
 
@@ -30,6 +34,7 @@ export default async function StatsPage() {
     totalRevenue,
     topWorkshops,
     recentBookings,
+    last14Raw,
   ] = await Promise.all([
     prisma.booking.count({ where: { createdAt: { gte: startOfToday }, paymentStatus: "paid" } }),
     prisma.booking.count({ where: { createdAt: { gte: startOfWeek }, paymentStatus: "paid" } }),
@@ -53,7 +58,31 @@ export default async function StatsPage() {
       take: 10,
       include: { workshop: { select: { name: true } } },
     }),
+    prisma.booking.findMany({
+      where: { paymentStatus: "paid", createdAt: { gte: startOf14Days } },
+      select: { createdAt: true, totalAmount: true },
+    }),
   ]);
+
+  // Build 14-day daily buckets
+  const dailyData: Array<{ date: string; label: string; day: string; count: number; amount: number }> = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(startOfToday);
+    d.setDate(d.getDate() - i);
+    dailyData.push({
+      date: d.toISOString().slice(0, 10),
+      label: `${d.getDate()}/${d.getMonth() + 1}`,
+      day: DAY_LABELS[d.getDay()],
+      count: 0,
+      amount: 0,
+    });
+  }
+  for (const b of last14Raw) {
+    const key = new Date(b.createdAt).toISOString().slice(0, 10);
+    const entry = dailyData.find((d) => d.date === key);
+    if (entry) { entry.count++; entry.amount += b.totalAmount; }
+  }
+  const maxCount = Math.max(...dailyData.map((d) => d.count), 1);
 
   const workshopIds = topWorkshops.map((w) => w.workshopId);
   const workshopNames = await prisma.workshop.findMany({
@@ -63,38 +92,10 @@ export default async function StatsPage() {
   const nameMap = Object.fromEntries(workshopNames.map((w) => [w.id, w.name]));
 
   const statCards = [
-    {
-      label: "הזמנות היום",
-      value: bookingsToday,
-      sub: formatPrice(revenueToday._sum.totalAmount ?? 0),
-      icon: Calendar,
-      color: "bg-amber-50 border-amber-200 text-amber-800",
-      iconColor: "text-amber-600",
-    },
-    {
-      label: "הזמנות השבוע",
-      value: bookingsWeek,
-      sub: formatPrice(revenueWeek._sum.totalAmount ?? 0),
-      icon: TrendingUp,
-      color: "bg-green-50 border-green-200 text-green-800",
-      iconColor: "text-green-600",
-    },
-    {
-      label: "הזמנות החודש",
-      value: bookingsMonth,
-      sub: formatPrice(revenueMonth._sum.totalAmount ?? 0),
-      icon: CreditCard,
-      color: "bg-blue-50 border-blue-200 text-blue-800",
-      iconColor: "text-blue-600",
-    },
-    {
-      label: "סה\"כ הכל",
-      value: totalBookings,
-      sub: formatPrice(totalRevenue._sum.totalAmount ?? 0),
-      icon: Users,
-      color: "bg-stone-50 border-stone-200 text-stone-800",
-      iconColor: "text-stone-600",
-    },
+    { label: "הזמנות היום", value: bookingsToday, sub: formatPrice(revenueToday._sum.totalAmount ?? 0), icon: Calendar, color: "bg-amber-50 border-amber-200 text-amber-800", iconColor: "text-amber-600" },
+    { label: "הזמנות השבוע", value: bookingsWeek, sub: formatPrice(revenueWeek._sum.totalAmount ?? 0), icon: TrendingUp, color: "bg-green-50 border-green-200 text-green-800", iconColor: "text-green-600" },
+    { label: "הזמנות החודש", value: bookingsMonth, sub: formatPrice(revenueMonth._sum.totalAmount ?? 0), icon: CreditCard, color: "bg-blue-50 border-blue-200 text-blue-800", iconColor: "text-blue-600" },
+    { label: "סה\"כ הכל", value: totalBookings, sub: formatPrice(totalRevenue._sum.totalAmount ?? 0), icon: Users, color: "bg-stone-50 border-stone-200 text-stone-800", iconColor: "text-stone-600" },
   ];
 
   return (
@@ -113,42 +114,79 @@ export default async function StatsPage() {
         ))}
       </div>
 
-      {/* Vercel Analytics link */}
+      {/* 14-day bookings chart */}
       <div className="rounded-2xl border border-stone-200 bg-white p-6">
-        <h2 className="text-lg font-bold text-stone-700 mb-2">סטטיסטיקות מבקרים באתר</h2>
-        <p className="text-sm text-stone-500 mb-4">
-          נתוני תנועה, דפים פופולריים, מדינות ומכשירים זמינים בלוח הבקרה של Vercel Analytics.
-        </p>
-        <a
-          href="https://vercel.com/dashboard/analytics"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-stone-800 hover:bg-stone-900 text-white font-semibold px-5 py-2.5 rounded-xl transition-colors text-sm"
-        >
-          <ExternalLink className="w-4 h-4" />
-          פתח Vercel Analytics
-        </a>
+        <h2 className="text-lg font-bold text-stone-700 mb-6">הזמנות — 14 יום אחרונים</h2>
+        <div className="flex items-end gap-1 h-36">
+          {dailyData.map((d) => {
+            const pct = maxCount > 0 ? Math.round((d.count / maxCount) * 100) : 0;
+            const isToday = d.date === startOfToday.toISOString().slice(0, 10);
+            return (
+              <div key={d.date} className="flex-1 flex flex-col items-center gap-1 group relative">
+                {/* Tooltip */}
+                <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-stone-800 text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  {d.label}<br />{d.count} הזמנות<br />{formatPrice(d.amount)}
+                </div>
+                {d.count > 0 && (
+                  <span className="text-xs font-bold text-stone-600">{d.count}</span>
+                )}
+                <div className="w-full flex items-end" style={{ height: 100 }}>
+                  <div
+                    className={`w-full rounded-t-md transition-all ${isToday ? "bg-amber-500" : "bg-amber-200 group-hover:bg-amber-400"}`}
+                    style={{ height: pct > 0 ? `${Math.max(pct, 6)}%` : "2px", opacity: pct === 0 ? 0.3 : 1 }}
+                  />
+                </div>
+                <span className={`text-xs ${isToday ? "font-bold text-amber-700" : "text-stone-400"}`}>{d.day}</span>
+              </div>
+            );
+          })}
+        </div>
+        <p className="text-xs text-stone-400 mt-3 text-center">עמודה כתומה כהה = היום</p>
       </div>
 
-      {/* Top workshops last 30 days */}
+      {/* Vercel Analytics note */}
+      <div className="rounded-2xl border border-stone-200 bg-white p-6">
+        <div className="flex items-start gap-3">
+          <div className="text-2xl">📊</div>
+          <div>
+            <h2 className="text-lg font-bold text-stone-700 mb-1">ביקורים באתר</h2>
+            <p className="text-sm text-stone-500 mb-3">
+              מעקב ביקורים פעיל באמצעות Vercel Analytics. נתוני תנועה, דפים פופולריים, מדינות ומכשירים זמינים בלוח הבקרה של Vercel.
+            </p>
+            <a
+              href="https://vercel.com/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-amber-700 hover:text-amber-800 transition-colors underline underline-offset-2"
+            >
+              פתח Vercel Analytics Dashboard ←
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Top workshops */}
       {topWorkshops.length > 0 && (
         <div className="rounded-2xl border border-stone-200 bg-white p-6">
           <h2 className="text-lg font-bold text-stone-700 mb-4">סדנאות מובילות — 30 יום אחרונים</h2>
           <div className="space-y-3">
-            {topWorkshops.map((w, i) => (
-              <div key={w.workshopId} className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3 min-w-0">
-                  <span className="text-stone-400 font-bold text-sm w-5 text-center">{i + 1}</span>
-                  <span className="text-stone-700 font-medium truncate">
-                    {nameMap[w.workshopId] ?? "סדנה שנמחקה"}
-                  </span>
+            {topWorkshops.map((w, i) => {
+              const pct = topWorkshops[0]._count.id > 0 ? Math.round((w._count.id / topWorkshops[0]._count.id) * 100) : 0;
+              return (
+                <div key={w.workshopId} className="flex items-center gap-3">
+                  <span className="text-stone-400 font-bold text-sm w-5 text-center flex-shrink-0">{i + 1}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <span className="text-stone-700 font-medium text-sm truncate">{nameMap[w.workshopId] ?? "סדנה שנמחקה"}</span>
+                      <span className="text-xs text-stone-500 flex-shrink-0 mr-2">{w._count.id} הזמנות · {formatPrice(w._sum.totalAmount ?? 0)}</span>
+                    </div>
+                    <div className="h-1.5 bg-stone-100 rounded-full">
+                      <div className="h-full bg-amber-400 rounded-full" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4 flex-shrink-0 text-sm text-stone-500">
-                  <span>{w._count.id} הזמנות</span>
-                  <span className="font-semibold text-stone-700">{formatPrice(w._sum.totalAmount ?? 0)}</span>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

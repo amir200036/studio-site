@@ -11,7 +11,6 @@ const links = [
   { href: "/events", label: "אירועים" },
   { href: "/faq", label: "שאלות נפוצות" },
   { href: "/contact", label: "צרו קשר" },
-  { href: "/info", label: "מידע" },
 ];
 
 export function Navbar() {
