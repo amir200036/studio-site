@@ -11,14 +11,14 @@ export function HeroSection({ content, transparent }: Props) {
   const cta = content.hero_cta || "לסדנאות שלנו";
 
   const textContent = (
-    <div className="relative max-w-6xl mx-auto px-4 py-24 md:py-36 flex flex-col items-center text-center gap-6">
-      <div className="text-6xl mb-2 animate-bounce" style={{ animationDuration: "3s" }}>🏺</div>
+    <div className="relative max-w-6xl mx-auto px-4 py-10 md:py-36 flex flex-col items-center text-center gap-4 md:gap-6">
+      <div className="text-5xl md:text-6xl mb-1 md:mb-2 animate-bounce" style={{ animationDuration: "3s" }}>🏺</div>
 
-      <h1 className={`text-4xl md:text-6xl font-extrabold leading-tight text-balance ${transparent ? "text-white drop-shadow-lg" : "text-amber-900"}`}>
+      <h1 className={`text-3xl md:text-6xl font-extrabold leading-tight text-balance ${transparent ? "text-white drop-shadow-lg" : "text-amber-900"}`}>
         {title}
       </h1>
 
-      <p className={`text-lg md:text-2xl max-w-2xl text-balance ${transparent ? "text-white/90" : "text-stone-600"}`}>
+      <p className={`text-base md:text-2xl max-w-2xl text-balance ${transparent ? "text-white/90" : "text-stone-600"}`}>
         {subtitle}
       </p>
 
@@ -37,7 +37,7 @@ export function HeroSection({ content, transparent }: Props) {
         </Link>
       </div>
 
-      <div className="flex flex-wrap justify-center gap-6 mt-8 text-sm text-stone-500">
+      <div className="hidden sm:flex flex-wrap justify-center gap-6 mt-4 md:mt-8 text-sm text-stone-500">
         {["✨ חוויה ייחודית", "👨‍👩‍👧 מתאים לכל הגילאים", "🎁 מתנה מושלמת", "🏡 אווירה חמה ומזמינה"].map((item) => (
           <span key={item} className="bg-white/70 px-4 py-1.5 rounded-full border border-amber-200">
             {item}
@@ -54,7 +54,7 @@ export function HeroSection({ content, transparent }: Props) {
         <img
           src={content.bg_image_home}
           alt=""
-          className="w-full block md:h-[75vh] md:object-cover"
+          className="w-full block md:h-[75vh] md:object-cover md:object-top"
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 flex items-center justify-center">
