@@ -144,27 +144,6 @@ export default async function StatsPage() {
         <p className="text-xs text-stone-400 mt-3 text-center">עמודה כתומה כהה = היום</p>
       </div>
 
-      {/* Vercel Analytics note */}
-      <div className="rounded-2xl border border-stone-200 bg-white p-6">
-        <div className="flex items-start gap-3">
-          <div className="text-2xl">📊</div>
-          <div>
-            <h2 className="text-lg font-bold text-stone-700 mb-1">ביקורים באתר</h2>
-            <p className="text-sm text-stone-500 mb-3">
-              מעקב ביקורים פעיל באמצעות Vercel Analytics. נתוני תנועה, דפים פופולריים, מדינות ומכשירים זמינים בלוח הבקרה של Vercel.
-            </p>
-            <a
-              href="https://vercel.com/dashboard"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-amber-700 hover:text-amber-800 transition-colors underline underline-offset-2"
-            >
-              פתח Vercel Analytics Dashboard ←
-            </a>
-          </div>
-        </div>
-      </div>
-
       {/* Top workshops */}
       {topWorkshops.length > 0 && (
         <div className="rounded-2xl border border-stone-200 bg-white p-6">
