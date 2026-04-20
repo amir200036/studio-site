@@ -23,11 +23,17 @@ export function ImageUploadField({ value, onChange, placeholder }: Props) {
       const fd = new FormData();
       fd.append("file", file);
       const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      const data = await res.json();
+      let data: { url?: string; error?: string };
+      try {
+        data = await res.json();
+      } catch {
+        setError(`שגיאת שרת (${res.status}). בדוק לוג בשרת.`);
+        return;
+      }
       if (!res.ok) { setError(data.error || "שגיאה בהעלאה"); return; }
-      onChange(data.url);
+      onChange(data.url!);
     } catch {
-      setError("שגיאה בהעלאה — בדקו חיבור לרשת");
+      setError("שגיאת רשת — לא ניתן להגיע לשרת");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
