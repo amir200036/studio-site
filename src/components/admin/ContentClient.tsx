@@ -66,8 +66,16 @@ function HeroTab({ content }: { content: Record<string, string> }) {
     { key: "stat_workshops", label: "מספר סדנאות", type: "text" },
   ];
 
+  const colorFields = [
+    { key: "hero_bg_color", label: "צבע רקע Hero", default: "#fdf6e3" },
+    { key: "hero_text_color", label: "צבע כיתוב Hero", default: "#78350f" },
+  ];
+
   const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries(fields.map((f) => [f.key, content[f.key] || ""]))
+    Object.fromEntries([
+      ...fields.map((f) => [f.key, content[f.key] || ""]),
+      ...colorFields.map((f) => [f.key, content[f.key] || f.default]),
+    ])
   );
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
@@ -106,6 +114,37 @@ function HeroTab({ content }: { content: Record<string, string> }) {
           )}
         </div>
       ))}
+
+      {/* Color pickers */}
+      <div className="border-t border-stone-100 pt-4 flex flex-col gap-3">
+        <p className="text-xs font-semibold text-stone-400 uppercase tracking-wide">צבעי Hero</p>
+        {colorFields.map((f) => (
+          <div key={f.key} className="flex items-center gap-3">
+            <label className="text-sm font-medium text-stone-700 w-36">{f.label}</label>
+            <input
+              type="color"
+              value={values[f.key]}
+              onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
+              className="w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 bg-white"
+            />
+            <span className="text-xs text-stone-400 font-mono">{values[f.key]}</span>
+            <button
+              type="button"
+              onClick={() => setValues({ ...values, [f.key]: f.default })}
+              className="text-xs text-stone-400 hover:text-stone-600 underline"
+            >
+              איפוס
+            </button>
+          </div>
+        ))}
+        <div
+          className="rounded-xl p-4 text-center font-bold text-xl mt-1"
+          style={{ backgroundColor: values["hero_bg_color"], color: values["hero_text_color"] }}
+        >
+          תצוגה מקדימה של כיתוב
+        </div>
+      </div>
+
       {msg && <p className="text-sm">{msg}</p>}
       <button onClick={save} disabled={saving}
         className="py-3 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors">

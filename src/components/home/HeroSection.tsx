@@ -12,13 +12,17 @@ export function HeroSection({ content, transparent }: Props) {
 
   const textContent = (
     <div className="relative max-w-6xl mx-auto px-4 py-10 md:py-36 flex flex-col items-center text-center gap-4 md:gap-6">
-      <div className="text-5xl md:text-6xl mb-1 md:mb-2 animate-bounce" style={{ animationDuration: "3s" }}>🏺</div>
-
-      <h1 className={`text-3xl md:text-8xl font-extrabold leading-tight text-balance ${transparent ? "text-white drop-shadow-lg" : "text-amber-900"}`}>
+      <h1
+        className={`text-3xl md:text-8xl font-extrabold leading-tight text-balance ${transparent ? "text-white drop-shadow-lg" : ""}`}
+        style={!transparent ? { color: content.hero_text_color || "#78350f" } : undefined}
+      >
         {title}
       </h1>
 
-      <p className={`text-base md:text-3xl max-w-2xl text-balance ${transparent ? "text-white/90" : "text-stone-600"}`}>
+      <p
+        className={`text-base md:text-3xl max-w-2xl text-balance ${transparent ? "text-white/90" : ""}`}
+        style={!transparent ? { color: content.hero_text_color || "#78350f", opacity: 0.8 } : undefined}
+      >
         {subtitle}
       </p>
 
@@ -65,7 +69,7 @@ export function HeroSection({ content, transparent }: Props) {
   }
 
   return (
-    <section className="relative bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100 overflow-hidden">
+    <section className="relative overflow-hidden" style={{ backgroundColor: content.hero_bg_color || "#fdf6e3" }}>
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-10 right-10 w-64 h-64 bg-amber-400 rounded-full blur-3xl" />
         <div className="absolute bottom-10 left-10 w-48 h-48 bg-stone-400 rounded-full blur-3xl" />

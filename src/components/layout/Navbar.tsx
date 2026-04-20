@@ -21,9 +21,8 @@ export function Navbar() {
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
         {/* לוגו */}
         <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl">🏺</span>
-          <span className="text-xl font-bold text-amber-800 group-hover:text-amber-700 transition-colors">
-            סטודיו קדרות
+          <span className="text-2xl text-amber-800 group-hover:text-amber-700 transition-colors" style={{ fontFamily: "var(--font-secular)" }}>
+            סטודיו לקדרות וקרמיקה
           </span>
         </Link>
 
