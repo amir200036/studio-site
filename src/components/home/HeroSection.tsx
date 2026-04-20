@@ -11,8 +11,11 @@ export function HeroSection({ content, transparent }: Props) {
   const cta = content.hero_cta || "לסדנאות שלנו";
 
   return (
-    <section className={`relative overflow-hidden ${transparent ? "" : "bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100"}`}>
-      {transparent && <div className="absolute inset-0 bg-black/30" />}
+    <section
+      className={`relative overflow-hidden ${transparent ? "" : "bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100"}`}
+      style={transparent ? { backgroundImage: `url(${content.bg_image_home})`, backgroundSize: "cover", backgroundPosition: "center" } : undefined}
+    >
+      {transparent && <div className="absolute inset-0 bg-black/40" />}
       {!transparent && (
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-10 right-10 w-64 h-64 bg-amber-400 rounded-full blur-3xl" />

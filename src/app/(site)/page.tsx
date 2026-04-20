@@ -30,12 +30,12 @@ export default async function HomePage() {
   const hasBgImage = !!content["bg_image_home"];
 
   return (
-    <div style={pageBackground(content["bg_home"] || "", content["bg_image_home"] || "")}>
+    <div style={hasBgImage ? undefined : pageBackground(content["bg_home"] || "", "")}>
       <HeroSection content={content} transparent={hasBgImage} />
-      <AboutSection content={content} transparent={hasBgImage} />
-      <WorkshopsPreview workshops={workshops} transparent={hasBgImage} />
-      <GallerySection images={gallery} transparent={hasBgImage} />
-      <ReviewsSection reviews={reviews} transparent={hasBgImage} />
+      <AboutSection content={content} />
+      <WorkshopsPreview workshops={workshops} />
+      <GallerySection images={gallery} />
+      <ReviewsSection reviews={reviews} />
     </div>
   );
 }
