@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Workshop } from "@prisma/client";
 import { Loader2, Trash2 } from "lucide-react";
+import { ImageUploadField } from "./ImageUploadField";
 
 interface Props {
   workshop?: Workshop;
@@ -100,9 +101,12 @@ export function WorkshopForm({ workshop }: Props) {
           className={inputClass + " resize-none"} />
       </Field>
 
-      <Field label="כתובת URL לתמונה">
-        <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)}
-          className={inputClass} placeholder="https://..." dir="ltr" />
+      <Field label="תמונה (אופציונלי)">
+        <ImageUploadField value={imageUrl} onChange={setImageUrl} />
+        {imageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={imageUrl} alt="" className="mt-2 h-28 w-full rounded-xl object-cover border border-stone-200" />
+        )}
       </Field>
 
       <div className="grid grid-cols-2 gap-4">

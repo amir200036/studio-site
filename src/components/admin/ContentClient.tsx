@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import type { FAQ, Event, GalleryImage, Review } from "@prisma/client";
-import { Loader2, Trash2, Plus, Pencil, Save, Upload } from "lucide-react";
+import { Loader2, Trash2, Plus, Pencil, Save } from "lucide-react";
+import { ImageUploadField } from "./ImageUploadField";
 
 interface Props {
   content: Record<string, string>;
@@ -47,73 +48,6 @@ export function ContentClient({ content, faqs: initFaqs, events: initEvents, gal
       {tab === "reviews" && <ReviewsTab initReviews={initReviews} />}
       {tab === "backgrounds" && <BackgroundsTab content={content} />}
       {tab === "terms" && <TermsTab content={content} />}
-    </div>
-  );
-}
-
-// --- shared image upload field ---
-function ImageUploadField({
-  value,
-  onChange,
-  placeholder,
-}: {
-  value: string;
-  onChange: (url: string) => void;
-  placeholder?: string;
-}) {
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState("");
-  const fileRef = useRef<HTMLInputElement>(null);
-
-  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setError("");
-    setUploading(true);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
-      const data = await res.json();
-      if (!res.ok) { setError(data.error || "שגיאה בהעלאה"); return; }
-      onChange(data.url);
-    } catch {
-      setError("שגיאה בהעלאה");
-    } finally {
-      setUploading(false);
-      if (fileRef.current) fileRef.current.value = "";
-    }
-  }
-
-  return (
-    <div className="flex-1 flex flex-col gap-1">
-      <div className="flex gap-2">
-        <input
-          type="url"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder || "https://..."}
-          className={ic + " flex-1"}
-          dir="ltr"
-        />
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          disabled={uploading}
-          className="flex items-center gap-1.5 px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl text-sm font-medium transition-colors border border-stone-200 whitespace-nowrap flex-shrink-0 disabled:opacity-50"
-        >
-          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
-          {uploading ? "מעלה..." : "העלה תמונה"}
-        </button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp"
-          className="hidden"
-          onChange={handleFile}
-        />
-      </div>
-      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }
