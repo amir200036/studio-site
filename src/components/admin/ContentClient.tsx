@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { FAQ, Event, GalleryImage, Review } from "@prisma/client";
-import { Loader2, Trash2, Plus, Pencil, Save } from "lucide-react";
+import { Loader2, Trash2, Plus, Pencil, Save, Upload } from "lucide-react";
 
 interface Props {
   content: Record<string, string>;
@@ -51,15 +51,82 @@ export function ContentClient({ content, faqs: initFaqs, events: initEvents, gal
   );
 }
 
+// --- shared image upload field ---
+function ImageUploadField({
+  value,
+  onChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (url: string) => void;
+  placeholder?: string;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error || "שגיאה בהעלאה"); return; }
+      onChange(data.url);
+    } catch {
+      setError("שגיאה בהעלאה");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  return (
+    <div className="flex-1 flex flex-col gap-1">
+      <div className="flex gap-2">
+        <input
+          type="url"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder || "https://..."}
+          className={ic + " flex-1"}
+          dir="ltr"
+        />
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="flex items-center gap-1.5 px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded-xl text-sm font-medium transition-colors border border-stone-200 whitespace-nowrap flex-shrink-0 disabled:opacity-50"
+        >
+          {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+          {uploading ? "מעלה..." : "העלה תמונה"}
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          className="hidden"
+          onChange={handleFile}
+        />
+      </div>
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
+  );
+}
+
 // --- דף בית ---
 function HeroTab({ content }: { content: Record<string, string> }) {
-  const fields = [
+  const fields: { key: string; label: string; type: string }[] = [
     { key: "hero_title", label: "כותרת Hero", type: "text" },
     { key: "hero_subtitle", label: "תת-כותרת Hero", type: "text" },
     { key: "hero_cta", label: "טקסט כפתור Hero", type: "text" },
     { key: "about_title", label: "כותרת 'על הסטודיו'", type: "text" },
     { key: "about_text", label: "טקסט על הסטודיו", type: "textarea" },
-    { key: "about_image", label: "תמונת About (URL)", type: "url" },
+    { key: "about_image", label: "תמונת About", type: "imageUpload" },
     { key: "stat_years", label: "שנות ניסיון", type: "text" },
     { key: "stat_students", label: "מספר תלמידים", type: "text" },
     { key: "stat_workshops", label: "מספר סדנאות", type: "text" },
@@ -91,6 +158,14 @@ function HeroTab({ content }: { content: Record<string, string> }) {
           {f.type === "textarea" ? (
             <textarea rows={4} value={values[f.key]} onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
               className={ic + " resize-none"} />
+          ) : f.type === "imageUpload" ? (
+            <>
+              <ImageUploadField value={values[f.key]} onChange={(url) => setValues({ ...values, [f.key]: url })} />
+              {values[f.key] && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={values[f.key]} alt="" className="mt-2 h-24 rounded-xl object-cover border border-stone-200" />
+              )}
+            </>
           ) : (
             <input type={f.type} value={values[f.key]} onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
               className={ic} dir={f.type === "url" ? "ltr" : undefined} />
@@ -228,7 +303,14 @@ function EventsTab({ initEvents }: { initEvents: Event[] }) {
             <>
               <input value={editName} onChange={(ev) => setEditName(ev.target.value)} className={ic} placeholder="שם האירוע" />
               <textarea rows={3} value={editDesc} onChange={(ev) => setEditDesc(ev.target.value)} className={ic + " resize-none"} placeholder="תיאור" />
-              <input value={editImg} onChange={(ev) => setEditImg(ev.target.value)} className={ic} placeholder="URL תמונה (אופציונלי)" dir="ltr" />
+              <div>
+                <label className="block text-xs text-stone-500 mb-1">תמונה (אופציונלי)</label>
+                <ImageUploadField value={editImg} onChange={setEditImg} placeholder="URL תמונה (אופציונלי)" />
+                {editImg && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={editImg} alt="" className="mt-2 h-20 rounded-xl object-cover border border-stone-200" />
+                )}
+              </div>
               <div>
                 <label className="block text-xs text-stone-500 mb-1">הודעת WhatsApp מותאמת (אופציונלי)</label>
                 <input value={editWa} onChange={(ev) => setEditWa(ev.target.value)} className={ic} placeholder={`היי! אני מעוניין/ת לשמוע על ${editName} 🏺`} />
@@ -270,7 +352,14 @@ function EventsTab({ initEvents }: { initEvents: Event[] }) {
         <h3 className="font-bold text-stone-800">הוספת אירוע</h3>
         <input placeholder="שם האירוע" value={name} onChange={(e) => setName(e.target.value)} className={ic} />
         <textarea placeholder="תיאור" rows={3} value={desc} onChange={(e) => setDesc(e.target.value)} className={ic + " resize-none"} />
-        <input placeholder="URL תמונה (אופציונלי)" value={img} onChange={(e) => setImg(e.target.value)} className={ic} dir="ltr" />
+        <div>
+          <label className="block text-xs text-stone-500 mb-1">תמונה (אופציונלי)</label>
+          <ImageUploadField value={img} onChange={setImg} placeholder="URL תמונה (אופציונלי)" />
+          {img && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={img} alt="" className="mt-2 h-20 rounded-xl object-cover border border-stone-200" />
+          )}
+        </div>
         <button onClick={add} disabled={loading} className="py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm transition-colors">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} הוסף אירוע
         </button>
@@ -286,16 +375,8 @@ function GalleryTab({ initGallery }: { initGallery: GalleryImage[] }) {
   const [caption, setCaption] = useState("");
   const [loading, setLoading] = useState(false);
 
-  function isValidImageUrl(u: string) {
-    return /\.(jpg|jpeg|png|webp)(\?.*)?$/i.test(u);
-  }
-
   async function add() {
     if (!url) return;
-    if (!isValidImageUrl(url)) {
-      alert("כתובת URL חייבת להצביע על קובץ תמונה (jpg, jpeg, png, webp).");
-      return;
-    }
     setLoading(true);
     const res = await fetch("/api/admin/gallery", {
       method: "POST",
@@ -329,9 +410,13 @@ function GalleryTab({ initGallery }: { initGallery: GalleryImage[] }) {
       </div>
       <div className="bg-white rounded-2xl p-5 border border-stone-100 flex flex-col gap-3">
         <h3 className="font-bold text-stone-800">הוספת תמונה</h3>
-        <input placeholder="URL תמונה" value={url} onChange={(e) => setUrl(e.target.value)} className={ic} dir="ltr" />
+        <ImageUploadField value={url} onChange={setUrl} placeholder="URL תמונה" />
+        {url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={url} alt="" className="h-24 rounded-xl object-cover border border-stone-200 w-full" />
+        )}
         <input placeholder="כיתוב (אופציונלי)" value={caption} onChange={(e) => setCaption(e.target.value)} className={ic} />
-        <button onClick={add} disabled={loading} className="py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm transition-colors">
+        <button onClick={add} disabled={loading || !url} className="py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm transition-colors disabled:opacity-50">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} הוסף תמונה
         </button>
       </div>
@@ -515,16 +600,9 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
             />
             <span className="text-xs text-stone-400 font-mono">{values[p.key]}</span>
           </div>
-          <div className="flex items-center gap-3">
-            <label className="text-xs text-stone-500 w-20">תמונת רקע</label>
-            <input
-              type="url"
-              value={values[p.imgKey]}
-              onChange={(e) => set(p.imgKey, e.target.value)}
-              placeholder="https://..."
-              className={ic + " flex-1"}
-              dir="ltr"
-            />
+          <div className="flex items-start gap-3">
+            <label className="text-xs text-stone-500 w-20 pt-2.5">תמונת רקע</label>
+            <ImageUploadField value={values[p.imgKey]} onChange={(url) => set(p.imgKey, url)} />
           </div>
           {values[p.imgKey] && (
             <div className="h-16 rounded-xl overflow-hidden border border-stone-200 relative">
