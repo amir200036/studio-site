@@ -14,6 +14,7 @@ const links = [
   { href: "/admin/customers", label: "לקוחות" },
   { href: "/admin/content", label: "תוכן" },
   { href: "/admin/settings", label: "הגדרות" },
+  { href: "/admin/stats", label: "סטטיסטיקות" },
 ];
 
 export function AdminNavbar() {
