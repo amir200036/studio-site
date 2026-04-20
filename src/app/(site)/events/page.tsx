@@ -5,9 +5,9 @@ import { buildWhatsAppUrl, pageBackground } from "@/lib/utils";
 async function getEvents() {
   const [events, rows] = await Promise.all([
     prisma.event.findMany({ where: { active: true }, orderBy: { order: "asc" } }),
-    prisma.siteContent.findMany({ where: { key: { in: ["bg_events", "bg_image_events", "global_bg_color"] } } }),
+    prisma.siteContent.findMany({ where: { key: { in: ["bg_image_events"] } } }),
   ]);
-  const content = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+  const content = Object.fromEntries(rows.map((r: { key: string; value: string }) => [r.key, r.value]));
   return { events, content };
 }
 
@@ -16,7 +16,7 @@ export default async function EventsPage() {
   const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
 
   return (
-    <div style={pageBackground(content["bg_events"] || content["global_bg_color"] || "", content["bg_image_events"] || "")}>
+    <div style={pageBackground("", content["bg_image_events"] || "")}>
     <div className="max-w-6xl mx-auto px-4 py-12">
       <div className="mb-12">
         <div className="w-12 h-1 bg-amber-500 rounded-full mb-4" />

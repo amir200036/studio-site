@@ -5,7 +5,7 @@ import { ContactForm } from "@/components/contact/ContactForm";
 
 async function getContent() {
   const rows = await prisma.siteContent.findMany({
-    where: { key: { in: ["phone", "email", "address", "hours", "whatsapp", "bg_contact", "bg_image_contact", "global_bg_color"] } },
+    where: { key: { in: ["phone", "email", "address", "hours", "whatsapp", "bg_image_contact"] } },
   });
   const map: Record<string, string> = {};
   rows.forEach((r: { key: string; value: string }) => (map[r.key] = r.value));
@@ -18,7 +18,7 @@ export default async function ContactPage() {
   const waUrl = `https://wa.me/${waNumber}`;
 
   return (
-    <div style={pageBackground(info["bg_contact"] || info["global_bg_color"] || "", info["bg_image_contact"] || "")}>
+    <div style={pageBackground("", info["bg_image_contact"] || "")}>
       <div className="max-w-5xl mx-auto px-4 py-12">
         <div className="mb-10">
           <div className="w-12 h-1 bg-amber-500 rounded-full mb-4" />

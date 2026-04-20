@@ -4,12 +4,16 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const row = await prisma.siteContent.findUnique({ where: { key: "global_bg_color" } });
-  const bgColor = row?.value || "#fdf8f0";
+  const rows = await prisma.siteContent.findMany({
+    where: { key: { in: ["global_bg_color", "global_text_color"] } },
+  });
+  const map = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+  const bgColor = map["global_bg_color"] || "#fdf8f0";
+  const textColor = map["global_text_color"] || "#1c1917";
 
   return (
-    <div style={{ backgroundColor: bgColor, minHeight: "100vh" }}>
-      <Navbar />
+    <div style={{ backgroundColor: bgColor, color: textColor, minHeight: "100vh" }}>
+      <Navbar bgColor={bgColor} />
       <main>{children}</main>
       <Footer />
     </div>

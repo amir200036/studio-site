@@ -66,15 +66,8 @@ function HeroTab({ content }: { content: Record<string, string> }) {
     { key: "stat_workshops", label: "מספר סדנאות", type: "text" },
   ];
 
-  const colorFields = [
-    { key: "hero_text_color", label: "צבע כיתוב Hero", default: "#78350f" },
-  ];
-
   const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries([
-      ...fields.map((f) => [f.key, content[f.key] || ""]),
-      ...colorFields.map((f) => [f.key, content[f.key] || f.default]),
-    ])
+    Object.fromEntries(fields.map((f) => [f.key, content[f.key] || ""]))
   );
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
@@ -113,37 +106,6 @@ function HeroTab({ content }: { content: Record<string, string> }) {
           )}
         </div>
       ))}
-
-      {/* Color pickers */}
-      <div className="border-t border-stone-100 pt-4 flex flex-col gap-3">
-        <p className="text-xs font-semibold text-stone-400 uppercase tracking-wide">צבע כיתוב Hero</p>
-        <p className="text-xs text-stone-400">צבע הרקע מוגדר בטאב "רקעים" תחת "צבע כללי"</p>
-        {colorFields.map((f) => (
-          <div key={f.key} className="flex items-center gap-3">
-            <label className="text-sm font-medium text-stone-700 w-36">{f.label}</label>
-            <input
-              type="color"
-              value={values[f.key]}
-              onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-              className="w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 bg-white"
-            />
-            <span className="text-xs text-stone-400 font-mono">{values[f.key]}</span>
-            <button
-              type="button"
-              onClick={() => setValues({ ...values, [f.key]: f.default })}
-              className="text-xs text-stone-400 hover:text-stone-600 underline"
-            >
-              איפוס
-            </button>
-          </div>
-        ))}
-        <div
-          className="rounded-xl p-4 text-center font-bold text-xl mt-1 bg-amber-50"
-          style={{ color: values["hero_text_color"] }}
-        >
-          תצוגה מקדימה של כיתוב
-        </div>
-      </div>
 
       {msg && <p className="text-sm">{msg}</p>}
       <button onClick={save} disabled={saving}
@@ -535,9 +497,13 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
     { key: "bg_contact", imgKey: "bg_image_contact", label: "צרו קשר ומידע" },
   ];
 
-  const allKeys = ["global_bg_color", ...pages.map((p) => p.imgKey)];
+  const allKeys = ["global_bg_color", "global_text_color", ...pages.map((p) => p.imgKey)];
   const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries(allKeys.map((k) => [k, content[k] || (k === "global_bg_color" ? "#fdf8f0" : "")]))
+    Object.fromEntries(allKeys.map((k) => {
+      if (k === "global_bg_color") return [k, content[k] || "#fdf8f0"];
+      if (k === "global_text_color") return [k, content[k] || "#1c1917"];
+      return [k, content[k] || ""];
+    }))
   );
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
@@ -560,19 +526,27 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-6 max-w-2xl">
       <p className="text-sm text-stone-500">הצבע הכללי חל על כל האתר. תמונת רקע לדף ספציפי תכסה את הצבע.</p>
 
-      {/* Global color */}
-      <div className="bg-amber-50 rounded-xl p-4 flex flex-col gap-2 border border-amber-200">
-        <p className="text-sm font-bold text-amber-900">🎨 צבע כללי לכל הדפים</p>
-        <p className="text-xs text-stone-500">דפים שלא הוגדר להם צבע ספציפי ישתמשו בצבע הזה</p>
-        <div className="flex items-center gap-3 mt-1">
-          <input
-            type="color"
-            value={values["global_bg_color"]}
-            onChange={(e) => set("global_bg_color", e.target.value)}
-            className="w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 bg-white"
-          />
-          <span className="text-xs text-stone-400 font-mono">{values["global_bg_color"]}</span>
-          <button type="button" onClick={() => set("global_bg_color", "#fdf8f0")} className="text-xs text-stone-400 hover:text-stone-600 underline">איפוס</button>
+      {/* Global colors */}
+      <div className="flex flex-col gap-3">
+        {[
+          { key: "global_bg_color", label: "צבע רקע", def: "#fdf8f0" },
+          { key: "global_text_color", label: "צבע כיתוב", def: "#1c1917" },
+        ].map(({ key, label, def }) => (
+          <div key={key} className="flex items-center gap-4">
+            <label className="text-sm font-medium text-stone-700 w-28">{label}</label>
+            <input
+              type="color"
+              value={values[key]}
+              onChange={(e) => set(key, e.target.value)}
+              className="w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 bg-white"
+            />
+            <span className="text-xs text-stone-400 font-mono">{values[key]}</span>
+            <button type="button" onClick={() => set(key, def)} className="text-xs text-stone-400 hover:text-stone-600 underline">איפוס</button>
+          </div>
+        ))}
+        <div className="rounded-xl p-4 text-center font-bold text-lg border border-stone-200"
+          style={{ backgroundColor: values["global_bg_color"], color: values["global_text_color"] }}>
+          תצוגה מקדימה
         </div>
       </div>
 

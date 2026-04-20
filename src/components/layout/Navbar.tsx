@@ -13,11 +13,12 @@ const links = [
   { href: "/contact", label: "צרו קשר" },
 ];
 
-export function Navbar() {
+export function Navbar({ bgColor }: { bgColor?: string }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-stone-50/95 backdrop-blur border-b border-stone-200 shadow-sm">
+    <header className="sticky top-0 z-50 backdrop-blur border-b border-stone-200 shadow-sm"
+      style={{ backgroundColor: bgColor ? `${bgColor}f2` : "#fdf8f0f2" }}>
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
         {/* לוגו */}
         <Link href="/" className="flex items-center gap-2 group">

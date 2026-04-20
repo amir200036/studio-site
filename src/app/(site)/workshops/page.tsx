@@ -10,7 +10,7 @@ async function getWorkshops() {
       include: { bookings: { where: { paymentStatus: "paid" } } },
       orderBy: { date: "asc" },
     }),
-    prisma.siteContent.findMany({ where: { key: { in: ["bg_workshops", "bg_image_workshops", "global_bg_color"] } } }),
+    prisma.siteContent.findMany({ where: { key: { in: ["bg_image_workshops"] } } }),
   ]);
   const content = Object.fromEntries(rows.map((r) => [r.key, r.value]));
   return { workshops: workshops.filter((w) => getAvailableSeats(w.maxParticipants, w.bookings) > 0), content };
@@ -20,7 +20,7 @@ export default async function WorkshopsPage() {
   const { workshops, content } = await getWorkshops();
 
   return (
-    <div style={pageBackground(content["bg_workshops"] || content["global_bg_color"] || "", content["bg_image_workshops"] || "")}>
+    <div style={pageBackground("", content["bg_image_workshops"] || "")}>
     <div className="max-w-6xl mx-auto px-4 py-12">
       <div className="mb-12">
         <div className="w-12 h-1 bg-amber-500 rounded-full mb-4" />
