@@ -1,5 +1,6 @@
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
+import { pageBackground } from "@/lib/utils";
 import { HeroSection } from "@/components/home/HeroSection";
 import { AboutSection } from "@/components/home/AboutSection";
 import { GallerySection } from "@/components/home/GallerySection";
@@ -26,10 +27,8 @@ async function getHomeData() {
 
 export default async function HomePage() {
   const { content, gallery, reviews, workshops } = await getHomeData();
-  const bg = content["bg_home"] || "";
-
   return (
-    <div style={bg ? { backgroundColor: bg } : undefined}>
+    <div style={pageBackground(content["bg_home"] || "", content["bg_image_home"] || "")}>
       <HeroSection content={content} />
       <AboutSection content={content} />
       <WorkshopsPreview workshops={workshops} />
