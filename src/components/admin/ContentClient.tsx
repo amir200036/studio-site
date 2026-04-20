@@ -67,7 +67,6 @@ function HeroTab({ content }: { content: Record<string, string> }) {
   ];
 
   const colorFields = [
-    { key: "hero_bg_color", label: "צבע רקע Hero", default: "#fdf6e3" },
     { key: "hero_text_color", label: "צבע כיתוב Hero", default: "#78350f" },
   ];
 
@@ -117,7 +116,8 @@ function HeroTab({ content }: { content: Record<string, string> }) {
 
       {/* Color pickers */}
       <div className="border-t border-stone-100 pt-4 flex flex-col gap-3">
-        <p className="text-xs font-semibold text-stone-400 uppercase tracking-wide">צבעי Hero</p>
+        <p className="text-xs font-semibold text-stone-400 uppercase tracking-wide">צבע כיתוב Hero</p>
+        <p className="text-xs text-stone-400">צבע הרקע מוגדר בטאב "רקעים" תחת "צבע כללי"</p>
         {colorFields.map((f) => (
           <div key={f.key} className="flex items-center gap-3">
             <label className="text-sm font-medium text-stone-700 w-36">{f.label}</label>
@@ -138,8 +138,8 @@ function HeroTab({ content }: { content: Record<string, string> }) {
           </div>
         ))}
         <div
-          className="rounded-xl p-4 text-center font-bold text-xl mt-1"
-          style={{ backgroundColor: values["hero_bg_color"], color: values["hero_text_color"] }}
+          className="rounded-xl p-4 text-center font-bold text-xl mt-1 bg-amber-50"
+          style={{ color: values["hero_text_color"] }}
         >
           תצוגה מקדימה של כיתוב
         </div>
@@ -535,7 +535,7 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
     { key: "bg_contact", imgKey: "bg_image_contact", label: "צרו קשר ומידע" },
   ];
 
-  const allKeys = pages.flatMap((p) => [p.key, p.imgKey]);
+  const allKeys = ["global_bg_color", ...pages.flatMap((p) => [p.key, p.imgKey])];
   const [values, setValues] = useState<Record<string, string>>(
     Object.fromEntries(allKeys.map((k) => [k, content[k] || (k.startsWith("bg_image") ? "" : "#fdf8f0")]))
   );
@@ -559,6 +559,23 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-6 max-w-2xl">
       <p className="text-sm text-stone-500">צבע רקע או תמונת רקע לכל דף. אם תמונה מוגדרת — היא תנצח על הצבע.</p>
+
+      {/* Global color */}
+      <div className="bg-amber-50 rounded-xl p-4 flex flex-col gap-2 border border-amber-200">
+        <p className="text-sm font-bold text-amber-900">🎨 צבע כללי לכל הדפים</p>
+        <p className="text-xs text-stone-500">דפים שלא הוגדר להם צבע ספציפי ישתמשו בצבע הזה</p>
+        <div className="flex items-center gap-3 mt-1">
+          <input
+            type="color"
+            value={values["global_bg_color"]}
+            onChange={(e) => set("global_bg_color", e.target.value)}
+            className="w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 bg-white"
+          />
+          <span className="text-xs text-stone-400 font-mono">{values["global_bg_color"]}</span>
+          <button type="button" onClick={() => set("global_bg_color", "#fdf8f0")} className="text-xs text-stone-400 hover:text-stone-600 underline">איפוס</button>
+        </div>
+      </div>
+
       {pages.map((p) => (
         <div key={p.key} className="flex flex-col gap-2 pb-4 border-b border-stone-100 last:border-0">
           <p className="text-sm font-semibold text-stone-700">{p.label}</p>

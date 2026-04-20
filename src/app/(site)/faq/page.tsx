@@ -6,7 +6,7 @@ import { FAQAccordion } from "@/components/faq/FAQAccordion";
 async function getFAQs() {
   const [faqs, rows] = await Promise.all([
     prisma.fAQ.findMany({ orderBy: { order: "asc" } }),
-    prisma.siteContent.findMany({ where: { key: { in: ["bg_faq", "bg_image_faq"] } } }),
+    prisma.siteContent.findMany({ where: { key: { in: ["bg_faq", "bg_image_faq", "global_bg_color"] } } }),
   ]);
   const content = Object.fromEntries(rows.map((r) => [r.key, r.value]));
   return { faqs, content };
@@ -16,7 +16,7 @@ export default async function FAQPage() {
   const { faqs, content } = await getFAQs();
 
   return (
-    <div style={pageBackground(content["bg_faq"] || "", content["bg_image_faq"] || "")}>
+    <div style={pageBackground(content["bg_faq"] || content["global_bg_color"] || "", content["bg_image_faq"] || "")}>
     <div className="max-w-3xl mx-auto px-4 py-12">
       <div className="mb-12 text-center">
         <div className="w-12 h-1 bg-amber-500 rounded-full mx-auto mb-4" />
