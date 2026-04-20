@@ -54,7 +54,7 @@ export function HeroSection({ content, transparent }: Props) {
         <img
           src={content.bg_image_home}
           alt=""
-          className="w-full block md:h-[75vh] md:object-cover md:object-top"
+          className="w-full block"
         />
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 flex items-center justify-center">
