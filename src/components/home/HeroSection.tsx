@@ -13,7 +13,7 @@ export function HeroSection({ content, transparent }: Props) {
   return (
     <section
       className={`relative overflow-hidden ${transparent ? "" : "bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100"}`}
-      style={transparent ? { backgroundImage: `url(${content.bg_image_home})`, backgroundSize: "cover", backgroundPosition: "top center" } : undefined}
+      style={transparent ? { backgroundImage: `url(${content.bg_image_home})`, backgroundSize: "cover", backgroundPosition: "20% center" } : undefined}
     >
       {transparent && <div className="absolute inset-0 bg-black/40" />}
       {!transparent && (
