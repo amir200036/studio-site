@@ -535,9 +535,9 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
     { key: "bg_contact", imgKey: "bg_image_contact", label: "צרו קשר ומידע" },
   ];
 
-  const allKeys = ["global_bg_color", ...pages.flatMap((p) => [p.key, p.imgKey])];
+  const allKeys = ["global_bg_color", ...pages.map((p) => p.imgKey)];
   const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries(allKeys.map((k) => [k, content[k] || (k.startsWith("bg_image") ? "" : "#fdf8f0")]))
+    Object.fromEntries(allKeys.map((k) => [k, content[k] || (k === "global_bg_color" ? "#fdf8f0" : "")]))
   );
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
@@ -558,7 +558,7 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-6 max-w-2xl">
-      <p className="text-sm text-stone-500">צבע רקע או תמונת רקע לכל דף. אם תמונה מוגדרת — היא תנצח על הצבע.</p>
+      <p className="text-sm text-stone-500">הצבע הכללי חל על כל האתר. תמונת רקע לדף ספציפי תכסה את הצבע.</p>
 
       {/* Global color */}
       <div className="bg-amber-50 rounded-xl p-4 flex flex-col gap-2 border border-amber-200">
@@ -577,18 +577,8 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
       </div>
 
       {pages.map((p) => (
-        <div key={p.key} className="flex flex-col gap-2 pb-4 border-b border-stone-100 last:border-0">
+        <div key={p.imgKey} className="flex flex-col gap-2 pb-4 border-b border-stone-100 last:border-0">
           <p className="text-sm font-semibold text-stone-700">{p.label}</p>
-          <div className="flex items-center gap-3">
-            <label className="text-xs text-stone-500 w-20">צבע רקע</label>
-            <input
-              type="color"
-              value={values[p.key]}
-              onChange={(e) => set(p.key, e.target.value)}
-              className="w-9 h-9 rounded-lg border border-stone-200 cursor-pointer p-0.5 bg-white"
-            />
-            <span className="text-xs text-stone-400 font-mono">{values[p.key]}</span>
-          </div>
           <div className="flex items-start gap-3">
             <label className="text-xs text-stone-500 w-20 pt-2.5">תמונת רקע</label>
             <ImageUploadField value={values[p.imgKey]} onChange={(url) => set(p.imgKey, url)} />

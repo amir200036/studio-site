@@ -13,7 +13,7 @@ export function WorkshopsPreview({ workshops, transparent }: Props) {
   if (workshops.length === 0) return null;
 
   return (
-    <section className={`py-20 ${transparent ? "" : "bg-white"}`}>
+    <section className="py-20">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
           <div>

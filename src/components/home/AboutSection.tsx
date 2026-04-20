@@ -11,7 +11,7 @@ export function AboutSection({ content, transparent }: Props) {
   const imageUrl = content.about_image || "";
 
   return (
-    <section className={`py-20 ${transparent ? "" : "bg-white"}`}>
+    <section className="py-20">
       <div className="max-w-6xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           {/* תמונה */}
