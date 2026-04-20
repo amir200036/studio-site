@@ -14,11 +14,11 @@ export function HeroSection({ content, transparent }: Props) {
     <div className="relative max-w-6xl mx-auto px-4 py-10 md:py-36 flex flex-col items-center text-center gap-4 md:gap-6">
       <div className="text-5xl md:text-6xl mb-1 md:mb-2 animate-bounce" style={{ animationDuration: "3s" }}>🏺</div>
 
-      <h1 className={`text-3xl md:text-6xl font-extrabold leading-tight text-balance ${transparent ? "text-white drop-shadow-lg" : "text-amber-900"}`}>
+      <h1 className={`text-3xl md:text-8xl font-extrabold leading-tight text-balance ${transparent ? "text-white drop-shadow-lg" : "text-amber-900"}`}>
         {title}
       </h1>
 
-      <p className={`text-base md:text-2xl max-w-2xl text-balance ${transparent ? "text-white/90" : "text-stone-600"}`}>
+      <p className={`text-base md:text-3xl max-w-2xl text-balance ${transparent ? "text-white/90" : "text-stone-600"}`}>
         {subtitle}
       </p>
 
