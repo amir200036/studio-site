@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { put } from "@vercel/blob";
 import path from "path";
 import fs from "fs/promises";
 
@@ -35,44 +36,27 @@ export async function POST(req: NextRequest) {
 
     const isJpeg = file.type === "image/jpeg" || file.type === "image/jpg";
     const ext = isJpeg ? "jpg" : file.type === "image/png" ? "png" : "webp";
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const filename = `studio-uploads/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const bytes = Buffer.from(await file.arrayBuffer());
 
-    // Production: use Vercel Blob
     if (process.env.BLOB_READ_WRITE_TOKEN) {
-      try {
-        const { put } = await import("@vercel/blob");
-        const blob = await put(`studio-uploads/${filename}`, bytes, {
-          access: "public",
-          contentType: isJpeg ? "image/jpeg" : file.type,
-        });
-        return NextResponse.json({ url: blob.url });
-      } catch (e) {
-        console.error("Vercel Blob upload error:", e);
-        return NextResponse.json({ error: "שגיאה בהעלאה לאחסון. בדוק שה-BLOB_READ_WRITE_TOKEN תקין." }, { status: 500 });
-      }
+      const blob = await put(filename, bytes, {
+        access: "public",
+        contentType: isJpeg ? "image/jpeg" : file.type,
+      });
+      return NextResponse.json({ url: blob.url });
     }
 
-    // Production without Blob token: fail clearly
-    if (process.env.NODE_ENV === "production") {
-      return NextResponse.json(
-        { error: "להעלאת תמונות בסביבת ייצור יש להגדיר Vercel Blob Storage ולהוסיף BLOB_READ_WRITE_TOKEN" },
-        { status: 503 }
-      );
-    }
+    // Dev fallback without token: save to public/uploads/
+    const dir = path.join(process.cwd(), "public", "uploads");
+    await fs.mkdir(dir, { recursive: true });
+    const localName = path.basename(filename);
+    await fs.writeFile(path.join(dir, localName), bytes);
+    return NextResponse.json({ url: `/uploads/${localName}` });
 
-    // Dev: save to public/uploads/
-    try {
-      const dir = path.join(process.cwd(), "public", "uploads");
-      await fs.mkdir(dir, { recursive: true });
-      await fs.writeFile(path.join(dir, filename), bytes);
-      return NextResponse.json({ url: `/uploads/${filename}` });
-    } catch (e) {
-      console.error("Local file write error:", e);
-      return NextResponse.json({ error: "שגיאה בשמירת הקובץ לדיסק" }, { status: 500 });
-    }
   } catch (e) {
-    console.error("Unexpected upload error:", e);
-    return NextResponse.json({ error: "שגיאה לא צפויה בשרת" }, { status: 500 });
+    console.error("Upload error:", e);
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: `שגיאה בהעלאה: ${msg}` }, { status: 500 });
   }
 }
