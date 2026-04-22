@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 // formatPrice / formatDateTime used in CustomersClient
 import { CustomersClient } from "@/components/admin/CustomersClient";

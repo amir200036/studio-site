@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { WorkshopForm } from "@/components/admin/WorkshopForm";
 
 export default function NewWorkshopPage() {
