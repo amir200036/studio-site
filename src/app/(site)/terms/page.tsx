@@ -27,13 +27,11 @@ const DEFAULT_TERMS = `**1. כללי**
 export default async function TermsPage() {
   const row = await prisma.siteContent.findUnique({ where: { key: "terms_content" } });
   const content = row?.value || DEFAULT_TERMS;
-  const bgRow = await prisma.siteContent.findUnique({ where: { key: "bg_terms" } });
-  const bg = bgRow?.value || "";
 
   const sections = content.split(/\n\n+/);
 
   return (
-    <div style={bg ? { backgroundColor: bg } : undefined}>
+    <div>
       <div className="max-w-3xl mx-auto px-4 py-12">
         <div className="mb-10">
           <div className="w-12 h-1 bg-amber-500 rounded-full mb-4" />
@@ -42,7 +40,7 @@ export default async function TermsPage() {
         </div>
 
         <div className="bg-white rounded-2xl p-6 md:p-8 border border-stone-100 shadow-sm flex flex-col gap-6">
-          {sections.map((section, i) => {
+          {sections.map((section: string, i: number) => {
             const lines = section.split("\n");
             const firstLine = lines[0];
             const isBold = firstLine.startsWith("**") && firstLine.endsWith("**");

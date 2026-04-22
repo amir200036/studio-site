@@ -490,11 +490,11 @@ function TermsTab({ content }: { content: Record<string, string> }) {
 // --- רקעים ---
 function BackgroundsTab({ content }: { content: Record<string, string> }) {
   const pages = [
-    { key: "bg_home", imgKey: "bg_image_home", label: "דף בית" },
-    { key: "bg_workshops", imgKey: "bg_image_workshops", label: "סדנאות" },
-    { key: "bg_events", imgKey: "bg_image_events", label: "אירועים מיוחדים" },
-    { key: "bg_faq", imgKey: "bg_image_faq", label: "שאלות נפוצות" },
-    { key: "bg_contact", imgKey: "bg_image_contact", label: "צרו קשר ומידע" },
+    { imgKey: "bg_image_home", label: "דף בית" },
+    { imgKey: "bg_image_workshops", label: "סדנאות" },
+    { imgKey: "bg_image_events", label: "אירועים מיוחדים" },
+    { imgKey: "bg_image_faq", label: "שאלות נפוצות" },
+    { imgKey: "bg_image_contact", label: "צרו קשר ומידע" },
   ];
 
   const allKeys = ["global_bg_color", ...pages.map((p) => p.imgKey)];

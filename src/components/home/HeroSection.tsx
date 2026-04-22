@@ -69,7 +69,7 @@ export function HeroSection({ content, transparent }: Props) {
   }
 
   return (
-    <section className="relative overflow-hidden" style={{ backgroundColor: content.bg_home || content.global_bg_color || "#fdf8f0" }}>
+    <section className="relative overflow-hidden" style={{ backgroundColor: content.global_bg_color || "#fdf8f0" }}>
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-10 right-10 w-64 h-64 bg-amber-400 rounded-full blur-3xl" />
         <div className="absolute bottom-10 left-10 w-48 h-48 bg-stone-400 rounded-full blur-3xl" />

@@ -1,6 +1,5 @@
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
-import { pageBackground } from "@/lib/utils";
 import { HeroSection } from "@/components/home/HeroSection";
 import { AboutSection } from "@/components/home/AboutSection";
 import { GallerySection } from "@/components/home/GallerySection";
@@ -30,7 +29,7 @@ export default async function HomePage() {
   const hasBgImage = !!content["bg_image_home"];
 
   return (
-    <div style={hasBgImage ? pageBackground("", content["bg_image_home"] || "") : undefined}>
+    <div>
       <HeroSection content={content} transparent={hasBgImage} />
       <AboutSection content={content} />
       <WorkshopsPreview workshops={workshops} />
