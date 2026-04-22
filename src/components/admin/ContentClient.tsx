@@ -497,13 +497,9 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
     { key: "bg_contact", imgKey: "bg_image_contact", label: "צרו קשר ומידע" },
   ];
 
-  const allKeys = ["global_bg_color", "global_text_color", ...pages.map((p) => p.imgKey)];
+  const allKeys = ["global_bg_color", ...pages.map((p) => p.imgKey)];
   const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries(allKeys.map((k) => {
-      if (k === "global_bg_color") return [k, content[k] || "#fdf8f0"];
-      if (k === "global_text_color") return [k, content[k] || "#1c1917"];
-      return [k, content[k] || ""];
-    }))
+    Object.fromEntries(allKeys.map((k) => [k, content[k] || (k === "global_bg_color" ? "#fdf8f0" : "")]))
   );
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
@@ -526,28 +522,17 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-6 max-w-2xl">
       <p className="text-sm text-stone-500">הצבע הכללי חל על כל האתר. תמונת רקע לדף ספציפי תכסה את הצבע.</p>
 
-      {/* Global colors */}
-      <div className="flex flex-col gap-3">
-        {[
-          { key: "global_bg_color", label: "צבע רקע", def: "#fdf8f0" },
-          { key: "global_text_color", label: "צבע כיתוב", def: "#1c1917" },
-        ].map(({ key, label, def }) => (
-          <div key={key} className="flex items-center gap-4">
-            <label className="text-sm font-medium text-stone-700 w-28">{label}</label>
-            <input
-              type="color"
-              value={values[key]}
-              onChange={(e) => set(key, e.target.value)}
-              className="w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 bg-white"
-            />
-            <span className="text-xs text-stone-400 font-mono">{values[key]}</span>
-            <button type="button" onClick={() => set(key, def)} className="text-xs text-stone-400 hover:text-stone-600 underline">איפוס</button>
-          </div>
-        ))}
-        <div className="rounded-xl p-4 text-center font-bold text-lg border border-stone-200"
-          style={{ backgroundColor: values["global_bg_color"], color: values["global_text_color"] }}>
-          תצוגה מקדימה
-        </div>
+      {/* Global bg color */}
+      <div className="flex items-center gap-4">
+        <label className="text-sm font-medium text-stone-700 w-28">צבע רקע</label>
+        <input
+          type="color"
+          value={values["global_bg_color"]}
+          onChange={(e) => set("global_bg_color", e.target.value)}
+          className="w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 bg-white"
+        />
+        <span className="text-xs text-stone-400 font-mono">{values["global_bg_color"]}</span>
+        <button type="button" onClick={() => set("global_bg_color", "#fdf8f0")} className="text-xs text-stone-400 hover:text-stone-600 underline">איפוס</button>
       </div>
 
       {pages.map((p) => (
