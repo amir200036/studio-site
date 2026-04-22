@@ -1,9 +1,8 @@
 interface Props {
   content: Record<string, string>;
-  transparent?: boolean;
 }
 
-export function AboutSection({ content, transparent }: Props) {
+export function AboutSection({ content }: Props) {
   const title = content.about_title || "על הסטודיו שלנו";
   const text =
     content.about_text ||

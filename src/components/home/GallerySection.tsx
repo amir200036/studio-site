@@ -2,10 +2,9 @@ import type { GalleryImage } from "@prisma/client";
 
 interface Props {
   images: GalleryImage[];
-  transparent?: boolean;
 }
 
-export function GallerySection({ images, transparent }: Props) {
+export function GallerySection({ images }: Props) {
   if (images.length === 0) return null;
 
   return (

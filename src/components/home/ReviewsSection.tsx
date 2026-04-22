@@ -2,7 +2,6 @@ import type { Review } from "@prisma/client";
 
 interface Props {
   reviews: Review[];
-  transparent?: boolean;
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -17,7 +16,7 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-export function ReviewsSection({ reviews, transparent }: Props) {
+export function ReviewsSection({ reviews }: Props) {
   if (reviews.length === 0) return null;
 
   return (

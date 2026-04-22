@@ -6,10 +6,9 @@ type WorkshopWithBookings = Workshop & { bookings: Pick<Booking, "seats" | "paym
 
 interface Props {
   workshops: WorkshopWithBookings[];
-  transparent?: boolean;
 }
 
-export function WorkshopsPreview({ workshops, transparent }: Props) {
+export function WorkshopsPreview({ workshops }: Props) {
   if (workshops.length === 0) return null;
 
   return (
