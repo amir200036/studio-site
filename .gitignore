@@ -42,3 +42,25 @@ next-env.d.ts
 # database
 prisma/dev.db
 prisma/dev.db-journal
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs
+*.log
+
+# Cache
+.cache/
+.turbo/
+
+# Test
+/cypress/screenshots
+/cypress/videos
+/test-results/
+
+# OS files
+Thumbs.db
