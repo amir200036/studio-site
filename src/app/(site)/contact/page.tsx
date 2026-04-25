@@ -1,7 +1,28 @@
 export const dynamic = "force-dynamic";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { pageBackground } from "@/lib/utils";
 import { ContactForm } from "@/components/contact/ContactForm";
+
+const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+
+export const metadata: Metadata = {
+  title: "יצירת קשר | יד יוצרת — סדנת קדרות בנס ציונה",
+  description:
+    "צרו קשר עם סדנת הקדרות יד יוצרת בנס ציונה — טלפון, WhatsApp, מייל וטופס יצירת קשר. אבנר בן יהודה 41, נס ציונה.",
+  alternates: {
+    canonical: `${BASE_URL}/contact`,
+  },
+  openGraph: {
+    title: "יצירת קשר | יד יוצרת — סדנת קדרות בנס ציונה",
+    description:
+      "צרו קשר עם סדנת הקדרות יד יוצרת בנס ציונה — טלפון, WhatsApp, מייל וטופס יצירת קשר. אבנר בן יהודה 41, נס ציונה.",
+    url: `${BASE_URL}/contact`,
+    locale: "he_IL",
+    type: "website",
+    siteName: "יד יוצרת — סדנת קדרות",
+  },
+};
 
 async function getContent() {
   const rows = await prisma.siteContent.findMany({

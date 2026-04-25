@@ -1,7 +1,28 @@
 export const dynamic = "force-dynamic";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { pageBackground } from "@/lib/utils";
 import { FAQAccordion } from "@/components/faq/FAQAccordion";
+
+const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+
+export const metadata: Metadata = {
+  title: "שאלות נפוצות | יד יוצרת — סדנת קדרות בנס ציונה",
+  description:
+    "תשובות לשאלות הנפוצות ביותר על סדנאות קדרות בנס ציונה — מחירים, רמות ניסיון, מדיניות ביטול, גיל מינימלי ועוד.",
+  alternates: {
+    canonical: `${BASE_URL}/faq`,
+  },
+  openGraph: {
+    title: "שאלות נפוצות | יד יוצרת — סדנת קדרות בנס ציונה",
+    description:
+      "תשובות לשאלות הנפוצות ביותר על סדנאות קדרות בנס ציונה — מחירים, רמות ניסיון, מדיניות ביטול, גיל מינימלי ועוד.",
+    url: `${BASE_URL}/faq`,
+    locale: "he_IL",
+    type: "website",
+    siteName: "יד יוצרת — סדנת קדרות",
+  },
+};
 
 async function getFAQs() {
   const [faqs, rows] = await Promise.all([
@@ -15,21 +36,45 @@ async function getFAQs() {
 export default async function FAQPage() {
   const { faqs, content } = await getFAQs();
 
-  return (
-    <div style={pageBackground("", content["bg_image_faq"] || "")}>
-    <div className="max-w-3xl mx-auto px-4 py-12">
-      <div className="mb-12 text-center">
-        <div className="w-12 h-1 bg-amber-500 rounded-full mx-auto mb-4" />
-        <h1 className="text-4xl font-bold text-amber-900">שאלות נפוצות</h1>
-        <p className="text-stone-500 mt-2 text-lg">כל מה שרציתם לדעת על הסטודיו שלנו</p>
-      </div>
+  const faqSchema =
+    faqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map((faq) => ({
+            "@type": "Question",
+            name: faq.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: faq.answer,
+            },
+          })),
+        }
+      : null;
 
-      {faqs.length === 0 ? (
-        <p className="text-center text-stone-400 py-12">אין שאלות כרגע. בדקו שוב בקרוב!</p>
-      ) : (
-        <FAQAccordion faqs={faqs} />
+  return (
+    <>
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
       )}
-    </div>
-    </div>
+      <div style={pageBackground("", content["bg_image_faq"] || "")}>
+        <div className="max-w-3xl mx-auto px-4 py-12">
+          <div className="mb-12 text-center">
+            <div className="w-12 h-1 bg-amber-500 rounded-full mx-auto mb-4" />
+            <h1 className="text-4xl font-bold text-amber-900">שאלות נפוצות</h1>
+            <p className="text-stone-500 mt-2 text-lg">כל מה שרציתם לדעת על הסטודיו שלנו</p>
+          </div>
+
+          {faqs.length === 0 ? (
+            <p className="text-center text-stone-400 py-12">אין שאלות כרגע. בדקו שוב בקרוב!</p>
+          ) : (
+            <FAQAccordion faqs={faqs} />
+          )}
+        </div>
+      </div>
+    </>
   );
 }

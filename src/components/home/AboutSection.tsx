@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface Props {
   content: Record<string, string>;
 }
@@ -16,12 +18,15 @@ export function AboutSection({ content }: Props) {
           {/* תמונה */}
           <div className="order-2 md:order-1">
             {imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={imageUrl}
-                alt="הסטודיו"
-                className="w-full h-80 object-cover rounded-2xl shadow-xl"
-              />
+              <div className="relative w-full h-80 rounded-2xl shadow-xl overflow-hidden">
+                <Image
+                  src={imageUrl}
+                  alt="סדנת קדרות יד יוצרת בנס ציונה"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                />
+              </div>
             ) : (
               <div className="w-full h-80 bg-gradient-to-br from-amber-100 to-stone-200 rounded-2xl flex items-center justify-center shadow-xl">
                 <span className="text-8xl opacity-40">🏺</span>

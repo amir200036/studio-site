@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { Workshop, Booking } from "@prisma/client";
 import { useState } from "react";
 import { formatDate, formatTime, formatPrice, getAvailableSeats } from "@/lib/utils";
@@ -22,8 +23,15 @@ export function WorkshopCard({ workshop }: Props) {
     <>
       <div className="bg-white rounded-2xl overflow-hidden shadow border border-stone-100 hover:shadow-lg transition-shadow flex flex-col">
         {workshop.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={workshop.imageUrl} alt={workshop.name} className="w-full h-48 object-cover" />
+          <div className="relative w-full h-48">
+            <Image
+              src={workshop.imageUrl}
+              alt={workshop.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 33vw"
+            />
+          </div>
         ) : (
           <div className="w-full h-48 bg-gradient-to-br from-amber-100 to-stone-200 flex items-center justify-center">
             <span className="text-6xl opacity-40">🏺</span>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Workshop, Booking } from "@prisma/client";
 import { formatDate, formatTime, formatPrice, getAvailableSeats } from "@/lib/utils";
@@ -37,8 +38,15 @@ export function WorkshopsPreview({ workshops }: Props) {
                 className="bg-stone-50 rounded-2xl overflow-hidden shadow-sm border border-stone-100 hover:shadow-md transition-shadow flex flex-col"
               >
                 {workshop.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={workshop.imageUrl} alt={workshop.name} className="w-full h-44 object-cover" />
+                  <div className="relative w-full h-44">
+                    <Image
+                      src={workshop.imageUrl}
+                      alt={workshop.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                  </div>
                 ) : (
                   <div className="w-full h-44 bg-amber-100 flex items-center justify-center">
                     <span className="text-5xl opacity-40">🏺</span>

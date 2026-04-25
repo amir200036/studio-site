@@ -1,6 +1,28 @@
 export const dynamic = "force-dynamic";
+import type { Metadata } from "next";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, pageBackground } from "@/lib/utils";
+
+const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+
+export const metadata: Metadata = {
+  title: "אירועים מיוחדים וגיבוש חברה | יד יוצרת — סדנת קדרות בנס ציונה",
+  description:
+    "ימי הולדת, גיבוש חברה ואירועים מיוחדים בסדנת קדרות בנס ציונה. חוויה ייחודית שכולם ייזכרו — צרו קשר לפרטים.",
+  alternates: {
+    canonical: `${BASE_URL}/events`,
+  },
+  openGraph: {
+    title: "אירועים מיוחדים וגיבוש חברה | יד יוצרת — סדנת קדרות בנס ציונה",
+    description:
+      "ימי הולדת, גיבוש חברה ואירועים מיוחדים בסדנת קדרות בנס ציונה. חוויה ייחודית שכולם ייזכרו — צרו קשר לפרטים.",
+    url: `${BASE_URL}/events`,
+    locale: "he_IL",
+    type: "website",
+    siteName: "יד יוצרת — סדנת קדרות",
+  },
+};
 
 async function getEvents() {
   const [events, rows] = await Promise.all([
@@ -37,8 +59,15 @@ export default async function EventsPage() {
             return (
               <div key={event.id} className="bg-white rounded-2xl overflow-hidden shadow border border-stone-100 hover:shadow-lg transition-shadow flex flex-col md:flex-row">
                 {event.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={event.imageUrl} alt={event.name} className="w-full md:w-48 h-48 object-cover flex-shrink-0" />
+                  <div className="relative w-full md:w-48 h-48 flex-shrink-0">
+                    <Image
+                      src={event.imageUrl}
+                      alt={event.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 192px"
+                    />
+                  </div>
                 ) : (
                   <div className="w-full md:w-48 h-48 bg-amber-100 flex items-center justify-center flex-shrink-0">
                     <span className="text-5xl opacity-40">🎉</span>

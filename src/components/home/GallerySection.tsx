@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { GalleryImage } from "@prisma/client";
 
 interface Props {
@@ -20,16 +21,17 @@ export function GallerySection({ images }: Props) {
           {images.map((img, i) => (
             <div
               key={img.id}
-              className={`overflow-hidden rounded-xl shadow-md group cursor-pointer ${
+              className={`relative overflow-hidden rounded-xl shadow-md group cursor-pointer ${
                 i === 0 ? "col-span-2 row-span-2" : ""
               }`}
+              style={{ minHeight: i === 0 ? "300px" : "150px" }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={img.url}
-                alt={img.caption || "תמונת גלריה"}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                style={{ minHeight: i === 0 ? "300px" : "150px" }}
+                alt={img.caption || "תמונה מסדנת קדרות בנס ציונה"}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes={i === 0 ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 50vw, 25vw"}
               />
             </div>
           ))}

@@ -1,7 +1,28 @@
 export const dynamic = "force-dynamic";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getAvailableSeats, pageBackground } from "@/lib/utils";
 import { WorkshopCard } from "@/components/workshops/WorkshopCard";
+
+const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+
+export const metadata: Metadata = {
+  title: "סדנאות קדרות בנס ציונה | יד יוצרת — הזמנת מקום אונליין",
+  description:
+    "כל סדנאות הקדרות הקרובות בנס ציונה — לבחירה, הזמנה ותשלום מאובטח אונליין. מתאים למתחילים ומנוסים כאחד.",
+  alternates: {
+    canonical: `${BASE_URL}/workshops`,
+  },
+  openGraph: {
+    title: "סדנאות קדרות בנס ציונה | יד יוצרת — הזמנת מקום אונליין",
+    description:
+      "כל סדנאות הקדרות הקרובות בנס ציונה — לבחירה, הזמנה ותשלום מאובטח אונליין. מתאים למתחילים ומנוסים כאחד.",
+    url: `${BASE_URL}/workshops`,
+    locale: "he_IL",
+    type: "website",
+    siteName: "יד יוצרת — סדנת קדרות",
+  },
+};
 
 async function getWorkshops() {
   const [workshops, rows] = await Promise.all([

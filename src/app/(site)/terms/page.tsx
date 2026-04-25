@@ -1,5 +1,26 @@
 export const dynamic = "force-dynamic";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+
+const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+
+export const metadata: Metadata = {
+  title: "תנאי שימוש | יד יוצרת — סדנת קדרות בנס ציונה",
+  description:
+    "תקנון ותנאי שימוש של סדנת קדרות יד יוצרת — מדיניות ביטול, החזרים, תשלומים ופרטיות.",
+  alternates: {
+    canonical: `${BASE_URL}/terms`,
+  },
+  openGraph: {
+    title: "תנאי שימוש | יד יוצרת — סדנת קדרות בנס ציונה",
+    description:
+      "תקנון ותנאי שימוש של סדנת קדרות יד יוצרת — מדיניות ביטול, החזרים, תשלומים ופרטיות.",
+    url: `${BASE_URL}/terms`,
+    locale: "he_IL",
+    type: "website",
+    siteName: "יד יוצרת — סדנת קדרות",
+  },
+};
 
 const DEFAULT_TERMS = `**1. כללי**
 אתר זה מופעל על ידי סטודיו קדרות. השימוש באתר ובשירותיו מהווה הסכמה לתנאים המפורטים להלן.

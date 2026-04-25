@@ -15,10 +15,49 @@ const rubik = Rubik({
   weight: ["800"],
 });
 
+const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+
 export const metadata: Metadata = {
-  title: "סטודיו קדרות | יצירה מהלב",
-  description: "סטודיו קדרות ייחודי המציע סדנאות יצירה, אירועים מיוחדים וחוויות קדרות בלתי נשכחות",
-  keywords: "קדרות, סדנאות, יצירה, חמר, עיצוב קרמי",
+  title: {
+    default: "סדנת קדרות בנס ציונה | יד יוצרת — חוויה יצירתית לזוגות, משפחות וחברות",
+    template: "%s | יד יוצרת — סדנת קדרות בנס ציונה",
+  },
+  description:
+    "סדנאות קדרות וקרמיקה בנס ציונה לזוגות, משפחות, ימי הולדת וגיבוש חברה. מדריכים מנוסים, אווירה חמה ומזמינה. הזמינו מקום עכשיו!",
+  keywords: "קדרות, סדנאות קדרות, קרמיקה, נס ציונה, יצירה, חמר, גיבוש, יום הולדת, סדנה",
+  metadataBase: new URL(BASE_URL),
+  openGraph: {
+    siteName: "יד יוצרת — סדנת קדרות",
+    locale: "he_IL",
+    type: "website",
+  },
+};
+
+const localBusinessSchema = {
+  "@context": "https://schema.org",
+  "@type": ["LocalBusiness", "ArtStudio"],
+  name: "יד יוצרת — סדנת קדרות וקרמיקה",
+  url: BASE_URL,
+  description:
+    "סדנאות קדרות וקרמיקה בנס ציונה לזוגות, משפחות, ימי הולדת וגיבוש חברה. מדריכים מנוסים, אווירה חמה ומזמינה.",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "אבנר בן יהודה 41",
+    addressLocality: "נס ציונה",
+    addressCountry: "IL",
+  },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 31.9294,
+    longitude: 34.7974,
+  },
+  areaServed: {
+    "@type": "City",
+    name: "נס ציונה",
+  },
+  priceRange: "₪₪",
+  openingHours: "Su-Th 09:00-20:00",
+  sameAs: [],
 };
 
 export default function RootLayout({
@@ -28,6 +67,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="he" dir="rtl">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+        />
+      </head>
       <body className={`${assistant.variable} ${rubik.variable} font-sans antialiased bg-stone-50 text-stone-800`}>
         <div className="overflow-x-hidden">
           {children}
