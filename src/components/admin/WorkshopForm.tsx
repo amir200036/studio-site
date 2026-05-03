@@ -18,7 +18,7 @@ export function WorkshopForm({ workshop }: Props) {
 
   const [name, setName] = useState(workshop?.name || "");
   const [date, setDate] = useState(
-    workshop ? new Date(workshop.date).toISOString().slice(0, 16) : ""
+    workshop?.date ? new Date(workshop.date).toISOString().slice(0, 16) : ""
   );
   const [duration, setDuration] = useState(String(workshop?.durationHours || 2));
   const [description, setDescription] = useState(workshop?.description || "");
@@ -26,6 +26,7 @@ export function WorkshopForm({ workshop }: Props) {
   const [price, setPrice] = useState(String(workshop?.pricePerPerson || ""));
   const [maxParticipants, setMaxParticipants] = useState(String(workshop?.maxParticipants || 10));
   const [status, setStatus] = useState(workshop?.status || "active");
+  const [whatsappMessage, setWhatsappMessage] = useState(workshop?.whatsappMessage || "");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,13 +35,14 @@ export function WorkshopForm({ workshop }: Props) {
 
     const body = {
       name,
-      date: new Date(date).toISOString(),
+      date: date ? new Date(date).toISOString() : null,
       durationHours: parseFloat(duration),
       description,
       imageUrl: imageUrl || null,
       pricePerPerson: parseFloat(price),
       maxParticipants: parseInt(maxParticipants, 10),
       status,
+      whatsappMessage: whatsappMessage.trim() || null,
     };
 
     const url = workshop ? `/api/admin/workshops/${workshop.id}` : "/api/admin/workshops";
@@ -86,9 +88,10 @@ export function WorkshopForm({ workshop }: Props) {
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="תאריך ושעה">
-          <input type="datetime-local" required value={date} onChange={(e) => setDate(e.target.value)}
+        <Field label="תאריך ושעה (אופציונלי)">
+          <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)}
             className={inputClass} dir="ltr" />
+          <p className="text-xs text-stone-500 mt-1">ריק = לא מוצג באתר; המועד נקבע ב-WhatsApp</p>
         </Field>
         <Field label="משך (שעות)">
           <input type="number" required min="0.5" step="0.5" value={duration}
@@ -126,6 +129,23 @@ export function WorkshopForm({ workshop }: Props) {
           <option value="blocked">חסומה</option>
           <option value="cancelled">מבוטלת</option>
         </select>
+      </Field>
+
+      <Field label="הודעת WhatsApp (אופציונלי)">
+        <textarea
+          rows={8}
+          value={whatsappMessage}
+          onChange={(e) => setWhatsappMessage(e.target.value)}
+          className={inputClass + " resize-y font-mono text-sm"}
+          placeholder="השאירו ריק לברירת המחדל של האתר, או כתבו תבנית משלכם…"
+          dir="rtl"
+        />
+        <p className="text-xs text-stone-500 mt-2 leading-relaxed">
+          משתנים (העתיקו בדיוק). <code className="bg-stone-100 px-1 rounded" dir="ltr">customerEmail</code> ריק בטופס האתר:{" "}
+          <code className="bg-stone-100 px-1 rounded break-all" dir="ltr">
+            {"{{workshopName}} {{customerName}} {{customerEmail}} {{seats}} {{pricePerPerson}} {{total}} {{date}} {{time}} {{durationHours}}}"}
+          </code>
+        </p>
       </Field>
 
       {error && <p className="text-red-600 text-sm bg-red-50 px-4 py-2 rounded-lg">{error}</p>}

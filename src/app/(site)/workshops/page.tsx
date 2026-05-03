@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { visiblePublicWorkshopsWhere } from "@/lib/workshop-filters";
 import { getAvailableSeats, pageBackground } from "@/lib/utils";
 import { WorkshopCard } from "@/components/workshops/WorkshopCard";
 
@@ -27,9 +28,9 @@ export const metadata: Metadata = {
 async function getWorkshops() {
   const [workshops, rows] = await Promise.all([
     prisma.workshop.findMany({
-      where: { status: "active", date: { gte: new Date() } },
+      where: visiblePublicWorkshopsWhere(),
       include: { bookings: { where: { paymentStatus: "paid" } } },
-      orderBy: { date: "asc" },
+      orderBy: { createdAt: "desc" },
     }),
     prisma.siteContent.findMany({ where: { key: { in: ["bg_image_workshops"] } } }),
   ]);

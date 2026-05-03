@@ -1,6 +1,8 @@
 export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
+import { visiblePublicWorkshopsWhere } from "@/lib/workshop-filters";
+import { getAvailableSeats } from "@/lib/utils";
 import { HeroSection } from "@/components/home/HeroSection";
 import { AboutSection } from "@/components/home/AboutSection";
 import { GallerySection } from "@/components/home/GallerySection";
@@ -33,16 +35,17 @@ async function getHomeData() {
     prisma.galleryImage.findMany({ orderBy: { order: "asc" }, take: 8 }),
     prisma.review.findMany({ where: { approved: true }, orderBy: { createdAt: "desc" }, take: 6 }),
     prisma.workshop.findMany({
-      where: { status: "active", date: { gte: new Date() } },
+      where: visiblePublicWorkshopsWhere(),
       include: { bookings: { where: { paymentStatus: "paid" } } },
-      orderBy: { date: "asc" },
-      take: 3,
+      orderBy: { createdAt: "desc" },
+      take: 6,
     }),
   ]);
 
   const content: Record<string, string> = {};
   contentRows.forEach((r: { key: string; value: string }) => (content[r.key] = r.value));
-  return { content, gallery, reviews, workshops };
+  const openWorkshops = workshops.filter((w) => getAvailableSeats(w.maxParticipants, w.bookings) > 0).slice(0, 3);
+  return { content, gallery, reviews, workshops: openWorkshops };
 }
 
 export default async function HomePage() {

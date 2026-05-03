@@ -10,7 +10,8 @@ export function formatPrice(amount: number): string {
   return `₪${amount.toLocaleString("he-IL")}`;
 }
 
-export function formatDate(date: Date | string): string {
+export function formatDate(date: Date | string | null | undefined): string {
+  if (date == null) return "—";
   return new Date(date).toLocaleDateString("he-IL", {
     weekday: "long",
     year: "numeric",
@@ -19,7 +20,8 @@ export function formatDate(date: Date | string): string {
   });
 }
 
-export function formatDateTime(date: Date | string): string {
+export function formatDateTime(date: Date | string | null | undefined): string {
+  if (date == null) return "—";
   return new Date(date).toLocaleDateString("he-IL", {
     weekday: "long",
     year: "numeric",
@@ -30,7 +32,8 @@ export function formatDateTime(date: Date | string): string {
   });
 }
 
-export function formatTime(date: Date | string): string {
+export function formatTime(date: Date | string | null | undefined): string {
+  if (date == null) return "—";
   return new Date(date).toLocaleTimeString("he-IL", {
     hour: "2-digit",
     minute: "2-digit",

@@ -4,9 +4,21 @@ interface BookingInfo {
   customerName: string;
   customerEmail: string;
   workshopName: string;
-  workshopDate: Date;
+  workshopDate: Date | null;
   seats: number;
   totalAmount: number;
+}
+
+function formatWorkshopDateTimeHe(d: Date | null | undefined): string {
+  if (d == null) return "מועד יתואם ב-WhatsApp";
+  return d.toLocaleDateString("he-IL", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 async function sendEmail(to: string, subject: string, html: string) {
@@ -36,14 +48,7 @@ async function sendEmail(to: string, subject: string, html: string) {
 }
 
 export async function sendBookingConfirmation(booking: BookingInfo) {
-  const dateStr = booking.workshopDate.toLocaleDateString("he-IL", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const dateStr = formatWorkshopDateTimeHe(booking.workshopDate);
 
   const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
   const waLink = `https://wa.me/${waNumber}`;
@@ -71,9 +76,7 @@ export async function sendBookingConfirmation(booking: BookingInfo) {
 
 export async function sendAdminNotification(booking: BookingInfo) {
   const adminEmail = process.env.ADMIN_EMAIL || "";
-  const dateStr = booking.workshopDate.toLocaleDateString("he-IL", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit",
-  });
+  const dateStr = formatWorkshopDateTimeHe(booking.workshopDate);
 
   const html = `
     <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:32px">
@@ -96,18 +99,21 @@ export async function sendCancellationEmail(
   to: string,
   customerName: string,
   workshopName: string,
-  workshopDate: Date
+  workshopDate: Date | null
 ) {
-  const dateStr = workshopDate.toLocaleDateString("he-IL", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
-  });
+  const dateStr = workshopDate
+    ? workshopDate.toLocaleDateString("he-IL", {
+        weekday: "long", year: "numeric", month: "long", day: "numeric",
+      })
+    : null;
+  const whenPhrase = dateStr ? `בתאריך ${dateStr}` : "שתוכננה (מועד ב-WhatsApp)";
 
   const html = `
     <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fdf8f3;padding:32px;border-radius:12px">
       <h1 style="color:#8B4513">סטודיו קדרות 🏺</h1>
       <h2 style="color:#c0392b">הסדנה בוטלה</h2>
       <p>שלום ${customerName},</p>
-      <p>לצערנו, הסדנה <strong>${workshopName}</strong> בתאריך ${dateStr} בוטלה.</p>
+      <p>לצערנו, הסדנה <strong>${workshopName}</strong> ${whenPhrase} בוטלה.</p>
       <p>תשלומך יוחזר במלואו תוך 5–10 ימי עסקים.</p>
       <p>מתנצלים על אי הנוחות ומקווים לראותך בסדנאות הקרובות! 🏺</p>
     </div>
@@ -120,15 +126,20 @@ interface RefundInfo {
   customerName: string;
   customerEmail: string;
   workshopName: string;
-  workshopDate: Date;
+  workshopDate: Date | null;
   totalAmount: number;
   refundId: string | null;
 }
 
 export async function sendRefundNotification(info: RefundInfo) {
-  const dateStr = info.workshopDate.toLocaleDateString("he-IL", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
-  });
+  const dateStr = info.workshopDate
+    ? info.workshopDate.toLocaleDateString("he-IL", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "מועד ב-WhatsApp";
 
   const customerHtml = `
     <div dir="rtl" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#fdf8f3;padding:32px;border-radius:12px">

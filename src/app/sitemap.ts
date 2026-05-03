@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { prisma } from '@/lib/prisma'
+import { visiblePublicWorkshopsWhere } from '@/lib/workshop-filters'
 
 const BASE_URL = 'https://studio-site-one-hazel.vercel.app'
 
@@ -50,16 +51,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]
 
   try {
-    const [workshops, events] = await Promise.all([
-      prisma.workshop.findMany({
-        where: { date: { gte: new Date() } },
-        select: { id: true, updatedAt: true },
-      }),
-      prisma.event.findMany({
-        where: { active: true },
-        select: { id: true, updatedAt: true },
-      }),
-    ])
+    const workshops = await prisma.workshop.findMany({
+      where: visiblePublicWorkshopsWhere(),
+      select: { id: true, updatedAt: true },
+    })
 
     const workshopPages: MetadataRoute.Sitemap = workshops.map((w) => ({
       url: `${BASE_URL}/workshops/${w.id}`,
@@ -68,14 +63,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }))
 
-    const eventPages: MetadataRoute.Sitemap = events.map((e) => ({
-      url: `${BASE_URL}/events/${e.id}`,
-      lastModified: e.updatedAt,
-      changeFrequency: 'weekly' as const,
-      priority: 0.6,
-    }))
-
-    return [...staticPages, ...workshopPages, ...eventPages]
+    return [...staticPages, ...workshopPages]
   } catch (error) {
     console.error('Error generating sitemap:', error)
     return staticPages

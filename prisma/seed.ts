@@ -66,7 +66,7 @@ async function main() {
     data: [
       {
         name: "יסודות הקדרות",
-        date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        date: null,
         durationHours: 3,
         description: "סדנה מושלמת למתחילים! נלמד את יסודות עבודה עם חמר על גלגל הקדרות, נבנה כלי ראשון ונעצב אותו. לא נדרש ניסיון מוקדם — רק חשק גדול.",
         pricePerPerson: 180,
@@ -75,7 +75,7 @@ async function main() {
       },
       {
         name: "ערב קדרות זוגי",
-        date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        date: null,
         durationHours: 2.5,
         description: "רומנטי, יצירתי ובלתי נשכח! ערב מיוחד לזוגות שבו תעבדו יחד על גלגל הקדרות. כוסות יין, מוזיקה ושפע של קסם.",
         pricePerPerson: 220,
@@ -84,7 +84,7 @@ async function main() {
       },
       {
         name: "סדנת בניית ביד",
-        date: new Date(Date.now() + 21 * 24 * 60 * 60 * 1000),
+        date: null,
         durationHours: 2,
         description: "סדנה ייחודית לבניית כלים ביד — ללא גלגל קדרות. נלמד טכניקות מסורתיות לבניית קערות, פסלים וצלמיות. מתאים גם לילדים מגיל 10.",
         pricePerPerson: 150,
@@ -93,7 +93,7 @@ async function main() {
       },
       {
         name: "סדנת מתקדמים — גלזור",
-        date: new Date(Date.now() + 28 * 24 * 60 * 60 * 1000),
+        date: null,
         durationHours: 4,
         description: "לאלה שכבר מכירים את הגלגל ורוצים לפתח את היצירות. נעסוק בטכניקות גלזור מתקדמות, שילוב צבעים ואפקטים מיוחדים.",
         pricePerPerson: 280,

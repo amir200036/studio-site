@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Workshop, Booking } from "@prisma/client";
-import { formatDate, formatTime, formatPrice, getAvailableSeats } from "@/lib/utils";
+import { formatPrice, getAvailableSeats } from "@/lib/utils";
 
 type WorkshopWithBookings = Workshop & { bookings: Pick<Booking, "seats" | "paymentStatus">[] };
 
@@ -40,10 +40,10 @@ export function WorkshopCard({ workshop }: Props) {
           <h2 className="text-xl font-bold text-stone-800">{workshop.name}</h2>
         </Link>
 
-        <div className="flex flex-col gap-1 text-sm">
-          <span className="text-amber-700 font-medium">📅 {formatDate(workshop.date)}</span>
-          <span className="text-stone-500">🕐 {formatTime(workshop.date)} · {workshop.durationHours} שעות</span>
-        </div>
+          <div className="flex flex-col gap-1 text-sm">
+            <span className="text-amber-700 font-medium">⏱️ משך: {workshop.durationHours} שעות</span>
+            <span className="text-stone-500">המועד יתואם ב-WhatsApp</span>
+          </div>
 
         <p className="text-stone-600 text-sm leading-relaxed flex-1 line-clamp-4">{workshop.description}</p>
 

@@ -9,7 +9,7 @@ interface Props {
   bookings: Booking[];
   workshopId: string;
   workshopName: string;
-  workshopDate: Date;
+  workshopDate: Date | null;
 }
 
 interface ConfirmState {

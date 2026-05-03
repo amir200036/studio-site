@@ -6,7 +6,7 @@ import { formatDateTime, formatPrice } from "@/lib/utils";
 async function getWorkshops() {
   return prisma.workshop.findMany({
     include: { bookings: { where: { paymentStatus: "paid" } } },
-    orderBy: { date: "desc" },
+    orderBy: { createdAt: "desc" },
   });
 }
 
@@ -39,7 +39,7 @@ export default async function AdminWorkshopsPage() {
             <table className="w-full text-sm">
               <thead className="bg-stone-50 border-b border-stone-100">
                 <tr>
-                  {["שם הסדנה", "תאריך", "מחיר", "מקומות", "סטטוס", "פעולות"].map((h) => (
+                  {["שם הסדנה", "מועד", "מחיר", "מקומות", "סטטוס", "פעולות"].map((h) => (
                     <th key={h} className="text-right px-4 py-3 font-semibold text-stone-600">{h}</th>
                   ))}
                 </tr>
@@ -62,7 +62,9 @@ export default async function AdminWorkshopsPage() {
                   return (
                     <tr key={w.id} className="border-b border-stone-50 hover:bg-stone-50 transition-colors">
                       <td className="px-4 py-3 font-medium text-stone-800">{w.name}</td>
-                      <td className="px-4 py-3 text-stone-500">{formatDateTime(w.date)}</td>
+                      <td className="px-4 py-3 text-stone-500">
+                        {w.date ? formatDateTime(w.date) : "— (ב-WhatsApp)"}
+                      </td>
                       <td className="px-4 py-3">{formatPrice(w.pricePerPerson)}</td>
                       <td className={`px-4 py-3 font-bold ${fillColor}`}>{booked}/{w.maxParticipants}</td>
                       <td className="px-4 py-3">

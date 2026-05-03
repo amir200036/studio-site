@@ -15,7 +15,6 @@ interface Props {
 
 export function WorkshopWhatsAppForm({ workshop, onSubmitted }: Props) {
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [seats, setSeats] = useState(1);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState("");
@@ -35,15 +34,15 @@ export function WorkshopWhatsAppForm({ workshop, onSubmitted }: Props) {
     const href = workshopWhatsAppHref(
       {
         workshopName: workshop.name,
-        workshopDate: workshop.date,
+        workshopDate: workshop.date ?? null,
         durationHours: workshop.durationHours,
         pricePerPerson: workshop.pricePerPerson,
         seats,
         total,
         customerName: name.trim(),
-        customerEmail: email.trim(),
       },
-      waNumber
+      waNumber,
+      workshop.whatsappMessage
     );
     window.open(href, "_blank", "noopener,noreferrer");
     onSubmitted?.();
@@ -64,19 +63,6 @@ export function WorkshopWhatsAppForm({ workshop, onSubmitted }: Props) {
             onChange={(e) => setName(e.target.value)}
             className="w-full border border-stone-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
             placeholder="ישראל ישראלי"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-stone-700 mb-1">כתובת מייל *</label>
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-stone-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
-            placeholder="israel@example.com"
-            dir="ltr"
           />
         </div>
 

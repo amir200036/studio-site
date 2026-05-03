@@ -11,7 +11,7 @@ interface Booking {
   seats: number;
   totalAmount: number;
   createdAt: Date;
-  workshop: { name: string; date: Date };
+  workshop: { name: string; date: Date | null };
 }
 
 interface Customer {

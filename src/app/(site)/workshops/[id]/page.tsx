@@ -21,7 +21,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return { title: "סדנה" };
   }
   const title = `${workshop.name} | סדנאות קדרות — יד יוצרת`;
-  const description = `${formatDate(workshop.date)} · ${formatPrice(workshop.pricePerPerson)} לאדם · ${workshop.description.slice(0, 120)}${workshop.description.length > 120 ? "…" : ""}`;
+  const when = workshop.date
+    ? `${formatDate(workshop.date)} · `
+    : `${workshop.durationHours} שעות · מועד ב-WhatsApp · `;
+  const description = `${when}${formatPrice(workshop.pricePerPerson)} לאדם · ${workshop.description.slice(0, 100)}${workshop.description.length > 100 ? "…" : ""}`;
   return {
     title,
     description,
@@ -51,7 +54,7 @@ export default async function WorkshopDetailPage({ params }: Props) {
 
   const content = Object.fromEntries(rows.map((r) => [r.key, r.value]));
   const available = getAvailableSeats(workshop.maxParticipants, workshop.bookings);
-  const isPast = workshop.date < new Date();
+  const isPast = workshop.date != null && workshop.date < new Date();
 
   if (isPast || available <= 0) {
     return (
@@ -90,10 +93,18 @@ export default async function WorkshopDetailPage({ params }: Props) {
           )}
           <div className="p-6 md:p-8">
             <h1 className="text-3xl font-bold text-amber-900 mb-2">{workshop.name}</h1>
-            <p className="text-amber-700 font-medium mb-1">📅 {formatDate(workshop.date)}</p>
-            <p className="text-stone-500 text-sm mb-6">
-              🕐 {formatTime(workshop.date)} · {workshop.durationHours} שעות · נותרו {available} מקומות
-            </p>
+            {workshop.date ? (
+              <>
+                <p className="text-amber-700 font-medium mb-1">📅 {formatDate(workshop.date)}</p>
+                <p className="text-stone-500 text-sm mb-6">
+                  🕐 {formatTime(workshop.date)} · {workshop.durationHours} שעות · נותרו {available} מקומות
+                </p>
+              </>
+            ) : (
+              <p className="text-stone-600 text-sm mb-6">
+                ⏱️ משך כ־{workshop.durationHours} שעות · המועד יתואם ב-WhatsApp · נותרו {available} מקומות
+              </p>
+            )}
             <p className="text-stone-600 leading-relaxed whitespace-pre-line mb-6">{workshop.description}</p>
             <div className="flex flex-wrap items-baseline gap-3 py-4 border-t border-stone-100">
               <span className="text-sm text-stone-500">מחיר לאדם</span>

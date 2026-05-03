@@ -8,16 +8,19 @@ datasource db {
 
 // סדנאות
 model Workshop {
-  id              String    @id @default(cuid())
-  name            String
-  date            DateTime
-  durationHours   Float
-  description     String
-  imageUrl        String?
-  pricePerPerson  Float
-  maxParticipants Int
-  status          String    @default("active")
-  bookings        Booking[]
+  id               String    @id @default(cuid())
+  name             String
+  /** אופציונלי — לא מוצג באתר; המועד מתואם ב-WhatsApp */
+  date             DateTime?
+  durationHours    Float
+  description      String
+  imageUrl         String?
+  pricePerPerson   Float
+  maxParticipants  Int
+  status           String    @default("active")
+  /** תבנית הודעת WhatsApp מהאתר; מציינים {{workshopName}}, {{customerName}} וכו׳ — ריק = ברירת מחדל */
+  whatsappMessage  String?
+  bookings         Booking[]
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }

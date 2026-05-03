@@ -1,17 +1,17 @@
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { visiblePublicWorkshopsWhere } from "@/lib/workshop-filters";
 import { formatDateTime, formatPrice } from "@/lib/utils";
 
 async function getDashboardData() {
-  const now = new Date();
   const [totalBookings, totalRevenue, upcomingWorkshops, recentBookings] = await Promise.all([
     prisma.booking.count({ where: { paymentStatus: "paid" } }),
     prisma.booking.aggregate({ where: { paymentStatus: "paid" }, _sum: { totalAmount: true } }),
     prisma.workshop.findMany({
-      where: { status: "active", date: { gte: now } },
+      where: visiblePublicWorkshopsWhere(),
       include: { bookings: { where: { paymentStatus: "paid" } } },
-      orderBy: { date: "asc" },
+      orderBy: [{ date: "asc" }, { createdAt: "desc" }],
     }),
     prisma.booking.findMany({
       where: { paymentStatus: "paid" },
@@ -72,7 +72,9 @@ export default async function AdminDashboard() {
                   >
                     <div>
                       <div className="font-medium text-stone-800 text-sm">{w.name}</div>
-                      <div className="text-stone-400 text-xs mt-0.5">{formatDateTime(w.date)}</div>
+                      <div className="text-stone-400 text-xs mt-0.5">
+                        {w.date ? formatDateTime(w.date) : "מועד — ב-WhatsApp"}
+                      </div>
                     </div>
                     <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${color}`}>
                       {booked}/{w.maxParticipants}
