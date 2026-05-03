@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, pageBackground } from "@/lib/utils";
 
@@ -74,16 +75,26 @@ export default async function EventsPage() {
                   </div>
                 )}
                 <div className="p-6 flex flex-col gap-3 flex-1">
-                  <h2 className="text-xl font-bold text-stone-800">{event.name}</h2>
-                  <p className="text-stone-600 text-sm leading-relaxed flex-1">{event.description}</p>
-                  <a
-                    href={waUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors text-sm"
-                  >
-                    💬 לפרטים והרשמה
-                  </a>
+                  <Link href={`/events/${event.id}`} className="hover:text-amber-800 transition-colors">
+                    <h2 className="text-xl font-bold text-stone-800">{event.name}</h2>
+                  </Link>
+                  <p className="text-stone-600 text-sm leading-relaxed flex-1 line-clamp-3">{event.description}</p>
+                  <div className="flex flex-col sm:flex-row gap-2 mt-auto">
+                    <Link
+                      href={`/events/${event.id}`}
+                      className="inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl transition-colors text-sm text-center"
+                    >
+                      לדף האירוע
+                    </Link>
+                    <a
+                      href={waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-green-500 hover:bg-green-600 text-white font-bold rounded-xl transition-colors text-sm"
+                    >
+                      💬 WhatsApp
+                    </a>
+                  </div>
                 </div>
               </div>
             );

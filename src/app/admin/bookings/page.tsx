@@ -12,7 +12,7 @@ async function getBookings() {
 export default async function AdminBookingsPage() {
   const bookings = await getBookings();
 
-  const statusLabels: Record<string, string> = { paid: "שולם", pending: "ממתין", refunded: "הוחזר", cancelled: "בוטל" };
+  const statusLabels: Record<string, string> = { paid: "שולם", pending: "ממתין", refunded: "בוטל", cancelled: "בוטל" };
   const statusColors: Record<string, string> = {
     paid: "bg-green-100 text-green-700",
     pending: "bg-yellow-100 text-yellow-700",
@@ -22,9 +22,17 @@ export default async function AdminBookingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-3xl font-bold text-stone-800">הזמנות</h1>
-        <p className="text-stone-400 mt-1">{bookings.length} הזמנות במערכת</p>
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-stone-800">הזמנות</h1>
+          <p className="text-stone-400 mt-1">{bookings.length} הזמנות במערכת</p>
+        </div>
+        <a
+          href="/api/admin/export/bookings"
+          className="text-sm font-bold text-amber-800 hover:text-amber-900 px-4 py-2 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors"
+        >
+          הורדת CSV
+        </a>
       </div>
 
       <div className="bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden">

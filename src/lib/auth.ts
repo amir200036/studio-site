@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 
+/** מנהל יחיד — אימות לפי ADMIN_EMAIL / ADMIN_PASSWORD (או bcrypt) בלבד */
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({

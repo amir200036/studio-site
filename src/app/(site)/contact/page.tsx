@@ -6,6 +6,10 @@ import { ContactForm } from "@/components/contact/ContactForm";
 
 const BASE_URL = "https://studio-site-one-hazel.vercel.app";
 
+/** מפת ברירת מחדל — ניתן לעדכן גם ב-admin → הגדרות → קישור הטמעת Google Maps */
+const DEFAULT_MAP_EMBED =
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1693.3392116638338!2d34.78527685110109!3d31.915333642324743!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1502b75f9a9475d7%3A0x496e85a16407ed8a!2z15nXkyDXmdeV16bXqNeqIC0g16HXmNeV15PXmdeVINec16fXk9eo15XXqiDXlden16jXnteZ16fXlA!5e0!3m2!1siw!2sil!4v1777821449278!5m2!1siw!2sil";
+
 export const metadata: Metadata = {
   title: "יצירת קשר | יד יוצרת — סדנת קדרות בנס ציונה",
   description:
@@ -26,7 +30,7 @@ export const metadata: Metadata = {
 
 async function getContent() {
   const rows = await prisma.siteContent.findMany({
-    where: { key: { in: ["phone", "email", "address", "hours", "whatsapp", "bg_image_contact"] } },
+    where: { key: { in: ["phone", "email", "address", "hours", "whatsapp", "map_embed", "bg_image_contact"] } },
   });
   const map: Record<string, string> = {};
   rows.forEach((r: { key: string; value: string }) => (map[r.key] = r.value));
@@ -37,6 +41,7 @@ export default async function ContactPage() {
   const info = await getContent();
   const waNumber = info.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
   const waUrl = `https://wa.me/${waNumber}`;
+  const mapSrc = (info.map_embed && info.map_embed.trim()) || DEFAULT_MAP_EMBED;
 
   return (
     <div style={pageBackground("", info["bg_image_contact"] || "")}>
@@ -115,7 +120,7 @@ export default async function ContactPage() {
             {/* מפה */}
             <div className="rounded-2xl overflow-hidden shadow-md" style={{ height: 280 }}>
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3386.6783134310394!2d34.78697792353003!3d31.9153366275209!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1502b6d74d65d3a7%3A0x5b38c23f0f78960e!2z15DXkdeg16gg15HXnyDXmdeU15XXk9eUIDQxLCDXoNehINem15nXldeg15Q!5e0!3m2!1siw!2sil!4v1776697534538!5m2!1siw!2sil"
+                src={mapSrc}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}

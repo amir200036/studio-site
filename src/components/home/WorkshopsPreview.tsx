@@ -62,10 +62,10 @@ export function WorkshopsPreview({ workshops }: Props) {
                     <span className="text-xs text-stone-400">{available} מקומות פנויים</span>
                   </div>
                   <Link
-                    href="/workshops"
+                    href={`/workshops/${workshop.id}`}
                     className="mt-2 text-center py-2 bg-amber-700 hover:bg-amber-800 text-white rounded-lg font-semibold text-sm transition-colors"
                   >
-                    להרשמה ←
+                    פרטים והרשמה ←
                   </Link>
                 </div>
               </div>

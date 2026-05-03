@@ -72,10 +72,18 @@ export function CustomersClient({ customers }: Props) {
           <h1 className="text-3xl font-bold text-stone-800">לקוחות</h1>
           <p className="text-stone-400 mt-1">{customers.length} לקוחות</p>
         </div>
-        <button onClick={() => setNewsletterOpen(!newsletterOpen)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl text-sm transition-colors">
-          <Mail className="w-4 h-4" /> ניוזלטר לכולם
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <a
+            href="/api/admin/export/customers"
+            className="text-sm font-bold text-amber-800 hover:text-amber-900 px-4 py-2.5 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors"
+          >
+            הורדת CSV
+          </a>
+          <button onClick={() => setNewsletterOpen(!newsletterOpen)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl text-sm transition-colors">
+            <Mail className="w-4 h-4" /> ניוזלטר לכולם
+          </button>
+        </div>
       </div>
 
       {newsletterOpen && (

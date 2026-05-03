@@ -14,13 +14,15 @@ export async function POST(req: NextRequest, { params }: Params) {
   const workshop = await prisma.workshop.findUnique({ where: { id: params.id } });
   if (!workshop) return NextResponse.json({ error: "לא נמצאה" }, { status: 404 });
 
+  const totalAmount = workshop.pricePerPerson * seats;
+
   const booking = await prisma.booking.create({
     data: {
       workshopId: params.id,
       customerName,
       customerEmail,
       seats,
-      totalAmount: 0,
+      totalAmount,
       paymentStatus: "paid",
     },
   });

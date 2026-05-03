@@ -78,7 +78,7 @@ export function WorkshopBookings({ bookings: initialBookings, workshopId }: Prop
         )
       );
       setConfirm(null);
-      setMsg("✅ ההרשמה בוטלה וה-החזר נשלח ללקוח");
+      setMsg("✅ ההרשמה בוטלה במערכת");
     } catch {
       setRefundError("שגיאה בחיבור לשרת.");
     } finally {
@@ -99,10 +99,17 @@ export function WorkshopBookings({ bookings: initialBookings, workshopId }: Prop
             <div className="text-3xl mb-3 text-center">⚠️</div>
             <h3 className="font-bold text-stone-800 text-center mb-2">אישור ביטול הרשמה</h3>
             <p className="text-stone-600 text-sm text-center mb-4 leading-relaxed">
-              האם לבטל את הרשמתו של <strong>{confirm.customerName}</strong>{" "}
-              ולהחזיר <strong>{formatPrice(confirm.totalAmount)}</strong>?
+              האם לבטל את הרשמתו של <strong>{confirm.customerName}</strong>
+              {confirm.totalAmount > 0 ? (
+                <>
+                  {" "}
+                  (סכום רשום במערכת: <strong>{formatPrice(confirm.totalAmount)}</strong>)?
+                </>
+              ) : (
+                "?"
+              )}
               <br />
-              <span className="text-red-600 font-medium">פעולה זו אינה הפיכה.</span>
+              <span className="text-red-600 font-medium">פעולה זו אינה הפיכה — החזר כספי (אם רלוונטי) יבוצע ידנית מול הלקוח.</span>
             </p>
             {refundError && (
               <p className="text-red-600 text-sm bg-red-50 px-3 py-2 rounded-lg mb-3 text-center">{refundError}</p>
@@ -121,7 +128,7 @@ export function WorkshopBookings({ bookings: initialBookings, workshopId }: Prop
                 className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-stone-300 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-colors"
               >
                 {refunding ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                {refunding ? "מעבד..." : "כן, בטל והחזר"}
+                {refunding ? "מעבד..." : "כן, בטל הרשמה"}
               </button>
             </div>
           </div>
@@ -160,10 +167,10 @@ export function WorkshopBookings({ bookings: initialBookings, workshopId }: Prop
                     <button
                       onClick={() => setConfirm({ bookingId: b.id, customerName: b.customerName, totalAmount: b.totalAmount })}
                       className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors font-medium"
-                      title="החזר כסף וביטול הרשמה"
+                      title="ביטול הרשמה במערכת"
                     >
                       <RotateCcw className="w-3 h-3" />
-                      החזר
+                      ביטול
                     </button>
                   </div>
                 </div>
