@@ -19,10 +19,13 @@ export function Navbar({ bgColor }: { bgColor?: string }) {
   return (
     <header className="sticky top-0 z-50 backdrop-blur border-b border-stone-200 shadow-sm"
       style={{ backgroundColor: bgColor ? `${bgColor}f2` : "#fdf8f0f2" }}>
-      <div className="max-w-6xl mx-auto px-4 flex items-center justify-between h-16">
-        {/* לוגו */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl text-amber-800 group-hover:text-amber-700 transition-colors" style={{ fontFamily: "var(--font-rubik)", fontWeight: 800 }}>
+      <div className="max-w-6xl mx-auto px-4 flex items-center justify-between gap-2 h-16 min-h-16">
+        {/* לוגו — מכווץ במובייל כדי שלא יידחק כפתור התפריט */}
+        <Link href="/" className="flex items-center gap-2 group min-w-0 flex-1 md:flex-initial">
+          <span
+            className="text-lg sm:text-xl md:text-2xl text-amber-800 group-hover:text-amber-700 transition-colors truncate"
+            style={{ fontFamily: "var(--font-rubik)", fontWeight: 800 }}
+          >
             סטודיו לקדרות וקרמיקה
           </span>
         </Link>
@@ -42,8 +45,10 @@ export function Navbar({ bgColor }: { bgColor?: string }) {
 
         {/* המבורגר מובייל */}
         <button
-          className="md:hidden p-2 rounded-lg hover:bg-amber-50 transition-colors"
+          type="button"
+          className="md:hidden shrink-0 min-h-11 min-w-11 flex items-center justify-center rounded-lg hover:bg-amber-50 transition-colors"
           onClick={() => setOpen(!open)}
+          aria-expanded={open}
           aria-label="תפריט"
         >
           {open ? <X className="w-5 h-5 text-stone-600" /> : <Menu className="w-5 h-5 text-stone-600" />}
