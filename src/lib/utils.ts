@@ -60,3 +60,10 @@ export function getAvailableSeats(
     .reduce((sum, b) => sum + b.seats, 0);
   return Math.max(0, maxParticipants - booked);
 }
+
+/** תצוגה ללקוחות: "עד N מקומות" (במקום "N מקומות פנויים"). כשאין מקומות — "אין מקומות". */
+export function formatWorkshopSeatsAvailability(available: number): string {
+  if (available <= 0) return "אין מקומות";
+  if (available === 1) return "עד מקום אחד";
+  return `עד ${available} מקומות`;
+}

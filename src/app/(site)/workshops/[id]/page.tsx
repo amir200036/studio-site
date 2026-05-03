@@ -4,7 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { formatDate, formatTime, formatPrice, getAvailableSeats, pageBackground } from "@/lib/utils";
+import {
+  formatDate,
+  formatTime,
+  formatPrice,
+  formatWorkshopSeatsAvailability,
+  getAvailableSeats,
+  pageBackground,
+} from "@/lib/utils";
 import { WorkshopWhatsAppForm } from "@/components/workshops/WorkshopWhatsAppForm";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -66,7 +73,7 @@ export default async function WorkshopDetailPage({ params }: Props) {
           <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8 text-center">
             <h1 className="text-2xl font-bold text-stone-800 mb-2">{workshop.name}</h1>
             <p className="text-stone-500">
-              {isPast ? "סדנה זו כבר התקיימה." : "אין מקומות פנויים בסדנה זו."}
+              {isPast ? "סדנה זו כבר התקיימה." : "הסדנה מלאה."}
             </p>
           </div>
         </div>
@@ -97,12 +104,12 @@ export default async function WorkshopDetailPage({ params }: Props) {
               <>
                 <p className="text-amber-700 font-medium mb-1">📅 {formatDate(workshop.date)}</p>
                 <p className="text-stone-500 text-sm mb-6">
-                  🕐 {formatTime(workshop.date)} · {workshop.durationHours} שעות · נותרו {available} מקומות
+                  🕐 {formatTime(workshop.date)} · {workshop.durationHours} שעות · {formatWorkshopSeatsAvailability(available)}
                 </p>
               </>
             ) : (
               <p className="text-stone-600 text-sm mb-6">
-                ⏱️ משך כ־{workshop.durationHours} שעות · המועד יתואם ב-WhatsApp · נותרו {available} מקומות
+                ⏱️ משך כ־{workshop.durationHours} שעות · המועד יתואם ב-WhatsApp · {formatWorkshopSeatsAvailability(available)}
               </p>
             )}
             <p className="text-stone-600 leading-relaxed whitespace-pre-line mb-6">{workshop.description}</p>

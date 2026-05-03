@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Workshop, Booking } from "@prisma/client";
-import { formatPrice, getAvailableSeats } from "@/lib/utils";
+import { formatPrice, formatWorkshopSeatsAvailability, getAvailableSeats } from "@/lib/utils";
 
 type WorkshopWithBookings = Workshop & { bookings: Pick<Booking, "seats" | "paymentStatus">[] };
 
@@ -59,7 +59,7 @@ export function WorkshopsPreview({ workshops }: Props) {
                   <p className="text-stone-600 text-sm line-clamp-2 flex-1">{workshop.description}</p>
                   <div className="flex justify-between items-center mt-2">
                     <span className="font-bold text-amber-800 text-lg">{formatPrice(workshop.pricePerPerson)}</span>
-                    <span className="text-xs text-stone-400">{available} מקומות פנויים</span>
+                    <span className="text-xs text-stone-400">{formatWorkshopSeatsAvailability(available)}</span>
                   </div>
                   <Link
                     href={`/workshops/${workshop.id}`}
