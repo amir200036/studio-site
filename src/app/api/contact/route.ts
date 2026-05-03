@@ -30,12 +30,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "כתובת מייל לא תקינה." }, { status: 400 });
     }
 
-    const adminEmail = process.env.ADMIN_EMAIL || "";
-    await sendCustomEmail(
+    const adminEmail = process.env.ADMIN_EMAIL?.trim() || "";
+    if (!adminEmail) {
+      return NextResponse.json(
+        { error: "השרת לא מוגדר לקבלת פניות. נסו דרך WhatsApp." },
+        { status: 503 }
+      );
+    }
+
+    const sent = await sendCustomEmail(
       adminEmail,
       `פנייה חדשה מ-${name}`,
       `שם: ${name}\nמייל: ${email}\n\nהודעה:\n${message}`
     );
+
+    if (!sent) {
+      return NextResponse.json(
+        { error: "שליחת המייל נכשלה. נסו שוב מאוחר יותר או צרו קשר ב-WhatsApp." },
+        { status: 502 }
+      );
+    }
 
     return NextResponse.json({ success: true });
   } catch {

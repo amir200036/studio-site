@@ -23,7 +23,15 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   const emails = Array.from(new Set(workshop.bookings.map((b) => b.customerEmail)));
 
-  await Promise.all(emails.map((email) => sendCustomEmail(email, subject, message)));
+  if (emails.length === 0) {
+    return NextResponse.json({ sent: 0, failed: 0 });
+  }
 
-  return NextResponse.json({ sent: emails.length });
+  const results = await Promise.all(emails.map((email) => sendCustomEmail(email, subject, message)));
+  const sent = results.filter(Boolean).length;
+  const failed = emails.length - sent;
+  if (sent === 0) {
+    return NextResponse.json({ error: "כל שליחות המייל נכשלו", failed }, { status: 502 });
+  }
+  return NextResponse.json({ sent, failed });
 }

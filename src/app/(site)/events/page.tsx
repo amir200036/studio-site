@@ -3,21 +3,22 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, pageBackground } from "@/lib/utils";
+import { getSiteUrl } from "@/lib/site-url";
 
-const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 export const metadata: Metadata = {
   title: "אירועים מיוחדים וגיבוש חברה | יד יוצרת — סדנת קדרות בנס ציונה",
   description:
     "ימי הולדת, גיבוש חברה ואירועים מיוחדים בסדנת קדרות בנס ציונה. חוויה ייחודית שכולם ייזכרו — צרו קשר לפרטים.",
   alternates: {
-    canonical: `${BASE_URL}/events`,
+    canonical: `${siteUrl}/events`,
   },
   openGraph: {
     title: "אירועים מיוחדים וגיבוש חברה | יד יוצרת — סדנת קדרות בנס ציונה",
     description:
       "ימי הולדת, גיבוש חברה ואירועים מיוחדים בסדנת קדרות בנס ציונה. חוויה ייחודית שכולם ייזכרו — צרו קשר לפרטים.",
-    url: `${BASE_URL}/events`,
+    url: `${siteUrl}/events`,
     locale: "he_IL",
     type: "website",
     siteName: "יד יוצרת — סדנת קדרות",

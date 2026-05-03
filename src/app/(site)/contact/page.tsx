@@ -3,8 +3,9 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { pageBackground } from "@/lib/utils";
 import { ContactForm } from "@/components/contact/ContactForm";
+import { getSiteUrl } from "@/lib/site-url";
 
-const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 /** מפת ברירת מחדל — ניתן לעדכן גם ב-admin → הגדרות → קישור הטמעת Google Maps */
 const DEFAULT_MAP_EMBED =
@@ -15,13 +16,13 @@ export const metadata: Metadata = {
   description:
     "צרו קשר עם סדנת הקדרות יד יוצרת בנס ציונה — טלפון, WhatsApp, מייל וטופס יצירת קשר. אבנר בן יהודה 41, נס ציונה.",
   alternates: {
-    canonical: `${BASE_URL}/contact`,
+    canonical: `${siteUrl}/contact`,
   },
   openGraph: {
     title: "יצירת קשר | יד יוצרת — סדנת קדרות בנס ציונה",
     description:
       "צרו קשר עם סדנת הקדרות יד יוצרת בנס ציונה — טלפון, WhatsApp, מייל וטופס יצירת קשר. אבנר בן יהודה 41, נס ציונה.",
-    url: `${BASE_URL}/contact`,
+    url: `${siteUrl}/contact`,
     locale: "he_IL",
     type: "website",
     siteName: "יד יוצרת — סדנת קדרות",

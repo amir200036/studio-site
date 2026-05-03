@@ -3,21 +3,22 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { pageBackground } from "@/lib/utils";
 import { FAQAccordion } from "@/components/faq/FAQAccordion";
+import { getSiteUrl } from "@/lib/site-url";
 
-const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 export const metadata: Metadata = {
   title: "שאלות נפוצות | יד יוצרת — סדנת קדרות בנס ציונה",
   description:
     "תשובות לשאלות הנפוצות ביותר על סדנאות קדרות בנס ציונה — מחירים, רמות ניסיון, מדיניות ביטול, גיל מינימלי ועוד.",
   alternates: {
-    canonical: `${BASE_URL}/faq`,
+    canonical: `${siteUrl}/faq`,
   },
   openGraph: {
     title: "שאלות נפוצות | יד יוצרת — סדנת קדרות בנס ציונה",
     description:
       "תשובות לשאלות הנפוצות ביותר על סדנאות קדרות בנס ציונה — מחירים, רמות ניסיון, מדיניות ביטול, גיל מינימלי ועוד.",
-    url: `${BASE_URL}/faq`,
+    url: `${siteUrl}/faq`,
     locale: "he_IL",
     type: "website",
     siteName: "יד יוצרת — סדנת קדרות",

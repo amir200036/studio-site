@@ -1,10 +1,10 @@
-import { MetadataRoute } from 'next'
-import { prisma } from '@/lib/prisma'
-import { visiblePublicWorkshopsWhere } from '@/lib/workshop-filters'
-
-const BASE_URL = 'https://studio-site-one-hazel.vercel.app'
+import { MetadataRoute } from "next";
+import { prisma } from "@/lib/prisma";
+import { visiblePublicWorkshopsWhere } from "@/lib/workshop-filters";
+import { getSiteUrl } from "@/lib/site-url";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const BASE_URL = getSiteUrl().replace(/\/$/, "");
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
@@ -65,7 +65,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
     return [...staticPages, ...workshopPages]
   } catch (error) {
-    console.error('Error generating sitemap:', error)
-    return staticPages
+    console.error("Error generating sitemap:", error);
+    return staticPages;
   }
 }

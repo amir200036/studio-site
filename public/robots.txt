@@ -1,5 +1,5 @@
 # Robots.txt for Pottery Studio Nes Tziona
-# Updated: April 2026
+# Updated: May 2026 — עדכנו את שורת Sitemap לכתובת הקנונית של האתר
 
 User-agent: *
 Allow: /
@@ -40,5 +40,5 @@ Allow: /
 User-agent: Bytespider
 Allow: /
 
-# Sitemap
+# Sitemap — החליפו בדומיין הפרודקשן שלכם
 Sitemap: https://studio-site-one-hazel.vercel.app/sitemap.xml

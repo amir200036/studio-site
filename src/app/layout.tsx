@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Assistant, Rubik } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const assistant = Assistant({
@@ -15,7 +16,7 @@ const rubik = Rubik({
   weight: ["800"],
 });
 
-const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 export const metadata: Metadata = {
   title: {
@@ -25,7 +26,7 @@ export const metadata: Metadata = {
   description:
     "סדנאות קדרות וקרמיקה בנס ציונה לזוגות, משפחות, ימי הולדת וגיבוש חברה. מדריכים מנוסים, אווירה חמה ומזמינה. הזמינו מקום עכשיו!",
   keywords: "קדרות, סדנאות קדרות, קרמיקה, נס ציונה, יצירה, חמר, גיבוש, יום הולדת, סדנה",
-  metadataBase: new URL(BASE_URL),
+  metadataBase: new URL(siteUrl),
   openGraph: {
     siteName: "יד יוצרת — סדנת קדרות",
     locale: "he_IL",
@@ -37,7 +38,7 @@ const localBusinessSchema = {
   "@context": "https://schema.org",
   "@type": ["LocalBusiness", "ArtStudio"],
   name: "יד יוצרת — סדנת קדרות וקרמיקה",
-  url: BASE_URL,
+  url: siteUrl,
   description:
     "סדנאות קדרות וקרמיקה בנס ציונה לזוגות, משפחות, ימי הולדת וגיבוש חברה. מדריכים מנוסים, אווירה חמה ומזמינה.",
   address: {

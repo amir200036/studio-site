@@ -1,14 +1,14 @@
 # יד יוצרת — סדנת קדרות בנס ציונה
 
-אתר הזמנות לסטודיו קדרות — עברית RTL, מבוסס Next.js 14.
+אתר לסטודיו קדרות — עברית RTL, מבוסס Next.js 14. לקוחות: סדנאות, אירועים, FAQ ויצירת קשר; הרשמה לסדנאות דרך **WhatsApp**. לאדמין: ניהול תוכן, הזמנות, לקוחות וייצוא CSV.
 
-**כתובת האתר:** https://studio-site-one-hazel.vercel.app
+**כתובת האתר בפרודקשן:** הגדר `NEXT_PUBLIC_SITE_URL` (למשל `https://your-domain.com`). ב-Vercel, אם המשתנה ריק, נעשה שימוש ב-`VERCEL_URL`.
 
 ---
 
 ## 1. סקירה כללית
 
-**יד יוצרת** הוא אתר מלא לסטודיו קדרות בנס ציונה. האתר מאפשר ללקוחות לגלות סדנאות, להירשם ולשלם אונליין — ולאדמין לנהל הכל מפאנל ייעודי.
+**יד יוצרת** הוא אתר מלא לסטודיו קדרות בנס ציונה. לקוחות יכולים לגלות סדנאות, לפתוח דף סדנה עם טופס שמוביל ל-WhatsApp, לראות אירועים ולשלוח פנייה בטופס קשר. האדמין מנהל תוכן, סדנאות, הזמנות (כולל הוספה ידנית), לקוחות, מיילים וייצואים.
 
 ### טכנולוגיות
 
@@ -19,7 +19,7 @@
 | עיצוב | Tailwind CSS v3 + PostCSS + autoprefixer |
 | מסד נתונים | Prisma 7 + Vercel Postgres |
 | אימות | NextAuth.js v4 (Credentials + JWT) |
-| תשלומים | Stripe (Checkout Sessions + Webhooks) |
+| תשלומים | אין תשלום אונליין בזרימת הלקוח — תיאום והרשמה ב-WhatsApp |
 | מיילים | Resend API |
 | אחסון תמונות | Vercel Blob (פיתוח: `public/uploads/`) |
 | אנליטיקה | Vercel Analytics |
@@ -38,19 +38,19 @@ studio-site/
 │   └── seed.ts                # נתוני דוגמה לפיתוח
 ├── prisma.config.ts           # הגדרת חיבור DB לפקודות CLI בלבד (Prisma 7)
 ├── public/
-│   ├── llms.txt               # מפת תוכן לסוכני AI (ChatGPT, Claude, Perplexity)
-│   └── robots.txt             # הרשאות סריקה לבוטים + מיקום sitemap
+│   ├── llms.txt               # מפת תוכן לסוכני AI (עדכנו קישורים בדומיין שינוי)
+│   └── robots.txt             # הרשאות סריקה + Sitemap (עדכנו שורת Sitemap בפרודקשן)
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx         # Root layout: HTML lang="he", RTL, פונטים, JSON-LD, Analytics
 │   │   ├── globals.css        # הגדרות Tailwind בלבד
-│   │   ├── sitemap.ts         # Sitemap דינמי (דפים + סדנאות + אירועים)
+│   │   ├── sitemap.ts         # Sitemap דינמי (דפים + סדנאות)
 │   │   ├── error.tsx          # דף שגיאה גלובלי
 │   │   ├── not-found.tsx      # דף 404
 │   │   ├── (site)/            # קבוצת נתיב — דפים ציבוריים (URL ללא "(site)")
 │   │   │   ├── layout.tsx     # Navbar + Footer + קריאת צבע רקע גלובלי מ-DB
 │   │   │   ├── page.tsx       # דף הבית + JSON-LD AggregateRating דינמי
-│   │   │   ├── workshops/     # רשימת סדנאות + /success לאחר תשלום
+│   │   │   ├── workshops/     # רשימת סדנאות, /[id], /success (מפנה ל-/workshops)
 │   │   │   ├── events/        # אירועים מיוחדים (next/Image, כפתור WhatsApp)
 │   │   │   ├── faq/           # שאלות נפוצות + JSON-LD FAQPage דינמי
 │   │   │   ├── contact/       # יצירת קשר + מפה + פרטי סטודיו
@@ -68,15 +68,13 @@ studio-site/
 │   │   │   └── settings/      # טלפון, שעות, embed מפה
 │   │   └── api/
 │   │       ├── auth/          # NextAuth handler
-│   │       ├── checkout/      # יצירת Stripe Checkout Session
-│   │       ├── contact/       # שליחת מייל מטופס קשר
-│   │       ├── webhooks/stripe/ # Stripe Webhook → יצירת Booking
+│   │       ├── contact/       # שליחת מייל מטופס קשר (דורש ADMIN_EMAIL + Resend בפרודקשן)
 │   │       └── admin/         # כל ה-APIs המוגנים של האדמין
 │   ├── components/
 │   │   ├── layout/            # Navbar.tsx, Footer.tsx
 │   │   ├── home/              # HeroSection, AboutSection, GallerySection,
 │   │   │                      # ReviewsSection, WorkshopsPreview
-│   │   ├── workshops/         # WorkshopCard.tsx, BookingModal.tsx
+│   │   ├── workshops/         # WorkshopCard, WorkshopWhatsAppForm
 │   │   ├── faq/               # FAQAccordion.tsx
 │   │   ├── contact/           # ContactForm.tsx
 │   │   └── admin/             # AdminNavbar, ContentClient, CustomersClient,
@@ -87,6 +85,7 @@ studio-site/
 │   │   ├── prisma.ts          # Prisma singleton עם PrismaPg adapter
 │   │   ├── email.ts           # פונקציות מייל דרך Resend API
 │   │   ├── rate-limit.ts      # Rate limiter בזיכרון
+│   │   ├── site-url.ts        # getSiteUrl() — NEXT_PUBLIC_SITE_URL / VERCEL_URL / localhost
 │   │   └── utils.ts           # cn, formatPrice, formatDate/Time, buildWhatsAppUrl,
 │   │                          # pageBackground, getAvailableSeats
 │   └── middleware.ts          # הגנת /admin/* עם NextAuth withAuth
@@ -101,8 +100,9 @@ studio-site/
 | נתיב | קובץ | תיאור |
 |---|---|---|
 | `/` | `(site)/page.tsx` | דף הבית — Hero, אודות, תצוגת סדנאות, גלריה, ביקורות |
-| `/workshops` | `(site)/workshops/page.tsx` | רשימת סדנאות פעילות עם הרשמה ותשלום |
-| `/workshops/success` | `(site)/workshops/success/page.tsx` | אישור הרשמה לאחר תשלום |
+| `/workshops` | `(site)/workshops/page.tsx` | רשימת סדנאות פעילות; הרשמה ב-WhatsApp |
+| `/workshops/[id]` | `(site)/workshops/[id]/page.tsx` | דף סדנה + טופס הודעה ל-WhatsApp |
+| `/workshops/success` | `(site)/workshops/success/page.tsx` | הפניה ל-`/workshops` (קישור ישן) |
 | `/events` | `(site)/events/page.tsx` | אירועים מיוחדים עם כפתור WhatsApp |
 | `/faq` | `(site)/faq/page.tsx` | שאלות נפוצות עם JSON-LD FAQPage |
 | `/contact` | `(site)/contact/page.tsx` | פרטי קשר, טופס ומפה |
@@ -184,60 +184,27 @@ URL:   http://localhost:3000/admin/login
 
 ## 6. זרימות עבודה
 
-### א. לקוח מזמין מקום בסדנה
+### א. לקוח מעוניין בסדנה
 
 ```
-1. גולש ל-/workshops
-2. לוחץ "הרשמה לסדנה" → נפתח BookingModal
-3. ממלא שם, מייל, מספר מקומות
-4. לוחץ "לתשלום" → POST /api/checkout
-5. השרת יוצר Stripe Checkout Session ומחזיר URL
-6. הלקוח מועבר לדף Stripe
-7. לאחר תשלום מוצלח → Stripe שולח Webhook ל-POST /api/webhooks/stripe
-8. Webhook יוצר Booking (paymentStatus="paid") ושולח מיילים
-9. הלקוח מועבר ל-/workshops/success
+1. גולש ל-/workshops או לוחץ מדף הבית
+2. נכנס ל-/workshops/[id]
+3. ממלא בטופס שם, מייל, הערות ומספר מקומות
+4. לוחץ שליחה → נפתח WhatsApp עם הודעה מוכנה (אין תשלום אונליין באתר)
 ```
 
-### ב. שליחת מייל אישור
+### ב. פנייה מטופס יצירת קשר
 
 ```
-1. Webhook מקבל checkout.session.completed
-2. מחלץ נתוני לקוח וסדנה
-3. יוצר Booking ב-DB
-4. sendBookingConfirmation() → מייל ללקוח
-5. sendAdminNotification() → מייל לאדמין
-6. אם יצירת Booking נכשלת → auto-refund + sendWebhookFailureNotification() לאדמין
+1. POST /api/contact (מוגבל 3 פניות לדקה לפי IP)
+2. נדרש ADMIN_EMAIL + Resend תקין בפרודקשן — אחרת החזרת שגיאה ללקוח (לא "הצלחה" שקרית)
 ```
 
-### ג. זרימת תשלום Stripe
+### ג. אדמין מוסיף הזמנה או מבטל
 
 ```
-  הלקוח           Next.js                 Stripe
-     │                │                       │
-     ├─ לחיצה ────────►                        │
-     │           POST /api/checkout            │
-     │           יצירת session ─────────────────►
-     │◄─ redirect ────◄─── { url } ────────────┤
-     │                │                        │
-     ├─ תשלום ─────────────────────────────────►
-     │                │                        │
-     │                │◄─ Webhook ─────────────┤
-     │                │ (checkout.session.completed)
-     │                │ יצירת Booking
-     │                │ שליחת מיילים
-     ├◄─ /success ────┤                        │
-```
-
-### ד. אדמין מבטל הזמנה בודדת
-
-```
-1. גולש ל-/admin/workshops/[id]
-2. לוחץ "ביטול הזמנה"
-3. POST /api/admin/bookings/[id]/refund
-4. בדיקות: paymentStatus==="paid", פחות מ-90 יום
-5. stripe.refunds.create() עם payment_intent
-6. עדכון Booking: paymentStatus="refunded", cancelledAt=now(), refundId=...
-7. sendRefundNotification() → מייל ללקוח + מייל לאדמין
+הזמנות נוצרות ידנית מפאנל הסדנה (או מזרימות עתידיות). ביטול הזמנה:
+POST /api/admin/bookings/[id]/refund — מעדכן סטטוס ל-refunded (ללא Stripe באתר זה)
 ```
 
 ---
@@ -248,12 +215,10 @@ URL:   http://localhost:3000/admin/login
 |---|---|---|
 | `NEXTAUTH_SECRET` | **חובה** | סוד JWT — אל תשאיר ריק! (`openssl rand -base64 32`) |
 | `NEXTAUTH_URL` | חובה | `http://localhost:3000` בפיתוח |
-| `ADMIN_EMAIL` | חובה | מייל כניסה לאדמין |
+| `NEXT_PUBLIC_SITE_URL` | מומלץ בפרודקשן | כתובת קנונית ל-OG, sitemap, JSON-LD (קובצי `public/robots.txt` ו-`public/llms.txt` סטטיים — יש לעדכן ידנית בשינוי דומיין) |
+| `ADMIN_EMAIL` | חובה | מייל כניסה לאדמין + נמען טופס קשר |
 | `ADMIN_PASSWORD` | חובה | סיסמה (טקסט בפיתוח, bcrypt בפרודקשן) |
-| `STRIPE_SECRET_KEY` | חובה | `sk_test_...` |
-| `STRIPE_WEBHOOK_SECRET` | חובה | `whsec_...` מ-Stripe Dashboard |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | חובה | `pk_test_...` |
-| `RESEND_API_KEY` | אופציונלי | ללא — מיילים מודפסים לקונסול |
+| `RESEND_API_KEY` | מומלץ בפרודקשן | ללא מפתח תקף — טופס קשר יחזיר שגיאה (בפיתוח: לוג לקונסול בלבד) |
 | `RESEND_FROM` | אופציונלי | כתובת שולח מייל |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | אופציונלי | מספר ספרות בלבד, e.g. `972501234567` |
 | `POSTGRES_URL` | חובה | Vercel Postgres (pooling) |
@@ -278,9 +243,6 @@ npm run db:seed      # העמסת נתוני דוגמה (4 סדנאות, 6 FAQs,
 npm run db:studio    # פתיחת Prisma Studio — ממשק ויזואלי למסד הנתונים
 npx prisma generate  # יצירת Prisma client מחדש לאחר שינוי schema
 vercel env pull      # משיכת משתני סביבה מ-Vercel ל-.env.local
-stripe listen \
-  --forward-to localhost:3000/api/webhooks/stripe
-                     # העברת Stripe webhooks בפיתוח (חובה לבדיקת תשלומים)
 ```
 
 ---
@@ -289,12 +251,12 @@ stripe listen \
 
 | קובץ | מיקום | תיאור |
 |---|---|---|
-| `llms.txt` | `public/llms.txt` | תיאור האתר לסוכני AI — **אסור למחוק** |
-| `robots.txt` | `public/robots.txt` | הרשאות סריקה + כתובת sitemap |
-| `sitemap.ts` | `src/app/sitemap.ts` | Sitemap דינמי — מתעדכן אוטומטית עם סדנאות ואירועים |
+| `llms.txt` | `public/llms.txt` | תיאור האתר לסוכני AI — **עדכנו קישורים** אם הדומיין משתנה |
+| `robots.txt` | `public/robots.txt` | הרשאות סריקה + שורת `Sitemap` — **עדכנו** בפרודקשן |
+| `sitemap.ts` | `src/app/sitemap.ts` | Sitemap דינמי — דפים סטטיים + דפי סדנאות פעילות |
 | `prisma.config.ts` | שורש הפרויקט | הגדרת DB לפקודות CLI בלבד (Prisma 7) |
 | `CLAUDE.md` | `../CLAUDE.md` (מחוץ לגיט) | הוראות מפורטות לסוכן AI — **לא בגיט** |
-| `next.config.mjs` | שורש הפרויקט | מאפשר next/Image מכל hostname + serverBodySizeLimit 8MB |
+| `next.config.mjs` | שורש הפרויקט | מאפשר `next/Image` מכל hostname; מגבלת גודל גוף ל-API העלאה מוגדרת בנתיב `/api/admin/upload` |
 | `src/middleware.ts` | `src/middleware.ts` | הגנה על `/admin/*` עם NextAuth |
 | `src/lib/prisma.ts` | `src/lib/prisma.ts` | Prisma singleton עם PrismaPg adapter |
 
@@ -316,20 +278,12 @@ src/lib/prisma.ts → PrismaPg adapter ל-runtime
 
 **חובה למלא.** `NEXTAUTH_SECRET=""` גורם לכישלון שקט — כניסת אדמין לא תעבוד.
 
-### Stripe Webhook בפיתוח
-
-ללא הפקודה הבאה, תשלום test לא יוצר הזמנה ב-DB:
-```bash
-stripe listen --forward-to localhost:3000/api/webhooks/stripe
-```
-
 ### Rate Limiting
 
 מנגנון in-memory — לא מתאים לפרודקשן עם מספר instances. יש להחליף ב-Upstash Redis ב-`src/lib/rate-limit.ts`.
 
 ### בעיות ידועות
 
-- דפי `/workshops/[id]` ו-`/events/[id]` מופיעים ב-sitemap אבל הדפים לא קיימים → 404 לכל מי שינסה להיכנס ישירות
 - `TimeBlock` קיים ב-schema אבל אין לו UI
 
 ### לא מומש — TODO
@@ -337,7 +291,6 @@ stripe listen --forward-to localhost:3000/api/webhooks/stripe
 - ביטול הזמנה עצמית על-ידי לקוח
 - מספר אדמינים
 - תזכורות אוטומטיות לפני סדנה (cron)
-- ייצוא CSV
 - קודי קופון/הנחות
 - קטגוריות/סינון לסדנאות
 - בדיקות Playwright

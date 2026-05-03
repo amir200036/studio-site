@@ -8,21 +8,22 @@ import { AboutSection } from "@/components/home/AboutSection";
 import { GallerySection } from "@/components/home/GallerySection";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { WorkshopsPreview } from "@/components/home/WorkshopsPreview";
+import { getSiteUrl } from "@/lib/site-url";
 
-const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 export const metadata: Metadata = {
   title: "סדנת קדרות בנס ציונה | יד יוצרת — חוויה יצירתית לזוגות, משפחות וחברות",
   description:
     "סדנאות קדרות וקרמיקה בנס ציונה — חוויה יצירתית לזוגות, משפחות, ימי הולדת וגיבוש. מדריכים מנוסים, אווירה חמה. הזמינו מקום עכשיו!",
   alternates: {
-    canonical: BASE_URL,
+    canonical: siteUrl,
   },
   openGraph: {
     title: "סדנת קדרות בנס ציונה | יד יוצרת",
     description:
       "סדנאות קדרות וקרמיקה בנס ציונה — חוויה יצירתית לזוגות, משפחות, ימי הולדת וגיבוש. מדריכים מנוסים, אווירה חמה.",
-    url: BASE_URL,
+    url: siteUrl,
     locale: "he_IL",
     type: "website",
     siteName: "יד יוצרת — סדנת קדרות",
@@ -61,7 +62,7 @@ export default async function HomePage() {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
       name: "יד יוצרת — סדנת קדרות וקרמיקה",
-      url: BASE_URL,
+      url: siteUrl,
       aggregateRating: {
         "@type": "AggregateRating",
         ratingValue: avgRating,

@@ -4,21 +4,22 @@ import { prisma } from "@/lib/prisma";
 import { visiblePublicWorkshopsWhere } from "@/lib/workshop-filters";
 import { getAvailableSeats, pageBackground } from "@/lib/utils";
 import { WorkshopCard } from "@/components/workshops/WorkshopCard";
+import { getSiteUrl } from "@/lib/site-url";
 
-const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 export const metadata: Metadata = {
   title: "סדנאות קדרות בנס ציונה | יד יוצרת — הרשמה ב-WhatsApp",
   description:
     "כל סדנאות הקדרות הקרובות בנס ציונה — מחירים מעודכנים והרשמה ישירה ב-WhatsApp. מתאים למתחילים ומנוסים כאחד.",
   alternates: {
-    canonical: `${BASE_URL}/workshops`,
+    canonical: `${siteUrl}/workshops`,
   },
   openGraph: {
     title: "סדנאות קדרות בנס ציונה | יד יוצרת — הרשמה ב-WhatsApp",
     description:
       "כל סדנאות הקדרות הקרובות בנס ציונה — מחירים מעודכנים והרשמה ישירה ב-WhatsApp. מתאים למתחילים ומנוסים כאחד.",
-    url: `${BASE_URL}/workshops`,
+    url: `${siteUrl}/workshops`,
     locale: "he_IL",
     type: "website",
     siteName: "יד יוצרת — סדנת קדרות",

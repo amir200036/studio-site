@@ -66,9 +66,8 @@ export async function Footer() {
       </div>
 
       <div className="border-t border-stone-700">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-2 text-xs text-stone-500">
+        <div className="max-w-6xl mx-auto px-4 py-4 text-xs text-stone-500 text-center md:text-start">
           <p>© {new Date().getFullYear()} סטודיו קדרות. כל הזכויות שמורות.</p>
-          <Link href="/admin" className="hover:text-stone-400 transition-colors">כניסה לניהול</Link>
         </div>
       </div>
     </footer>

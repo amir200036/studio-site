@@ -6,12 +6,12 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatDate, formatTime, formatPrice, getAvailableSeats, pageBackground } from "@/lib/utils";
 import { WorkshopWhatsAppForm } from "@/components/workshops/WorkshopWhatsAppForm";
-
-const BASE_URL = "https://studio-site-one-hazel.vercel.app";
+import { getSiteUrl } from "@/lib/site-url";
 
 type Props = { params: { id: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const base = getSiteUrl().replace(/\/$/, "");
   const { id } = params;
   const workshop = await prisma.workshop.findUnique({
     where: { id },
@@ -28,11 +28,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
-    alternates: { canonical: `${BASE_URL}/workshops/${id}` },
+    alternates: { canonical: `${base}/workshops/${id}` },
     openGraph: {
       title,
       description,
-      url: `${BASE_URL}/workshops/${id}`,
+      url: `${base}/workshops/${id}`,
       locale: "he_IL",
       type: "website",
       siteName: "יד יוצרת — סדנת קדרות",

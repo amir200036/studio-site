@@ -17,35 +17,24 @@ export type WorkshopWhatsAppParams = {
 };
 
 /** תבנית ברירת מחדל (כש־whatsappMessage ריק בעריכת סדנה) */
+const DEFAULT_WHATSAPP_TEMPLATE = `שלום! אני מעוניין/ת להירשם לסדנה {{workshopName}}
+משך הסדנה: {{durationHours}} שעות
+מחיר לאדם: {{pricePerPerson}}
+מספר מקומות: {{seats}}
+סכום משוער: {{total}}
+שם מלא: {{customerName}}`;
+
 export function buildDefaultWorkshopInquiryMessage(params: WorkshopWhatsAppParams): string {
-  const d = params.workshopDate != null && params.workshopDate !== "" ? new Date(params.workshopDate) : null;
-  const lines = [
-    "שלום! אני מעוניין/ת להירשם לסדנה (פנייה מהאתר):",
-    "",
-    `סדנה: ${params.workshopName}`,
-  ];
-  if (d && !Number.isNaN(d.getTime())) {
-    lines.push(`תאריך: ${formatDate(d)} בשעה ${formatTime(d)}`);
-  } else {
-    lines.push(`מועד: ${WORKSHOP_DATE_TBD_HE}`);
-  }
-  lines.push(
-    `משך: ${params.durationHours} שעות`,
-    `מחיר לאדם: ${formatPrice(params.pricePerPerson)}`,
-    `מספר מקומות: ${params.seats}`,
-    `סכום משוער: ${formatPrice(params.total)}`,
-    "",
-    `שם מלא: ${params.customerName}`
-  );
+  let msg = applyWorkshopWhatsAppTemplate(DEFAULT_WHATSAPP_TEMPLATE, params);
   const email = params.customerEmail?.trim();
-  if (email) lines.push(`מייל: ${email}`);
-  return lines.join("\n");
+  if (email) msg += `\nמייל: ${email}`;
+  return msg;
 }
 
 /**
  * מילוי תבנית מותאמת מהמנהל.
  * מציינים: {{workshopName}}, {{customerName}}, {{customerEmail}}, {{seats}},
- * {{pricePerPerson}}, {{total}}, {{date}}, {{time}}, {{durationHours}}
+ * {{pricePerPerson}}, {{total}}, {{date}}, {{time}}, {{durationHours}} (מספר, למשל 3)
  * ללא מועד קבוע: {{date}} ו-{{time}} יתמלאו ב־"יתואם ב-WhatsApp"
  */
 export function applyWorkshopWhatsAppTemplate(template: string, params: WorkshopWhatsAppParams): string {
