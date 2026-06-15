@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { pageBackground } from "@/lib/utils";
 import { FAQAccordion } from "@/components/faq/FAQAccordion";
 import { getSiteUrl } from "@/lib/site-url";
+import { safeDbQuery } from "@/lib/safe-db";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -26,12 +27,14 @@ export const metadata: Metadata = {
 };
 
 async function getFAQs() {
-  const [faqs, rows] = await Promise.all([
-    prisma.fAQ.findMany({ orderBy: { order: "asc" } }),
-    prisma.siteContent.findMany({ where: { key: { in: ["bg_image_faq"] } } }),
-  ]);
-  const content = Object.fromEntries(rows.map((r) => [r.key, r.value]));
-  return { faqs, content };
+  return safeDbQuery(async () => {
+    const [faqs, rows] = await Promise.all([
+      prisma.fAQ.findMany({ orderBy: { order: "asc" } }),
+      prisma.siteContent.findMany({ where: { key: { in: ["bg_image_faq"] } } }),
+    ]);
+    const content = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+    return { faqs, content };
+  }, { faqs: [], content: {} });
 }
 
 export default async function FAQPage() {

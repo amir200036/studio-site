@@ -14,16 +14,21 @@ import {
 } from "@/lib/utils";
 import { WorkshopWhatsAppForm } from "@/components/workshops/WorkshopWhatsAppForm";
 import { getSiteUrl } from "@/lib/site-url";
+import { safeDbQuery } from "@/lib/safe-db";
 
 type Props = { params: { id: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const base = getSiteUrl().replace(/\/$/, "");
   const { id } = params;
-  const workshop = await prisma.workshop.findUnique({
-    where: { id },
-    include: { bookings: { where: { paymentStatus: "paid" } } },
-  });
+  const workshop = await safeDbQuery(
+    () =>
+      prisma.workshop.findUnique({
+        where: { id },
+        include: { bookings: { where: { paymentStatus: "paid" } } },
+      }),
+    null
+  );
   if (!workshop || workshop.status !== "active") {
     return { title: "סדנה" };
   }
@@ -49,17 +54,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function WorkshopDetailPage({ params }: Props) {
   const { id } = params;
-  const [workshop, rows] = await Promise.all([
-    prisma.workshop.findUnique({
-      where: { id },
-      include: { bookings: { where: { paymentStatus: "paid" } } },
-    }),
-    prisma.siteContent.findMany({ where: { key: { in: ["bg_image_workshops"] } } }),
-  ]);
+  const { workshop, content } = await safeDbQuery(async () => {
+    const [w, rows] = await Promise.all([
+      prisma.workshop.findUnique({
+        where: { id },
+        include: { bookings: { where: { paymentStatus: "paid" } } },
+      }),
+      prisma.siteContent.findMany({ where: { key: { in: ["bg_image_workshops"] } } }),
+    ]);
+    return { workshop: w, content: Object.fromEntries(rows.map((r) => [r.key, r.value])) };
+  }, { workshop: null, content: {} as Record<string, string> });
 
   if (!workshop || workshop.status !== "active") notFound();
-
-  const content = Object.fromEntries(rows.map((r) => [r.key, r.value]));
   const available = getAvailableSeats(workshop.maxParticipants, workshop.bookings);
   const isPast = workshop.date != null && workshop.date < new Date();
 

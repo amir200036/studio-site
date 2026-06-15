@@ -5,6 +5,7 @@ import { visiblePublicWorkshopsWhere } from "@/lib/workshop-filters";
 import { getAvailableSeats, pageBackground } from "@/lib/utils";
 import { WorkshopCard } from "@/components/workshops/WorkshopCard";
 import { getSiteUrl } from "@/lib/site-url";
+import { safeDbQuery } from "@/lib/safe-db";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -27,16 +28,21 @@ export const metadata: Metadata = {
 };
 
 async function getWorkshops() {
-  const [workshops, rows] = await Promise.all([
-    prisma.workshop.findMany({
-      where: visiblePublicWorkshopsWhere(),
-      include: { bookings: { where: { paymentStatus: "paid" } } },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.siteContent.findMany({ where: { key: { in: ["bg_image_workshops"] } } }),
-  ]);
-  const content = Object.fromEntries(rows.map((r) => [r.key, r.value]));
-  return { workshops: workshops.filter((w) => getAvailableSeats(w.maxParticipants, w.bookings) > 0), content };
+  return safeDbQuery(async () => {
+    const [workshops, rows] = await Promise.all([
+      prisma.workshop.findMany({
+        where: visiblePublicWorkshopsWhere(),
+        include: { bookings: { where: { paymentStatus: "paid" } } },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.siteContent.findMany({ where: { key: { in: ["bg_image_workshops"] } } }),
+    ]);
+    const content = Object.fromEntries(rows.map((r) => [r.key, r.value]));
+    return {
+      workshops: workshops.filter((w) => getAvailableSeats(w.maxParticipants, w.bookings) > 0),
+      content,
+    };
+  }, { workshops: [], content: {} });
 }
 
 export default async function WorkshopsPage() {

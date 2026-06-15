@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { pageBackground } from "@/lib/utils";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { getSiteUrl } from "@/lib/site-url";
+import { safeDbQuery } from "@/lib/safe-db";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -30,12 +31,14 @@ export const metadata: Metadata = {
 };
 
 async function getContent() {
-  const rows = await prisma.siteContent.findMany({
-    where: { key: { in: ["phone", "email", "address", "hours", "whatsapp", "map_embed", "bg_image_contact"] } },
-  });
-  const map: Record<string, string> = {};
-  rows.forEach((r: { key: string; value: string }) => (map[r.key] = r.value));
-  return map;
+  return safeDbQuery(async () => {
+    const rows = await prisma.siteContent.findMany({
+      where: { key: { in: ["phone", "email", "address", "hours", "whatsapp", "map_embed", "bg_image_contact"] } },
+    });
+    const map: Record<string, string> = {};
+    rows.forEach((r: { key: string; value: string }) => (map[r.key] = r.value));
+    return map;
+  }, {});
 }
 
 export default async function ContactPage() {

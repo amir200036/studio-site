@@ -9,6 +9,7 @@ import { GallerySection } from "@/components/home/GallerySection";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { WorkshopsPreview } from "@/components/home/WorkshopsPreview";
 import { getSiteUrl } from "@/lib/site-url";
+import { safeDbQuery } from "@/lib/safe-db";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -31,22 +32,26 @@ export const metadata: Metadata = {
 };
 
 async function getHomeData() {
-  const [contentRows, gallery, reviews, workshops] = await Promise.all([
-    prisma.siteContent.findMany(),
-    prisma.galleryImage.findMany({ orderBy: { order: "asc" }, take: 8 }),
-    prisma.review.findMany({ where: { approved: true }, orderBy: { createdAt: "desc" }, take: 6 }),
-    prisma.workshop.findMany({
-      where: visiblePublicWorkshopsWhere(),
-      include: { bookings: { where: { paymentStatus: "paid" } } },
-      orderBy: { createdAt: "desc" },
-      take: 6,
-    }),
-  ]);
+  return safeDbQuery(async () => {
+    const [contentRows, gallery, reviews, workshops] = await Promise.all([
+      prisma.siteContent.findMany(),
+      prisma.galleryImage.findMany({ orderBy: { order: "asc" }, take: 8 }),
+      prisma.review.findMany({ where: { approved: true }, orderBy: { createdAt: "desc" }, take: 6 }),
+      prisma.workshop.findMany({
+        where: visiblePublicWorkshopsWhere(),
+        include: { bookings: { where: { paymentStatus: "paid" } } },
+        orderBy: { createdAt: "desc" },
+        take: 6,
+      }),
+    ]);
 
-  const content: Record<string, string> = {};
-  contentRows.forEach((r: { key: string; value: string }) => (content[r.key] = r.value));
-  const openWorkshops = workshops.filter((w) => getAvailableSeats(w.maxParticipants, w.bookings) > 0).slice(0, 3);
-  return { content, gallery, reviews, workshops: openWorkshops };
+    const content: Record<string, string> = {};
+    contentRows.forEach((r: { key: string; value: string }) => (content[r.key] = r.value));
+    const openWorkshops = workshops
+      .filter((w) => getAvailableSeats(w.maxParticipants, w.bookings) > 0)
+      .slice(0, 3);
+    return { content, gallery, reviews, workshops: openWorkshops };
+  }, { content: {}, gallery: [], reviews: [], workshops: [] });
 }
 
 export default async function HomePage() {

@@ -2,6 +2,7 @@ export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/site-url";
+import { safeDbQuery } from "@/lib/safe-db";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -48,7 +49,10 @@ const DEFAULT_TERMS = `**1. כללי**
 לכל שאלה בנוגע לתקנון זה ניתן לפנות אלינו דרך עמוד צרו קשר באתר.`;
 
 export default async function TermsPage() {
-  const row = await prisma.siteContent.findUnique({ where: { key: "terms_content" } });
+  const row = await safeDbQuery(
+    () => prisma.siteContent.findUnique({ where: { key: "terms_content" } }),
+    null
+  );
   const content = row?.value || DEFAULT_TERMS;
 
   const sections = content.split(/\n\n+/);

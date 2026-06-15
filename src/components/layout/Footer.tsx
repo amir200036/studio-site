@@ -1,17 +1,16 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { safeDbQuery } from "@/lib/safe-db";
 
 async function getSiteContent() {
-  try {
+  return safeDbQuery(async () => {
     const rows = await prisma.siteContent.findMany({
       where: { key: { in: ["whatsapp", "email", "address", "phone"] } },
     });
     const map: Record<string, string> = {};
     rows.forEach((r) => (map[r.key] = r.value));
     return map;
-  } catch {
-    return {};
-  }
+  }, {});
 }
 
 export async function Footer() {
