@@ -3,17 +3,39 @@
 export const STUDIO_ADDRESS = "אבנר בן יהודה 41, נס ציונה";
 export const STUDIO_STREET = "אבנר בן יהודה 41";
 export const STUDIO_CITY = "נס ציונה";
-export const STUDIO_PHONE = "0525771221";
 export const STUDIO_EMAIL = "levysharona3@gmail.com";
-/** ספרות בלבד, עם קידומת מדינה — 052-577-1221 */
-export const STUDIO_WHATSAPP = "972525771221";
 
+/** מספר מקומי (05X) — מקור האמת לטלפון ול-WhatsApp: 052-577-1221 */
+export const STUDIO_PHONE = "0525771221";
+
+/**
+ * המרה לפורמט בינלאומי ל-wa.me: ספרות בלבד, בלי +.
+ * 0525771221 → 972525771221
+ */
+export function toWhatsAppIntlDigits(phone = STUDIO_PHONE): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("972")) return digits;
+  if (digits.startsWith("0") && digits.length === 10) return `972${digits.slice(1)}`;
+  return digits;
+}
+
+/** לקישורי wa.me / API WhatsApp */
+export const STUDIO_WHATSAPP = toWhatsAppIntlDigits(STUDIO_PHONE);
+
+/** תצוגה: 052-577-1221 */
 export function formatStudioPhone(phone = STUDIO_PHONE): string {
   const digits = phone.replace(/\D/g, "");
   if (digits.length === 10 && digits.startsWith("0")) {
     return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
   }
   return phone;
+}
+
+export function studioWhatsAppUrl(message?: string): string {
+  const base = `https://wa.me/${STUDIO_WHATSAPP}`;
+  const text = message?.trim();
+  if (!text) return base;
+  return `${base}?text=${encodeURIComponent(text)}`;
 }
 
 export const STUDIO_MAP_EMBED_URL =

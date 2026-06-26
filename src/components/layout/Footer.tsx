@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { STUDIO_ADDRESS, STUDIO_EMAIL, STUDIO_WHATSAPP, formatStudioPhone } from "@/lib/studio-contact";
+import { STUDIO_ADDRESS, STUDIO_EMAIL, formatStudioPhone, studioWhatsAppUrl } from "@/lib/studio-contact";
 
 export async function Footer() {
   return (
@@ -36,7 +36,7 @@ export async function Footer() {
             <p>✉️ {STUDIO_EMAIL}</p>
             <p>📍 {STUDIO_ADDRESS}</p>
             <a
-              href={`https://wa.me/${STUDIO_WHATSAPP}`}
+              href={studioWhatsAppUrl()}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-green-400 hover:text-green-300 transition-colors mt-1"

@@ -34,7 +34,10 @@ export async function verifyAdminCredentials(
     maxRequests: 8,
     windowMs: 15 * 60_000,
   });
-  if (!allowed) return null;
+    if (!allowed) {
+      console.warn(`[admin-login] rate limited: ${throttleKey}`);
+      return null;
+    }
 
   const account = getAdminAccounts().find((a) => a.email.toLowerCase() === normalizedEmail);
   if (!account) return null;

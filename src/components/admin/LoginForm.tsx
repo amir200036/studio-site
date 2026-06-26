@@ -24,7 +24,11 @@ export function LoginForm() {
     });
 
     if (result?.error) {
-      setError("מייל או סיסמה שגויים.");
+      setError(
+        result.status === 429
+          ? "יותר מדי ניסיונות. המתינו דקה ונסו שוב."
+          : "מייל או סיסמה שגויים, או יותר מדי ניסיונות (המתינו רבע שעה)."
+      );
       setLoading(false);
     } else {
       router.push("/admin/workshops");

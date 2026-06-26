@@ -5,8 +5,8 @@ import { pageBackground } from "@/lib/utils";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
+import { STUDIO_ADDRESS, STUDIO_EMAIL, STUDIO_MAP_EMBED_URL, STUDIO_PHONE, formatStudioPhone, studioWhatsAppUrl } from "@/lib/studio-contact";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
-import { STUDIO_ADDRESS, STUDIO_EMAIL, STUDIO_MAP_EMBED_URL, STUDIO_PHONE, formatStudioPhone } from "@/lib/studio-contact";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -42,7 +42,7 @@ async function getContent() {
 export default async function ContactPage() {
   const info = await getContent();
   const waNumber = resolveWhatsAppNumber();
-  const waUrl = `https://wa.me/${waNumber}`;
+  const waUrl = studioWhatsAppUrl();
   const mapSrc = STUDIO_MAP_EMBED_URL;
 
   return (
@@ -66,7 +66,7 @@ export default async function ContactPage() {
                 className="flex items-center justify-center gap-3 py-4 px-6 bg-green-500 hover:bg-green-600 text-white font-bold text-lg rounded-2xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
                 <span className="text-2xl">💬</span>
-                שלחו לנו WhatsApp
+                שלחו לנו WhatsApp — {formatStudioPhone()}
               </a>
             )}
 
