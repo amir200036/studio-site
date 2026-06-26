@@ -13,7 +13,6 @@ const links = [
   { href: "/admin/content", label: "תוכן" },
   { href: "/admin/gallery", label: "ספריית תמונות" },
   { href: "/admin/settings", label: "הגדרות" },
-  { href: "/admin/stats", label: "סטטיסטיקות" },
 ];
 
 function isNavActive(path: string, href: string) {
