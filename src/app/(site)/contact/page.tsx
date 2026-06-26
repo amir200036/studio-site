@@ -6,12 +6,9 @@ import { ContactForm } from "@/components/contact/ContactForm";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
+import { STUDIO_MAP_EMBED_URL } from "@/lib/studio-map";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
-
-/** מפת ברירת מחדל — ניתן לעדכן גם ב-admin → הגדרות → קישור הטמעת Google Maps */
-const DEFAULT_MAP_EMBED =
-  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1693.3392116638338!2d34.78527685110109!3d31.915333642324743!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1502b75f9a9475d7%3A0x496e85a16407ed8a!2z15nXkyDXmdeV16bXqNeqIC0g16HXmNeV15PXmdeVINec16fXk9eo15XXqiDXlden16jXnteZ16fXlA!5e0!3m2!1siw!2sil!4v1777821449278!5m2!1siw!2sil";
 
 export const metadata: Metadata = {
   title: "יצירת קשר | יד יוצרת — סדנת קדרות בנס ציונה",
@@ -34,7 +31,7 @@ export const metadata: Metadata = {
 async function getContent() {
   return safeDbQuery(async () => {
     const rows = await prisma.siteContent.findMany({
-      where: { key: { in: ["phone", "email", "address", "hours", "whatsapp", "map_embed", "bg_image_contact"] } },
+      where: { key: { in: ["phone", "email", "address", "hours", "whatsapp", "bg_image_contact"] } },
     });
     const map: Record<string, string> = {};
     rows.forEach((r: { key: string; value: string }) => (map[r.key] = r.value));
@@ -46,7 +43,7 @@ export default async function ContactPage() {
   const info = await getContent();
   const waNumber = resolveWhatsAppNumber(info.whatsapp);
   const waUrl = `https://wa.me/${waNumber}`;
-  const mapSrc = (info.map_embed && info.map_embed.trim()) || DEFAULT_MAP_EMBED;
+  const mapSrc = STUDIO_MAP_EMBED_URL;
 
   return (
     <div style={pageBackground("", info["bg_image_contact"] || "")}>

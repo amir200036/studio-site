@@ -14,7 +14,6 @@ const fields = [
   { key: "email", label: "מייל הסטודיו", placeholder: "studio@example.com", dir: "ltr" as const },
   { key: "address", label: "כתובת", placeholder: "רחוב הסטודיו 1, תל אביב" },
   { key: "hours", label: "שעות פעילות", placeholder: "ראשון–חמישי: 09:00–18:00\nשישי: 09:00–13:00", textarea: true },
-  { key: "map_embed", label: "קישור הטמעת Google Maps", placeholder: "https://www.google.com/maps/embed?...", dir: "ltr" as const },
 ];
 
 export function SettingsClient({ settings }: Props) {

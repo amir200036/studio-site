@@ -4,7 +4,7 @@ import { SettingsClient } from "@/components/admin/SettingsClient";
 
 async function getSettings() {
   const rows = await prisma.siteContent.findMany({
-    where: { key: { in: ["whatsapp", "email", "address", "phone", "hours", "map_embed"] } },
+    where: { key: { in: ["whatsapp", "email", "address", "phone", "hours"] } },
   });
   const map: Record<string, string> = {};
   rows.forEach((r: { key: string; value: string }) => (map[r.key] = r.value));

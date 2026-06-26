@@ -15,7 +15,6 @@ export const SITE_CONTENT_KEYS = new Set([
   "address",
   "hours",
   "whatsapp",
-  "map_embed",
   "terms_content",
   "global_bg_color",
   "bg_image_home",
