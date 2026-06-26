@@ -61,13 +61,13 @@ export default async function WorkshopDetailPage({ params }: Props) {
         where: { id },
         include: { bookings: { where: { paymentStatus: "paid" } } },
       }),
-      prisma.siteContent.findMany({ where: { key: { in: ["bg_image_workshops", "whatsapp"] } } }),
+      prisma.siteContent.findMany({ where: { key: { in: ["bg_image_workshops"] } } }),
     ]);
     return { workshop: w, content: Object.fromEntries(rows.map((r) => [r.key, r.value])) };
   }, { workshop: null, content: {} as Record<string, string> });
 
   if (!workshop || workshop.status !== "active") notFound();
-  const waNumber = resolveWhatsAppNumber(content.whatsapp);
+  const waNumber = resolveWhatsAppNumber();
   const available = getAvailableSeats(workshop.maxParticipants, workshop.bookings);
   const isPast = workshop.date != null && workshop.date < new Date();
 

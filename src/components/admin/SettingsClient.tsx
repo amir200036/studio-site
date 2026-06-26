@@ -8,15 +8,8 @@ interface Props {
   settings: Record<string, string>;
 }
 
-const fields = [
-  { key: "whatsapp", label: "מספר WhatsApp (עם קידומת מדינה)", placeholder: "972525771221", dir: "ltr" as const },
-  { key: "hours", label: "שעות פעילות", placeholder: "ראשון–חמישי: 09:00–18:00\nשישי: 09:00–13:00", textarea: true },
-];
-
 export function SettingsClient({ settings }: Props) {
-  const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries(fields.map((f) => [f.key, settings[f.key] || ""]))
-  );
+  const [hours, setHours] = useState(settings.hours || "");
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
 
@@ -25,7 +18,7 @@ export function SettingsClient({ settings }: Props) {
     const res = await fetch("/api/admin/content", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(values),
+      body: JSON.stringify({ hours }),
     });
     setSaving(false);
     setMsg(res.ok ? "✅ ההגדרות נשמרו!" : "❌ שגיאה");
@@ -34,29 +27,16 @@ export function SettingsClient({ settings }: Props) {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-5">
-      {fields.map((f) => (
-        <div key={f.key}>
-          <label className="block text-sm font-medium text-stone-700 mb-1">{f.label}</label>
-          {f.textarea ? (
-            <textarea
-              rows={3}
-              value={values[f.key]}
-              onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-              placeholder={f.placeholder}
-              className={adminInputClass + " resize-none"}
-            />
-          ) : (
-            <input
-              type="text"
-              value={values[f.key]}
-              onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-              placeholder={f.placeholder}
-              className={adminInputClass}
-              dir={f.dir}
-            />
-          )}
-        </div>
-      ))}
+      <div>
+        <label className="block text-sm font-medium text-stone-700 mb-1">שעות פעילות</label>
+        <textarea
+          rows={3}
+          value={hours}
+          onChange={(e) => setHours(e.target.value)}
+          placeholder={"ראשון–חמישי: 09:00–18:00\nשישי: 09:00–13:00"}
+          className={adminInputClass + " resize-none"}
+        />
+      </div>
 
       {msg && <p className="text-sm">{msg}</p>}
 

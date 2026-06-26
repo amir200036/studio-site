@@ -57,7 +57,6 @@ async function main() {
       { key: "stat_students", value: "800+" },
       { key: "stat_workshops", value: "300+" },
       { key: "hours", value: "ראשון–חמישי: 09:00–20:00\nשישי: 09:00–14:00\nשבת: סגור" },
-      { key: "whatsapp", value: "972525771221" },
       { key: "terms_content", value: DEFAULT_TERMS },
     ],
   });

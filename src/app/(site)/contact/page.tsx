@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 async function getContent() {
   return safeDbQuery(async () => {
     const rows = await prisma.siteContent.findMany({
-      where: { key: { in: ["hours", "whatsapp", "bg_image_contact"] } },
+      where: { key: { in: ["hours", "bg_image_contact"] } },
     });
     const map: Record<string, string> = {};
     rows.forEach((r: { key: string; value: string }) => (map[r.key] = r.value));
@@ -41,7 +41,7 @@ async function getContent() {
 
 export default async function ContactPage() {
   const info = await getContent();
-  const waNumber = resolveWhatsAppNumber(info.whatsapp);
+  const waNumber = resolveWhatsAppNumber();
   const waUrl = `https://wa.me/${waNumber}`;
   const mapSrc = STUDIO_MAP_EMBED_URL;
 

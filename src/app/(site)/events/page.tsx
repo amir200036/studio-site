@@ -31,7 +31,7 @@ async function getEvents() {
   return safeDbQuery(async () => {
     const [events, rows] = await Promise.all([
       prisma.event.findMany({ where: { active: true }, orderBy: { order: "asc" } }),
-      prisma.siteContent.findMany({ where: { key: { in: ["bg_image_events", "whatsapp"] } } }),
+      prisma.siteContent.findMany({ where: { key: { in: ["bg_image_events"] } } }),
     ]);
     const content = Object.fromEntries(rows.map((r: { key: string; value: string }) => [r.key, r.value]));
     return { events, content };
@@ -40,7 +40,7 @@ async function getEvents() {
 
 export default async function EventsPage() {
   const { events, content } = await getEvents();
-  const waNumber = resolveWhatsAppNumber(content.whatsapp);
+  const waNumber = resolveWhatsAppNumber();
 
   return (
     <div style={pageBackground("", content["bg_image_events"] || "")}>

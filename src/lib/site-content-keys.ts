@@ -11,7 +11,6 @@ export const SITE_CONTENT_KEYS = new Set([
   "stat_students",
   "stat_workshops",
   "hours",
-  "whatsapp",
   "terms_content",
   "global_bg_color",
   "bg_image_home",

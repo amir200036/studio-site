@@ -1,24 +1,7 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { safeDbQuery } from "@/lib/safe-db";
-import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
-import { STUDIO_ADDRESS, STUDIO_EMAIL, formatStudioPhone } from "@/lib/studio-contact";
-
-async function getSiteContent() {
-  return safeDbQuery(async () => {
-    const rows = await prisma.siteContent.findMany({
-      where: { key: { in: ["whatsapp"] } },
-    });
-    const map: Record<string, string> = {};
-    rows.forEach((r) => (map[r.key] = r.value));
-    return map;
-  }, {});
-}
+import { STUDIO_ADDRESS, STUDIO_EMAIL, STUDIO_WHATSAPP, formatStudioPhone } from "@/lib/studio-contact";
 
 export async function Footer() {
-  const content = await getSiteContent();
-  const waNumber = resolveWhatsAppNumber(content.whatsapp);
-
   return (
     <footer className="bg-stone-800 text-stone-200 mt-16">
       <div className="max-w-6xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -52,16 +35,14 @@ export async function Footer() {
             <p>📞 {formatStudioPhone()}</p>
             <p>✉️ {STUDIO_EMAIL}</p>
             <p>📍 {STUDIO_ADDRESS}</p>
-            {waNumber && (
-              <a
-                href={`https://wa.me/${waNumber}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-green-400 hover:text-green-300 transition-colors mt-1"
-              >
-                💬 WhatsApp
-              </a>
-            )}
+            <a
+              href={`https://wa.me/${STUDIO_WHATSAPP}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-green-400 hover:text-green-300 transition-colors mt-1"
+            >
+              💬 WhatsApp
+            </a>
           </div>
         </div>
       </div>

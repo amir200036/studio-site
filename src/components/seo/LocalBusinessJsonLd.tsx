@@ -14,7 +14,7 @@ export async function LocalBusinessJsonLd() {
   const rows = await safeDbQuery(
     () =>
       prisma.siteContent.findMany({
-        where: { key: { in: ["hours", "whatsapp"] } },
+        where: { key: { in: ["hours"] } },
       }),
     []
   );
