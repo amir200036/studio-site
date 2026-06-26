@@ -2,30 +2,24 @@ export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { visiblePublicWorkshopsWhere } from "@/lib/workshop-filters";
-import { formatDateTime, formatPrice } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 
 async function getDashboardData() {
-  const [totalBookings, totalRevenue, upcomingWorkshops, recentBookings] = await Promise.all([
-    prisma.booking.count({ where: { paymentStatus: "paid" } }),
-    prisma.booking.aggregate({ where: { paymentStatus: "paid" }, _sum: { totalAmount: true } }),
+  const [upcomingWorkshops, totalWorkshops, activeWorkshops] = await Promise.all([
     prisma.workshop.findMany({
       where: visiblePublicWorkshopsWhere(),
-      include: { bookings: { where: { paymentStatus: "paid" } } },
-      orderBy: [{ date: "asc" }, { createdAt: "desc" }],
+      orderBy: [{ createdAt: "desc" }],
+      take: 10,
     }),
-    prisma.booking.findMany({
-      where: { paymentStatus: "paid" },
-      include: { workshop: true },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    }),
+    prisma.workshop.count(),
+    prisma.workshop.count({ where: { status: "active" } }),
   ]);
 
-  return { totalBookings, totalRevenue: totalRevenue._sum.totalAmount || 0, upcomingWorkshops, recentBookings };
+  return { upcomingWorkshops, totalWorkshops, activeWorkshops };
 }
 
 export default async function AdminDashboard() {
-  const { totalBookings, totalRevenue, upcomingWorkshops, recentBookings } = await getDashboardData();
+  const { upcomingWorkshops, totalWorkshops, activeWorkshops } = await getDashboardData();
 
   return (
     <div className="flex flex-col gap-8">
@@ -34,12 +28,10 @@ export default async function AdminDashboard() {
         <p className="text-stone-400 mt-1">ברוכים הבאים לפאנל הניהול</p>
       </div>
 
-      {/* כרטיסי סטטיסטיקה */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 gap-4 max-w-md">
         {[
-          { label: "הזמנות שולמו", value: totalBookings, color: "bg-green-50 text-green-800", icon: "✅" },
-          { label: "סדנאות קרובות", value: upcomingWorkshops.length, color: "bg-amber-50 text-amber-800", icon: "📅" },
-          { label: "הכנסות", value: `₪${totalRevenue.toLocaleString("he-IL")}`, color: "bg-blue-50 text-blue-800", icon: "💰" },
+          { label: "סדנאות פעילות", value: activeWorkshops, color: "bg-green-50 text-green-800", icon: "✅" },
+          { label: "סה״כ סדנאות", value: totalWorkshops, color: "bg-amber-50 text-amber-800", icon: "📅" },
         ].map((card) => (
           <div key={card.label} className={`${card.color} rounded-2xl p-5`}>
             <div className="text-2xl mb-2">{card.icon}</div>
@@ -49,68 +41,29 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* כל הסדנאות המתוכננות */}
-        <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-stone-100 md:col-span-2">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-            <h2 className="font-bold text-stone-800 text-lg">סדנאות מתוכננות ({upcomingWorkshops.length})</h2>
-            <Link href="/admin/workshops" className="text-amber-700 text-sm hover:underline min-h-11 inline-flex items-center">ניהול סדנאות ←</Link>
-          </div>
-          {upcomingWorkshops.length === 0 ? (
-            <p className="text-stone-400 text-sm">אין סדנאות מתוכננות</p>
-          ) : (
-            <div className="flex flex-col gap-2">
-              {upcomingWorkshops.map((w) => {
-                const booked = w.bookings.reduce((s, b) => s + b.seats, 0);
-                const pct = booked / w.maxParticipants;
-                const color = pct >= 1 ? "bg-red-100 text-red-700" : pct >= 0.7 ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700";
-                return (
-                  <Link
-                    key={w.id}
-                    href={`/admin/workshops/${w.id}`}
-                    className="flex justify-between items-center py-3 px-4 min-h-14 rounded-xl hover:bg-stone-50 transition-colors border border-stone-100"
-                  >
-                    <div>
-                      <div className="font-medium text-stone-800 text-sm">{w.name}</div>
-                      <div className="text-stone-400 text-xs mt-0.5">
-                        {w.date ? formatDateTime(w.date) : "מועד — ב-WhatsApp"}
-                      </div>
-                    </div>
-                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${color}`}>
-                      {booked}/{w.maxParticipants}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+      <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-stone-100">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
+          <h2 className="font-bold text-stone-800 text-lg">סדנאות באתר ({upcomingWorkshops.length})</h2>
+          <Link href="/admin/workshops" className="text-amber-700 text-sm hover:underline min-h-11 inline-flex items-center">
+            ניהול סדנאות ←
+          </Link>
         </div>
-
-        {/* הזמנות אחרונות */}
-        <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-stone-100 md:col-span-2">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
-            <h2 className="font-bold text-stone-800 text-lg">הזמנות אחרונות</h2>
-            <Link href="/admin/bookings" className="text-amber-700 text-sm hover:underline min-h-11 inline-flex items-center">הכל ←</Link>
+        {upcomingWorkshops.length === 0 ? (
+          <p className="text-stone-400 text-sm">אין סדנאות פעילות</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {upcomingWorkshops.map((w) => (
+              <Link
+                key={w.id}
+                href={`/admin/workshops/${w.id}`}
+                className="flex justify-between items-center py-3 px-4 min-h-14 rounded-xl hover:bg-stone-50 transition-colors border border-stone-100"
+              >
+                <div className="font-medium text-stone-800 text-sm">{w.name}</div>
+                <span className="text-sm font-bold text-amber-700">{formatPrice(w.pricePerPerson)}</span>
+              </Link>
+            ))}
           </div>
-          {recentBookings.length === 0 ? (
-            <p className="text-stone-400 text-sm">אין הזמנות עדיין</p>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {recentBookings.map((b) => (
-                <div key={b.id} className="flex justify-between items-start text-sm py-2 border-b border-stone-50 last:border-0">
-                  <div>
-                    <div className="font-medium text-stone-700">{b.customerName}</div>
-                    <div className="text-stone-400 text-xs">{b.workshop.name}</div>
-                  </div>
-                  <div className="text-left">
-                    <div className="font-bold text-amber-700">{formatPrice(b.totalAmount)}</div>
-                    <div className="text-stone-400 text-xs">{b.seats} מקומות</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

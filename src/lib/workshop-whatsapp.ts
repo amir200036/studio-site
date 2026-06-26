@@ -33,9 +33,8 @@ export function buildDefaultWorkshopInquiryMessage(params: WorkshopWhatsAppParam
 
 /**
  * מילוי תבנית מותאמת מהמנהל.
- * מציינים: {{workshopName}}, {{customerName}}, {{customerEmail}}, {{seats}},
- * {{pricePerPerson}}, {{total}}, {{date}}, {{time}}, {{durationHours}} (מספר, למשל 3)
- * ללא מועד קבוע: {{date}} ו-{{time}} יתמלאו ב־"יתואם ב-WhatsApp"
+ * משתנים: {{workshopName}}, {{customerName}}, {{seats}},
+ * {{pricePerPerson}}, {{total}}, {{durationHours}}
  */
 export function applyWorkshopWhatsAppTemplate(template: string, params: WorkshopWhatsAppParams): string {
   const raw = params.workshopDate;

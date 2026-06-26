@@ -6,6 +6,7 @@ import type { Workshop } from "@prisma/client";
 import { Loader2, Trash2 } from "lucide-react";
 import { adminInputClass, adminPrimaryBtnClass } from "@/lib/admin-ui";
 import { GalleryImagePicker } from "./GalleryImagePicker";
+import { WorkshopWhatsAppEditor } from "./WorkshopWhatsAppEditor";
 
 interface Props {
   workshop?: Workshop;
@@ -18,9 +19,6 @@ export function WorkshopForm({ workshop }: Props) {
   const [error, setError] = useState("");
 
   const [name, setName] = useState(workshop?.name || "");
-  const [date, setDate] = useState(
-    workshop?.date ? new Date(workshop.date).toISOString().slice(0, 16) : ""
-  );
   const [duration, setDuration] = useState(String(workshop?.durationHours || 2));
   const [description, setDescription] = useState(workshop?.description || "");
   const [imageUrl, setImageUrl] = useState(workshop?.imageUrl || "");
@@ -36,7 +34,7 @@ export function WorkshopForm({ workshop }: Props) {
 
     const body = {
       name,
-      date: date ? new Date(date).toISOString() : null,
+      date: null,
       durationHours: parseFloat(duration),
       description,
       imageUrl: imageUrl || null,
@@ -67,7 +65,7 @@ export function WorkshopForm({ workshop }: Props) {
 
   async function handleDelete() {
     if (!workshop) return;
-    if (!confirm(`האם למחוק את הסדנה "${workshop.name}"? פעולה זו תשלח מייל לכל הנרשמים.`)) return;
+    if (!confirm(`האם למחוק את הסדנה "${workshop.name}"?`)) return;
     setDeleting(true);
     const res = await fetch(`/api/admin/workshops/${workshop.id}`, { method: "DELETE" });
     if (res.ok) {
@@ -79,26 +77,22 @@ export function WorkshopForm({ workshop }: Props) {
     }
   }
 
+  const durationNum = parseFloat(duration) || 0;
+  const priceNum = parseFloat(price) || 0;
+
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-4">
-      <h2 className="font-bold text-stone-800 text-lg">{workshop ? "עריכת פרטים" : "פרטי הסדנה"}</h2>
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-4 max-w-2xl">
+      <h2 className="font-bold text-stone-800 text-lg">{workshop ? "עריכת סדנה" : "סדנה חדשה"}</h2>
 
       <Field label="שם הסדנה">
         <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
           className={adminInputClass} placeholder="סדנת יסודות הקדרות" />
       </Field>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Field label="תאריך ושעה (אופציונלי)">
-          <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)}
-            className={adminInputClass} dir="ltr" />
-          <p className="text-xs text-stone-500 mt-1">ריק = לא מוצג באתר; המועד נקבע ב-WhatsApp</p>
-        </Field>
-        <Field label="משך (שעות)">
-          <input type="number" required min="0.5" step="0.5" value={duration}
-            onChange={(e) => setDuration(e.target.value)} className={adminInputClass} />
-        </Field>
-      </div>
+      <Field label="משך (שעות)">
+        <input type="number" required min="0.5" step="0.5" value={duration}
+          onChange={(e) => setDuration(e.target.value)} className={adminInputClass} />
+      </Field>
 
       <Field label="תיאור">
         <textarea required rows={4} value={description} onChange={(e) => setDescription(e.target.value)}
@@ -128,22 +122,16 @@ export function WorkshopForm({ workshop }: Props) {
         </select>
       </Field>
 
-      <Field label="הודעת WhatsApp (אופציונלי)">
-        <textarea
-          rows={8}
+      <div className="border-t border-stone-100 pt-4">
+        <label className="block text-sm font-medium text-stone-700 mb-2">הודעת WhatsApp</label>
+        <WorkshopWhatsAppEditor
           value={whatsappMessage}
-          onChange={(e) => setWhatsappMessage(e.target.value)}
-          className={adminInputClass + " resize-y font-mono text-sm"}
-          placeholder="השאירו ריק לברירת המחדל של האתר, או כתבו תבנית משלכם…"
-          dir="rtl"
+          onChange={setWhatsappMessage}
+          workshopName={name}
+          durationHours={durationNum}
+          pricePerPerson={priceNum}
         />
-        <p className="text-xs text-stone-500 mt-2 leading-relaxed">
-          משתנים (העתיקו בדיוק). <code className="bg-stone-100 px-1 rounded" dir="ltr">customerEmail</code> ריק בטופס האתר:{" "}
-          <code className="bg-stone-100 px-1 rounded break-all" dir="ltr">
-            {"{{workshopName}} {{customerName}} {{customerEmail}} {{seats}} {{pricePerPerson}} {{total}} {{date}} {{time}} {{durationHours}}}"}
-          </code>
-        </p>
-      </Field>
+      </div>
 
       {error && <p className="text-red-600 text-sm bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
 

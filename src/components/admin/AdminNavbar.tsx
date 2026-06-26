@@ -10,8 +10,6 @@ import { useState, useEffect } from "react";
 const links = [
   { href: "/admin", label: "לוח בקרה" },
   { href: "/admin/workshops", label: "סדנאות" },
-  { href: "/admin/bookings", label: "הזמנות" },
-  { href: "/admin/customers", label: "לקוחות" },
   { href: "/admin/content", label: "תוכן" },
   { href: "/admin/gallery", label: "ספריית תמונות" },
   { href: "/admin/settings", label: "הגדרות" },
