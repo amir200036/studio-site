@@ -78,7 +78,7 @@ studio-site/
 │   │   ├── faq/               # FAQAccordion.tsx
 │   │   ├── contact/           # ContactForm.tsx
 │   │   └── admin/             # AdminNavbar, ContentClient, CustomersClient,
-│   │                          # ImageUploadField, LoginForm, SettingsClient,
+│   │                          # GalleryLibraryPanel, LoginForm, SettingsClient,
 │   │                          # WorkshopBookings, WorkshopForm
 │   ├── lib/
 │   │   ├── auth.ts            # הגדרות NextAuth
@@ -152,8 +152,8 @@ URL:   http://localhost:3000/admin/login
 
 ### העלאת תמונות
 
-קומפוננט `ImageUploadField` מאפשר גם URL ידני וגם העלאת קובץ (jpg/png/webp, עד 5MB):
-- בפרודקשן עם `BLOB_READ_WRITE_TOKEN`: Vercel Blob
+ספריית התמונות (`/admin/gallery`) ו-`GalleryImagePicker` בטפסי תוכן/סדנאות/אירועים — העלאה מ-URL או קובץ (jpg/png/webp/heic, עד 8MB):
+- בפרודקשן עם `BLOB_READ_WRITE_TOKEN`: Vercel Blob (מחיקה מהגלריה מוחקת גם את הקובץ ב-Blob)
 - בפיתוח ללא token: שמירה ב-`public/uploads/`
 
 ---
@@ -215,7 +215,7 @@ POST /api/admin/bookings/[id]/refund — מעדכן סטטוס ל-refunded (לל
 |---|---|---|
 | `NEXTAUTH_SECRET` | **חובה** | סוד JWT — אל תשאיר ריק! (`openssl rand -base64 32`) |
 | `NEXTAUTH_URL` | חובה | `http://localhost:3000` בפיתוח |
-| `NEXT_PUBLIC_SITE_URL` | מומלץ בפרודקשן | כתובת קנונית ל-OG, sitemap, JSON-LD (קובצי `public/robots.txt` ו-`public/llms.txt` סטטיים — יש לעדכן ידנית בשינוי דומיין) |
+| `NEXT_PUBLIC_SITE_URL` | מומלץ בפרודקשן | כתובת קנונית ל-OG, sitemap, JSON-LD, `/robots.txt`, `/llms.txt` |
 | `ADMIN_EMAIL` | חובה | מייל כניסה לאדמין + נמען טופס קשר |
 | `ADMIN_PASSWORD` | חובה | סיסמה (טקסט בפיתוח, bcrypt בפרודקשן) |
 | `RESEND_API_KEY` | מומלץ בפרודקשן | ללא מפתח תקף — טופס קשר יחזיר שגיאה (בפיתוח: לוג לקונסול בלבד) |
@@ -239,7 +239,7 @@ vercel env pull .env.local
 npm run dev          # הפעלת שרת פיתוח (פורט 3000)
 npm run build        # בניית גרסת פרודקשן
 npm run db:push      # סנכרון schema עם DB (דורש POSTGRES_URL ב-.env.local)
-npm run db:seed      # העמסת נתוני דוגמה (4 סדנאות, 6 FAQs, 4 אירועים, 5 ביקורות)
+npm run db:seed      # העמסת נתוני דוגמה (חסום בפרודקשן אלא אם ALLOW_DB_SEED=true)
 npm run db:studio    # פתיחת Prisma Studio — ממשק ויזואלי למסד הנתונים
 npx prisma generate  # יצירת Prisma client מחדש לאחר שינוי schema
 vercel env pull      # משיכת משתני סביבה מ-Vercel ל-.env.local
@@ -251,8 +251,8 @@ vercel env pull      # משיכת משתני סביבה מ-Vercel ל-.env.local
 
 | קובץ | מיקום | תיאור |
 |---|---|---|
-| `llms.txt` | `public/llms.txt` | תיאור האתר לסוכני AI — **עדכנו קישורים** אם הדומיין משתנה |
-| `robots.txt` | `public/robots.txt` | הרשאות סריקה + שורת `Sitemap` — **עדכנו** בפרודקשן |
+| `llms.txt` | `src/app/llms.txt/route.ts` | תיאור האתר לסוכני AI — דינמי לפי `getSiteUrl()` |
+| `robots.txt` | `src/app/robots.ts` | הרשאות סריקה + sitemap — דינמי |
 | `sitemap.ts` | `src/app/sitemap.ts` | Sitemap דינמי — דפים סטטיים + דפי סדנאות פעילות |
 | `prisma.config.ts` | שורש הפרויקט | הגדרת DB לפקודות CLI בלבד (Prisma 7) |
 | `CLAUDE.md` | `../CLAUDE.md` (מחוץ לגיט) | הוראות מפורטות לסוכן AI — **לא בגיט** |

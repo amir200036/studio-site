@@ -27,6 +27,13 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_DB_SEED !== "true") {
+    console.error(
+      "❌ seed חסום בפרודקשן. להרצה מכוונת: ALLOW_DB_SEED=true npm run db:seed"
+    );
+    process.exit(1);
+  }
+
   console.log("🌱 מאכלס נתוני דמה...");
 
   await prisma.booking.deleteMany();

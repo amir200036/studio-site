@@ -24,18 +24,38 @@ export default async function AdminBookingsPage() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-stone-800">הזמנות</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-stone-800">הזמנות</h1>
           <p className="text-stone-400 mt-1">{bookings.length} הזמנות במערכת</p>
         </div>
         <a
           href="/api/admin/export/bookings"
-          className="text-sm font-bold text-amber-800 hover:text-amber-900 px-4 py-2 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors"
+          className="text-sm font-bold text-amber-800 hover:text-amber-900 px-4 py-3 min-h-11 rounded-xl border border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors inline-flex items-center"
         >
           הורדת CSV
         </a>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden">
+      <div className="md:hidden flex flex-col gap-3">
+        {bookings.map((b) => (
+          <div key={b.id} className="bg-white rounded-2xl border border-stone-100 p-4 flex flex-col gap-2 shadow-sm">
+            <div className="flex justify-between items-start gap-2">
+              <p className="font-bold text-stone-800">{b.customerName}</p>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-medium shrink-0 ${statusColors[b.paymentStatus] || ""}`}>
+                {statusLabels[b.paymentStatus] || b.paymentStatus}
+              </span>
+            </div>
+            <p className="text-xs text-stone-500" dir="ltr">{b.customerEmail}</p>
+            <p className="text-sm text-stone-600">{b.workshop.name}</p>
+            <div className="flex justify-between text-sm text-stone-500 pt-1 border-t border-stone-100">
+              <span>{b.seats} מקומות</span>
+              <span className="font-bold text-amber-700">{formatPrice(b.totalAmount)}</span>
+            </div>
+            <p className="text-xs text-stone-400">{formatDateTime(b.createdAt)}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-stone-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="bg-stone-50 border-b border-stone-100">

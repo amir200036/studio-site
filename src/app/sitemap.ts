@@ -3,6 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { visiblePublicWorkshopsWhere } from "@/lib/workshop-filters";
 import { getSiteUrl } from "@/lib/site-url";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const BASE_URL = getSiteUrl().replace(/\/$/, "");
   const staticPages: MetadataRoute.Sitemap = [

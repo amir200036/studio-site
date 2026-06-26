@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { safeDbQuery } from "@/lib/safe-db";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { LocalBusinessJsonLd } from "@/components/seo/LocalBusinessJsonLd";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const row = await safeDbQuery(
@@ -13,6 +14,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <div style={{ backgroundColor: bgColor, minHeight: "100vh" }}>
+      <LocalBusinessJsonLd />
       <Navbar bgColor={bgColor} />
       <main>{children}</main>
       <Footer />
