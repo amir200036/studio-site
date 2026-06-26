@@ -15,6 +15,7 @@ import {
 import { WorkshopWhatsAppForm } from "@/components/workshops/WorkshopWhatsAppForm";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
+import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
 
 type Props = { params: { id: string } };
 
@@ -60,12 +61,13 @@ export default async function WorkshopDetailPage({ params }: Props) {
         where: { id },
         include: { bookings: { where: { paymentStatus: "paid" } } },
       }),
-      prisma.siteContent.findMany({ where: { key: { in: ["bg_image_workshops"] } } }),
+      prisma.siteContent.findMany({ where: { key: { in: ["bg_image_workshops", "whatsapp"] } } }),
     ]);
     return { workshop: w, content: Object.fromEntries(rows.map((r) => [r.key, r.value])) };
   }, { workshop: null, content: {} as Record<string, string> });
 
   if (!workshop || workshop.status !== "active") notFound();
+  const waNumber = resolveWhatsAppNumber(content.whatsapp);
   const available = getAvailableSeats(workshop.maxParticipants, workshop.bookings);
   const isPast = workshop.date != null && workshop.date < new Date();
 
@@ -126,7 +128,7 @@ export default async function WorkshopDetailPage({ params }: Props) {
           </div>
         </div>
 
-        <WorkshopWhatsAppForm workshop={workshop} />
+        <WorkshopWhatsAppForm workshop={workshop} whatsappNumber={waNumber} />
       </div>
     </div>
   );

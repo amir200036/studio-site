@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Booking } from "@prisma/client";
 import { formatPrice } from "@/lib/utils";
 import { Loader2, Mail, RotateCcw, X } from "lucide-react";
+import { adminInputClass, adminPrimaryBtnClass } from "@/lib/admin-ui";
 
 interface Props {
   bookings: Booking[];
@@ -118,14 +119,14 @@ export function WorkshopBookings({ bookings: initialBookings, workshopId }: Prop
               <button
                 onClick={() => { setConfirm(null); setRefundError(""); }}
                 disabled={refunding}
-                className="flex-1 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl text-sm transition-colors"
+                className="flex-1 py-3 min-h-12 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-xl text-base sm:text-sm transition-colors"
               >
                 ביטול
               </button>
               <button
                 onClick={confirmRefund}
                 disabled={refunding}
-                className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-stone-300 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-colors"
+                className="flex-1 py-3 min-h-12 bg-red-600 hover:bg-red-700 disabled:bg-stone-300 text-white font-bold rounded-xl text-base sm:text-sm flex items-center justify-center gap-2 transition-colors"
               >
                 {refunding ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                 {refunding ? "מעבד..." : "כן, בטל הרשמה"}
@@ -138,10 +139,10 @@ export function WorkshopBookings({ bookings: initialBookings, workshopId }: Prop
       <div className="flex flex-col gap-4">
         {/* רשימת נרשמים */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
             <h2 className="font-bold text-stone-800 text-lg">נרשמים ({totalSeats} מקומות)</h2>
             <button onClick={sendEmailAll} disabled={emailLoading}
-              className="flex items-center gap-1.5 text-sm px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg transition-colors">
+              className="flex items-center justify-center gap-2 text-sm px-4 py-3 min-h-11 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-xl transition-colors w-full sm:w-auto">
               {emailLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
               שלח מייל לכולם
             </button>
@@ -154,22 +155,22 @@ export function WorkshopBookings({ bookings: initialBookings, workshopId }: Prop
           ) : (
             <div className="flex flex-col gap-1">
               {activeBookings.map((b) => (
-                <div key={b.id} className="flex justify-between items-center text-sm py-2.5 border-b border-stone-50 last:border-0 gap-2">
+                <div key={b.id} className="flex flex-col sm:flex-row sm:justify-between sm:items-center text-sm py-3 border-b border-stone-50 last:border-0 gap-3">
                   <div className="min-w-0">
-                    <div className="font-medium text-stone-700 truncate">{b.customerName}</div>
-                    <div className="text-stone-400 text-xs truncate">{b.customerEmail}</div>
+                    <div className="font-medium text-stone-700">{b.customerName}</div>
+                    <div className="text-stone-400 text-xs break-all">{b.customerEmail}</div>
                   </div>
-                  <div className="flex items-center gap-3 shrink-0">
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0">
                     <div className="text-right">
                       <div className="font-bold text-amber-700">{formatPrice(b.totalAmount)}</div>
                       <div className="text-stone-400 text-xs">{b.seats} מקומות</div>
                     </div>
                     <button
                       onClick={() => setConfirm({ bookingId: b.id, customerName: b.customerName, totalAmount: b.totalAmount })}
-                      className="flex items-center gap-1 text-xs px-2.5 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors font-medium"
+                      className="flex items-center justify-center gap-1.5 text-sm px-4 py-2.5 min-h-11 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl transition-colors font-medium"
                       title="ביטול הרשמה במערכת"
                     >
-                      <RotateCcw className="w-3 h-3" />
+                      <RotateCcw className="w-4 h-4" />
                       ביטול
                     </button>
                   </div>
@@ -207,14 +208,14 @@ export function WorkshopBookings({ bookings: initialBookings, workshopId }: Prop
           <h2 className="font-bold text-stone-800 text-lg mb-4">הוספת לקוח ידנית</h2>
           <form onSubmit={addManual} className="flex flex-col gap-3">
             <input type="text" required placeholder="שם מלא" value={addName} onChange={(e) => setAddName(e.target.value)}
-              className={ic} />
+              className={adminInputClass} />
             <input type="email" required placeholder="מייל" value={addEmail} onChange={(e) => setAddEmail(e.target.value)}
-              className={ic} dir="ltr" />
-            <select value={addSeats} onChange={(e) => setAddSeats(Number(e.target.value))} className={ic + " bg-white"}>
+              className={adminInputClass} dir="ltr" />
+            <select value={addSeats} onChange={(e) => setAddSeats(Number(e.target.value))} className={adminInputClass + " bg-white"}>
               {[1, 2, 3, 4].map((n) => <option key={n} value={n}>{n} מקומות</option>)}
             </select>
             <button type="submit" disabled={adding}
-              className="py-2.5 bg-stone-700 hover:bg-stone-800 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-2 transition-colors">
+              className={adminPrimaryBtnClass + " bg-stone-700 hover:bg-stone-800 text-sm w-full"}>
               {adding && <Loader2 className="w-4 h-4 animate-spin" />}
               הוסף לקוח
             </button>
@@ -224,5 +225,3 @@ export function WorkshopBookings({ bookings: initialBookings, workshopId }: Prop
     </>
   );
 }
-
-const ic = "w-full border border-stone-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm";

@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { sendCustomEmail } from "@/lib/email";
+import { parseAdminEmailInput } from "@/lib/admin-api-validation";
+import { requireAdminSession } from "@/lib/require-admin";
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error } = await requireAdminSession();
+  if (error) return error;
 
-  const { to, subject, body } = await req.json();
-  if (typeof to !== "string" || typeof subject !== "string" || typeof body !== "string") {
-    return NextResponse.json({ error: "קלט לא תקין" }, { status: 400 });
-  }
-  const ok = await sendCustomEmail(to, subject, body);
+  const body = await req.json();
+  const data = parseAdminEmailInput(body, true);
+  if (!data?.to) return NextResponse.json({ error: "נתוני מייל לא תקינים" }, { status: 400 });
+
+  const ok = await sendCustomEmail(data.to, data.subject, data.body);
   if (!ok) {
     return NextResponse.json({ error: "שליחת המייל נכשלה" }, { status: 502 });
   }

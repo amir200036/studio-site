@@ -10,16 +10,17 @@ type WorkshopWithBookings = Workshop & { bookings: Pick<Booking, "seats" | "paym
 
 interface Props {
   workshop: WorkshopWithBookings;
+  whatsappNumber: string;
   onSubmitted?: () => void;
 }
 
-export function WorkshopWhatsAppForm({ workshop, onSubmitted }: Props) {
+export function WorkshopWhatsAppForm({ workshop, whatsappNumber, onSubmitted }: Props) {
   const [name, setName] = useState("");
   const [seats, setSeats] = useState(1);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [error, setError] = useState("");
 
-  const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
+  const waNumber = whatsappNumber;
   const available = getAvailableSeats(workshop.maxParticipants, workshop.bookings);
   const maxSeats = Math.min(4, available);
   const total = workshop.pricePerPerson * seats;

@@ -8,12 +8,12 @@ import { GalleryUploadButtons } from "./GalleryUploadButtons";
 import { uploadImageToGallery } from "@/lib/gallery-upload-client";
 
 interface Props {
-  gallery: GalleryImage[];
-  onGalleryUpdate: (gallery: GalleryImage[]) => void;
+  initialGallery: GalleryImage[];
   showPageHeader?: boolean;
 }
 
-export function GalleryLibraryPanel({ gallery, onGalleryUpdate, showPageHeader }: Props) {
+export function GalleryLibraryPanel({ initialGallery, showPageHeader }: Props) {
+  const [gallery, setGallery] = useState(initialGallery);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
@@ -24,14 +24,14 @@ export function GalleryLibraryPanel({ gallery, onGalleryUpdate, showPageHeader }
     setError("");
     const { image, error: err } = await uploadImageToGallery(file, gallery.length);
     if (err || !image) setError(err || "שגיאה");
-    else onGalleryUpdate([...gallery, image]);
+    else setGallery([...gallery, image]);
     setUploading(false);
   }
 
   async function remove(id: string) {
     if (!confirm("למחוק את התמונה מהספרייה?")) return;
     await fetch(`/api/admin/gallery/${id}`, { method: "DELETE" });
-    onGalleryUpdate(gallery.filter((g) => g.id !== id));
+    setGallery(gallery.filter((g) => g.id !== id));
   }
 
   async function toggleShowOnHomepage(id: string, showOnHomepage: boolean) {
@@ -42,7 +42,7 @@ export function GalleryLibraryPanel({ gallery, onGalleryUpdate, showPageHeader }
     });
     if (!res.ok) return;
     const updated = (await res.json()) as GalleryImage;
-    onGalleryUpdate(gallery.map((g) => (g.id === id ? updated : g)));
+    setGallery(gallery.map((g) => (g.id === id ? updated : g)));
   }
 
   return (

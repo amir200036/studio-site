@@ -24,7 +24,7 @@ export default async function EditWorkshopPage({ params }: Props) {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-bold text-stone-800">עריכת סדנה</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-stone-800">עריכת סדנה</h1>
         <p className="text-stone-400 mt-1">{workshop.name}</p>
       </div>
 

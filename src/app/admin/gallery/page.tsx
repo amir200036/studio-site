@@ -1,8 +1,8 @@
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
-import { GalleryLibraryClient } from "@/components/admin/GalleryLibraryClient";
+import { GalleryLibraryPanel } from "@/components/admin/GalleryLibraryPanel";
 
 export default async function AdminGalleryPage() {
   const gallery = await prisma.galleryImage.findMany({ orderBy: { order: "asc" } });
-  return <GalleryLibraryClient initialGallery={gallery} />;
+  return <GalleryLibraryPanel initialGallery={gallery} showPageHeader />;
 }

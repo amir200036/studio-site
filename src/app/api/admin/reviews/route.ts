@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { parseReviewInput } from "@/lib/admin-api-validation";
+import { requireAdminSession } from "@/lib/require-admin";
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error } = await requireAdminSession();
+  if (error) return error;
 
-  const { authorName, content, rating } = await req.json();
-  if (!authorName || !content) return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+  const body = await req.json();
+  const data = parseReviewInput(body);
+  if (!data) return NextResponse.json({ error: "נתוני ביקורת לא תקינים" }, { status: 400 });
 
   const review = await prisma.review.create({
-    data: { authorName, content, rating: rating || 5, approved: true },
+    data: { ...data, approved: true },
   });
   return NextResponse.json(review);
 }

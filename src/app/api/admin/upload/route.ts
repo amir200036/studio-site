@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { put } from "@vercel/blob";
 import path from "path";
 import fs from "fs/promises";
+import { requireAdminSession } from "@/lib/require-admin";
 
 const ALLOWED_MIME = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
 const MAX_BYTES = 8 * 1024 * 1024;
@@ -27,8 +26,8 @@ function resolveImageMeta(file: File): { mime: string; ext: string } | null {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const { error } = await requireAdminSession();
+    if (error) return error;
 
     let formData: FormData;
     try {
@@ -73,7 +72,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: `/uploads/${localName}` });
   } catch (e) {
     console.error("Upload error:", e);
-    const msg = e instanceof Error ? e.message : String(e);
-    return NextResponse.json({ error: `שגיאה בהעלאה: ${msg}` }, { status: 500 });
+    return NextResponse.json({ error: "שגיאה בהעלאה. נסו שוב." }, { status: 500 });
   }
 }

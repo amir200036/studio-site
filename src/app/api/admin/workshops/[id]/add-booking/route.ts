@@ -1,27 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getAvailableSeats } from "@/lib/utils";
+import { parseBookingInput } from "@/lib/admin-api-validation";
+import { requireAdminSession } from "@/lib/require-admin";
 
 interface Params { params: { id: string } }
 
 export async function POST(req: NextRequest, { params }: Params) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error } = await requireAdminSession();
+  if (error) return error;
 
-  const { customerName, customerEmail, seats } = await req.json();
+  const body = await req.json();
+  const data = parseBookingInput(body);
+  if (!data) return NextResponse.json({ error: "נתוני הזמנה לא תקינים" }, { status: 400 });
 
-  const workshop = await prisma.workshop.findUnique({ where: { id: params.id } });
+  const workshop = await prisma.workshop.findUnique({
+    where: { id: params.id },
+    include: { bookings: { where: { paymentStatus: "paid" } } },
+  });
   if (!workshop) return NextResponse.json({ error: "לא נמצאה" }, { status: 404 });
 
-  const totalAmount = workshop.pricePerPerson * seats;
+  const available = getAvailableSeats(workshop.maxParticipants, workshop.bookings);
+  if (data.seats > available) {
+    return NextResponse.json(
+      { error: `אין מספיק מקומות (פנויים: ${available})` },
+      { status: 400 }
+    );
+  }
+
+  const totalAmount = workshop.pricePerPerson * data.seats;
 
   const booking = await prisma.booking.create({
     data: {
       workshopId: params.id,
-      customerName,
-      customerEmail,
-      seats,
+      customerName: data.customerName,
+      customerEmail: data.customerEmail,
+      seats: data.seats,
       totalAmount,
       paymentStatus: "paid",
     },

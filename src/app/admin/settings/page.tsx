@@ -15,7 +15,7 @@ export default async function AdminSettingsPage() {
   const settings = await getSettings();
   return (
     <div className="max-w-2xl">
-      <h1 className="text-3xl font-bold text-stone-800 mb-8">הגדרות כלליות</h1>
+      <h1 className="text-2xl sm:text-3xl font-bold text-stone-800 mb-6 sm:mb-8">הגדרות כלליות</h1>
       <SettingsClient settings={settings} />
     </div>
   );

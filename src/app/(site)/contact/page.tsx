@@ -5,6 +5,7 @@ import { pageBackground } from "@/lib/utils";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
+import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -43,7 +44,7 @@ async function getContent() {
 
 export default async function ContactPage() {
   const info = await getContent();
-  const waNumber = info.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
+  const waNumber = resolveWhatsAppNumber(info.whatsapp);
   const waUrl = `https://wa.me/${waNumber}`;
   const mapSrc = (info.map_embed && info.map_embed.trim()) || DEFAULT_MAP_EMBED;
 

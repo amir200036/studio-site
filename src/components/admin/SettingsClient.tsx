@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { adminInputClass, adminPrimaryBtnClass } from "@/lib/admin-ui";
 
 interface Props {
   settings: Record<string, string>;
@@ -46,7 +47,7 @@ export function SettingsClient({ settings }: Props) {
               value={values[f.key]}
               onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
               placeholder={f.placeholder}
-              className={ic + " resize-none"}
+              className={adminInputClass + " resize-none"}
             />
           ) : (
             <input
@@ -54,7 +55,7 @@ export function SettingsClient({ settings }: Props) {
               value={values[f.key]}
               onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
               placeholder={f.placeholder}
-              className={ic}
+              className={adminInputClass}
               dir={f.dir}
             />
           )}
@@ -66,7 +67,7 @@ export function SettingsClient({ settings }: Props) {
       <button
         onClick={save}
         disabled={saving}
-        className="py-3 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors mt-2"
+        className={adminPrimaryBtnClass + " w-full sm:w-auto mt-2"}
       >
         {saving && <Loader2 className="w-4 h-4 animate-spin" />}
         {saving ? "שומר..." : "שמירת הגדרות"}
@@ -74,5 +75,3 @@ export function SettingsClient({ settings }: Props) {
     </div>
   );
 }
-
-const ic = "w-full border border-stone-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm";

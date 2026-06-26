@@ -1,18 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendCustomEmail } from "@/lib/email";
+import { parseAdminEmailInput } from "@/lib/admin-api-validation";
+import { requireAdminSession } from "@/lib/require-admin";
 
 interface Params { params: { id: string } }
 
 export async function POST(req: NextRequest, { params }: Params) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error } = await requireAdminSession();
+  if (error) return error;
 
-  const body = await req.json().catch(() => ({}));
-  const subject = body.subject || "עדכון מסטודיו קדרות";
-  const message = body.message || "שלום מסטודיו הקדרות!";
+  const body = await req.json().catch(() => null);
+  const parsed = parseAdminEmailInput(body);
+  if (!parsed) return NextResponse.json({ error: "נושא או תוכן לא תקינים" }, { status: 400 });
+
+  const subject = parsed.subject;
+  const message = parsed.body;
 
   const workshop = await prisma.workshop.findUnique({
     where: { id: params.id },

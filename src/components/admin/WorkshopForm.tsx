@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Workshop } from "@prisma/client";
 import { Loader2, Trash2 } from "lucide-react";
+import { adminInputClass, adminPrimaryBtnClass } from "@/lib/admin-ui";
 import { GalleryImagePicker } from "./GalleryImagePicker";
 
 interface Props {
@@ -84,24 +85,24 @@ export function WorkshopForm({ workshop }: Props) {
 
       <Field label="שם הסדנה">
         <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
-          className={inputClass} placeholder="סדנת יסודות הקדרות" />
+          className={adminInputClass} placeholder="סדנת יסודות הקדרות" />
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
         <Field label="תאריך ושעה (אופציונלי)">
           <input type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)}
-            className={inputClass} dir="ltr" />
+            className={adminInputClass} dir="ltr" />
           <p className="text-xs text-stone-500 mt-1">ריק = לא מוצג באתר; המועד נקבע ב-WhatsApp</p>
         </Field>
         <Field label="משך (שעות)">
           <input type="number" required min="0.5" step="0.5" value={duration}
-            onChange={(e) => setDuration(e.target.value)} className={inputClass} />
+            onChange={(e) => setDuration(e.target.value)} className={adminInputClass} />
         </Field>
       </div>
 
       <Field label="תיאור">
         <textarea required rows={4} value={description} onChange={(e) => setDescription(e.target.value)}
-          className={inputClass + " resize-none"} />
+          className={adminInputClass + " resize-none"} />
       </Field>
 
       <Field label="תמונה (אופציונלי)">
@@ -111,16 +112,16 @@ export function WorkshopForm({ workshop }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <Field label="מחיר לאדם (₪)">
           <input type="number" required min="0" value={price} onChange={(e) => setPrice(e.target.value)}
-            className={inputClass} />
+            className={adminInputClass} />
         </Field>
         <Field label="מקסימום משתתפים">
           <input type="number" required min="1" value={maxParticipants}
-            onChange={(e) => setMaxParticipants(e.target.value)} className={inputClass} />
+            onChange={(e) => setMaxParticipants(e.target.value)} className={adminInputClass} />
         </Field>
       </div>
 
       <Field label="סטטוס">
-        <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputClass + " bg-white"}>
+        <select value={status} onChange={(e) => setStatus(e.target.value)} className={adminInputClass + " bg-white"}>
           <option value="active">פעילה</option>
           <option value="blocked">חסומה</option>
           <option value="cancelled">מבוטלת</option>
@@ -132,7 +133,7 @@ export function WorkshopForm({ workshop }: Props) {
           rows={8}
           value={whatsappMessage}
           onChange={(e) => setWhatsappMessage(e.target.value)}
-          className={inputClass + " resize-y font-mono text-sm"}
+          className={adminInputClass + " resize-y font-mono text-sm"}
           placeholder="השאירו ריק לברירת המחדל של האתר, או כתבו תבנית משלכם…"
           dir="rtl"
         />
@@ -146,16 +147,16 @@ export function WorkshopForm({ workshop }: Props) {
 
       {error && <p className="text-red-600 text-sm bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
 
-      <div className="flex gap-3 mt-2">
+      <div className="flex flex-col sm:flex-row gap-3 mt-2">
         <button type="submit" disabled={loading}
-          className="flex-1 py-3 bg-amber-700 hover:bg-amber-800 disabled:bg-stone-300 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2">
+          className={adminPrimaryBtnClass + " flex-1 w-full"}>
           {loading && <Loader2 className="w-4 h-4 animate-spin" />}
           {loading ? "שומר..." : "שמירה"}
         </button>
 
         {workshop && (
           <button type="button" onClick={handleDelete} disabled={deleting}
-            className="px-4 py-3 bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-colors flex items-center gap-1.5">
+            className="px-4 py-3 min-h-12 w-full sm:w-auto bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5">
             {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
             מחיקה
           </button>
@@ -173,5 +174,3 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </div>
   );
 }
-
-const inputClass = "w-full border border-stone-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent";

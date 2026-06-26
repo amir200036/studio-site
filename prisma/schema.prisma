@@ -34,10 +34,8 @@ model Booking {
   customerEmail   String
   seats           Int
   totalAmount     Float
-  stripeSessionId String?   @unique
-  paymentStatus   String    @default("pending")  // "paid" | "pending" | "refunded" | "cancelled"
+  paymentStatus   String    @default("paid")  // "paid" | "pending" | "refunded" | "cancelled"
   cancelledAt     DateTime?
-  refundId        String?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
@@ -91,12 +89,4 @@ model SiteContent {
   key       String   @unique
   value     String
   updatedAt DateTime @updatedAt
-}
-
-// חסימות זמן
-model TimeBlock {
-  id        String   @id @default(cuid())
-  blockedAt DateTime
-  reason    String?
-  createdAt DateTime @default(now())
 }

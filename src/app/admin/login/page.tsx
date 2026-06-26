@@ -8,8 +8,8 @@ export default async function LoginPage() {
   if (session) redirect("/admin");
 
   return (
-    <div className="min-h-screen bg-stone-100 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-sm">
+    <div className="min-h-screen bg-stone-100 flex items-center justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))]">
+      <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-sm">
         <div className="text-center mb-8">
           <span className="text-5xl block mb-3">🏺</span>
           <h1 className="text-2xl font-bold text-amber-900">כניסה לניהול</h1>

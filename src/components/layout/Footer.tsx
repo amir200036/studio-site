@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { safeDbQuery } from "@/lib/safe-db";
+import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
 
 async function getSiteContent() {
   return safeDbQuery(async () => {
@@ -15,7 +16,7 @@ async function getSiteContent() {
 
 export async function Footer() {
   const content = await getSiteContent();
-  const waNumber = content.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
+  const waNumber = resolveWhatsAppNumber(content.whatsapp);
 
   return (
     <footer className="bg-stone-800 text-stone-200 mt-16">

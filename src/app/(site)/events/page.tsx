@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, pageBackground } from "@/lib/utils";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
+import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -30,7 +31,7 @@ async function getEvents() {
   return safeDbQuery(async () => {
     const [events, rows] = await Promise.all([
       prisma.event.findMany({ where: { active: true }, orderBy: { order: "asc" } }),
-      prisma.siteContent.findMany({ where: { key: { in: ["bg_image_events"] } } }),
+      prisma.siteContent.findMany({ where: { key: { in: ["bg_image_events", "whatsapp"] } } }),
     ]);
     const content = Object.fromEntries(rows.map((r: { key: string; value: string }) => [r.key, r.value]));
     return { events, content };
@@ -39,7 +40,7 @@ async function getEvents() {
 
 export default async function EventsPage() {
   const { events, content } = await getEvents();
-  const waNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
+  const waNumber = resolveWhatsAppNumber(content.whatsapp);
 
   return (
     <div style={pageBackground("", content["bg_image_events"] || "")}>

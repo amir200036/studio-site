@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendCustomEmail } from "@/lib/email";
+import { sendContactFormEmail } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
@@ -38,11 +38,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const sent = await sendCustomEmail(
-      adminEmail,
-      `פנייה חדשה מ-${name}`,
-      `שם: ${name}\nמייל: ${email}\n\nהודעה:\n${message}`
-    );
+    const sent = await sendContactFormEmail(adminEmail, name, email, message);
 
     if (!sent) {
       return NextResponse.json(

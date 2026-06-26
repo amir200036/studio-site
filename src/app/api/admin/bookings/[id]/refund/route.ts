@@ -28,7 +28,6 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
     data: {
       paymentStatus: "refunded",
       cancelledAt: new Date(),
-      refundId: null,
     },
   });
 

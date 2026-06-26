@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendCustomEmail } from "@/lib/email";
+import { parseAdminEmailInput } from "@/lib/admin-api-validation";
+import { requireAdminSession } from "@/lib/require-admin";
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error } = await requireAdminSession();
+  if (error) return error;
 
-  const { subject, body } = await req.json();
+  const body = await req.json();
+  const data = parseAdminEmailInput(body);
+  if (!data) return NextResponse.json({ error: "נושא או תוכן לא תקינים" }, { status: 400 });
 
   const bookings = await prisma.booking.findMany({
     where: { paymentStatus: "paid" },
@@ -21,7 +23,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ sent: 0, failed: 0 });
   }
 
-  const results = await Promise.all(emails.map((email) => sendCustomEmail(email, subject, body)));
+  const results = await Promise.all(
+    emails.map((email) => sendCustomEmail(email, data.subject, data.body))
+  );
   const sent = results.filter(Boolean).length;
   const failed = emails.length - sent;
   if (sent === 0) {

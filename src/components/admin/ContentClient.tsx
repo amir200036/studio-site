@@ -5,6 +5,7 @@ import { useState } from "react";
 import type { FAQ, Event, GalleryImage, Review } from "@prisma/client";
 import { Loader2, Trash2, Plus, Pencil, Save } from "lucide-react";
 import { GalleryImagePicker } from "./GalleryImagePicker";
+import { adminInputClass, adminPrimaryBtnClass, adminTouchBtnClass } from "@/lib/admin-ui";
 
 interface Props {
   content: Record<string, string>;
@@ -78,10 +79,10 @@ export function ContentClient({ content, faqs: initFaqs, events: initEvents, gal
         </p>
       </div>
 
-      <div className="flex gap-2 flex-wrap">
+      <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-none">
         {tabs.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-xl font-medium text-sm transition-colors min-h-10 ${tab === t.key ? "bg-amber-700 text-white" : "bg-white text-stone-600 hover:bg-amber-50 border border-stone-200"}`}>
+            className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-colors min-h-11 shrink-0 ${tab === t.key ? "bg-amber-700 text-white" : "bg-white text-stone-600 hover:bg-amber-50 border border-stone-200"}`}>
             {t.label}
           </button>
         ))}
@@ -146,7 +147,7 @@ function HeroTab({
           <label className="block text-sm font-medium text-stone-700 mb-1">{f.label}</label>
           {f.type === "textarea" ? (
             <textarea rows={4} value={values[f.key]} onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-              className={ic + " resize-none"} />
+              className={adminInputClass + " resize-none"} />
           ) : f.type === "imageUpload" ? (
             <GalleryImagePicker
               value={values[f.key]}
@@ -156,14 +157,14 @@ function HeroTab({
             />
           ) : (
             <input type={f.type} value={values[f.key]} onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
-              className={ic} dir={f.type === "url" ? "ltr" : undefined} />
+              className={adminInputClass} dir={f.type === "url" ? "ltr" : undefined} />
           )}
         </div>
       ))}
 
       {msg && <p className="text-sm">{msg}</p>}
       <button onClick={save} disabled={saving}
-        className="py-3 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors">
+        className={adminPrimaryBtnClass + " w-full"}>
         {saving && <Loader2 className="w-4 h-4 animate-spin" />} שמירה
       </button>
     </div>
@@ -204,16 +205,16 @@ function FAQTab({ initFaqs }: { initFaqs: FAQ[] }) {
             <p className="font-semibold text-stone-800 text-sm">{f.question}</p>
             <p className="text-stone-500 text-sm mt-1">{f.answer}</p>
           </div>
-          <button onClick={() => remove(f.id)} className="text-red-400 hover:text-red-600 flex-shrink-0">
-            <Trash2 className="w-4 h-4" />
+          <button onClick={() => remove(f.id)} className={adminTouchBtnClass + " text-red-400 hover:text-red-600 hover:bg-red-50 flex-shrink-0"}>
+            <Trash2 className="w-5 h-5" />
           </button>
         </div>
       ))}
       <div className="bg-white rounded-2xl p-5 border border-stone-100 flex flex-col gap-3">
         <h3 className="font-bold text-stone-800">הוספת שאלה</h3>
-        <input placeholder="שאלה" value={newQ} onChange={(e) => setNewQ(e.target.value)} className={ic} />
-        <textarea placeholder="תשובה" rows={3} value={newA} onChange={(e) => setNewA(e.target.value)} className={ic + " resize-none"} />
-        <button onClick={add} disabled={loading} className="py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm transition-colors">
+        <input placeholder="שאלה" value={newQ} onChange={(e) => setNewQ(e.target.value)} className={adminInputClass} />
+        <textarea placeholder="תשובה" rows={3} value={newA} onChange={(e) => setNewA(e.target.value)} className={adminInputClass + " resize-none"} />
+        <button onClick={add} disabled={loading} className={adminPrimaryBtnClass + " w-full"}>
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} הוסף שאלה
         </button>
       </div>
@@ -298,23 +299,23 @@ function EventsTab({
         <div key={e.id} className="bg-white rounded-2xl p-4 border border-stone-100 flex flex-col gap-3">
           {editingId === e.id ? (
             <>
-              <input value={editName} onChange={(ev) => setEditName(ev.target.value)} className={ic} placeholder="שם האירוע" />
-              <textarea rows={3} value={editDesc} onChange={(ev) => setEditDesc(ev.target.value)} className={ic + " resize-none"} placeholder="תיאור" />
+              <input value={editName} onChange={(ev) => setEditName(ev.target.value)} className={adminInputClass} placeholder="שם האירוע" />
+              <textarea rows={3} value={editDesc} onChange={(ev) => setEditDesc(ev.target.value)} className={adminInputClass + " resize-none"} placeholder="תיאור" />
               <div>
                 <label className="block text-xs text-stone-500 mb-1">תמונה (אופציונלי)</label>
                 <GalleryImagePicker value={editImg} onChange={setEditImg} gallery={gallery} onGalleryUpdate={onGalleryUpdate} />
               </div>
               <div>
                 <label className="block text-xs text-stone-500 mb-1">הודעת WhatsApp מותאמת (אופציונלי)</label>
-                <input value={editWa} onChange={(ev) => setEditWa(ev.target.value)} className={ic} placeholder={`היי! אני מעוניין/ת לשמוע על ${editName} 🏺`} />
+                <input value={editWa} onChange={(ev) => setEditWa(ev.target.value)} className={adminInputClass} placeholder={`היי! אני מעוניין/ת לשמוע על ${editName} 🏺`} />
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <button onClick={() => saveEdit(e.id)} disabled={saving}
-                  className="flex-1 py-2 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl text-sm flex items-center justify-center gap-1 transition-colors">
+                  className={adminPrimaryBtnClass + " flex-1 w-full sm:w-auto"}>
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} שמור
                 </button>
                 <button onClick={() => setEditingId(null)}
-                  className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-600 font-medium rounded-xl text-sm transition-colors">
+                  className="px-4 py-3 min-h-12 bg-stone-100 hover:bg-stone-200 text-stone-600 font-medium rounded-xl text-base sm:text-sm transition-colors">
                   ביטול
                 </button>
               </div>
@@ -327,14 +328,14 @@ function EventsTab({
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 <button onClick={() => toggle(e.id, e.active)}
-                  className={`px-2 py-0.5 rounded-full text-xs font-medium ${e.active ? "bg-green-100 text-green-700" : "bg-stone-100 text-stone-500"}`}>
+                  className={`px-3 py-2 min-h-11 rounded-full text-xs font-medium ${e.active ? "bg-green-100 text-green-700" : "bg-stone-100 text-stone-500"}`}>
                   {e.active ? "פעיל" : "מוסתר"}
                 </button>
-                <button onClick={() => startEdit(e)} className="text-amber-500 hover:text-amber-700">
-                  <Pencil className="w-4 h-4" />
+                <button onClick={() => startEdit(e)} className={adminTouchBtnClass + " text-amber-500 hover:text-amber-700 hover:bg-amber-50"}>
+                  <Pencil className="w-5 h-5" />
                 </button>
-                <button onClick={() => remove(e.id)} className="text-red-400 hover:text-red-600">
-                  <Trash2 className="w-4 h-4" />
+                <button onClick={() => remove(e.id)} className={adminTouchBtnClass + " text-red-400 hover:text-red-600 hover:bg-red-50"}>
+                  <Trash2 className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -343,13 +344,13 @@ function EventsTab({
       ))}
       <div className="bg-white rounded-2xl p-5 border border-stone-100 flex flex-col gap-3">
         <h3 className="font-bold text-stone-800">הוספת אירוע</h3>
-        <input placeholder="שם האירוע" value={name} onChange={(e) => setName(e.target.value)} className={ic} />
-        <textarea placeholder="תיאור" rows={3} value={desc} onChange={(e) => setDesc(e.target.value)} className={ic + " resize-none"} />
+        <input placeholder="שם האירוע" value={name} onChange={(e) => setName(e.target.value)} className={adminInputClass} />
+        <textarea placeholder="תיאור" rows={3} value={desc} onChange={(e) => setDesc(e.target.value)} className={adminInputClass + " resize-none"} />
         <div>
           <label className="block text-xs text-stone-500 mb-1">תמונה (אופציונלי)</label>
           <GalleryImagePicker value={img} onChange={setImg} gallery={gallery} onGalleryUpdate={onGalleryUpdate} />
         </div>
-        <button onClick={add} disabled={loading} className="py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm transition-colors">
+        <button onClick={add} disabled={loading} className={adminPrimaryBtnClass + " w-full"}>
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} הוסף אירוע
         </button>
       </div>
@@ -395,26 +396,26 @@ function ReviewsTab({ initReviews }: { initReviews: Review[] }) {
             </div>
             <p className="text-stone-500 text-sm">{r.content}</p>
           </div>
-          <button onClick={() => remove(r.id)} className="text-red-400 hover:text-red-600 flex-shrink-0">
-            <Trash2 className="w-4 h-4" />
+          <button onClick={() => remove(r.id)} className={adminTouchBtnClass + " text-red-400 hover:text-red-600 hover:bg-red-50 flex-shrink-0"}>
+            <Trash2 className="w-5 h-5" />
           </button>
         </div>
       ))}
 
       <div className="bg-white rounded-2xl p-5 border border-stone-100 flex flex-col gap-3">
         <h3 className="font-bold text-stone-800">הוספת ביקורת</h3>
-        <input placeholder="שם הלקוח/ה" value={newName} onChange={(e) => setNewName(e.target.value)} className={ic} />
-        <textarea placeholder="תוכן הביקורת" rows={3} value={newContent} onChange={(e) => setNewContent(e.target.value)} className={ic + " resize-none"} />
+        <input placeholder="שם הלקוח/ה" value={newName} onChange={(e) => setNewName(e.target.value)} className={adminInputClass} />
+        <textarea placeholder="תוכן הביקורת" rows={3} value={newContent} onChange={(e) => setNewContent(e.target.value)} className={adminInputClass + " resize-none"} />
         <div className="flex items-center gap-3">
           <label className="text-sm text-stone-600">דירוג:</label>
           {[1,2,3,4,5].map((n) => (
             <button key={n} type="button" onClick={() => setNewRating(n)}
-              className={`text-xl transition-colors ${n <= newRating ? "text-amber-400" : "text-stone-200"}`}>
+              className={`min-h-11 min-w-11 inline-flex items-center justify-center text-2xl transition-colors ${n <= newRating ? "text-amber-400" : "text-stone-200"}`}>
               ★
             </button>
           ))}
         </div>
-        <button onClick={add} disabled={loading} className="py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm transition-colors">
+        <button onClick={add} disabled={loading} className={adminPrimaryBtnClass + " w-full"}>
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} הוסף ביקורת
         </button>
       </div>
@@ -472,12 +473,12 @@ function TermsTab({ content }: { content: Record<string, string> }) {
         rows={20}
         value={text}
         onChange={(e) => setText(e.target.value)}
-        className={ic + " resize-y font-mono text-xs leading-relaxed"}
+        className={adminInputClass + " resize-y font-mono text-xs leading-relaxed"}
         dir="rtl"
       />
       {msg && <p className="text-sm">{msg}</p>}
       <button onClick={save} disabled={saving}
-        className="py-3 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors">
+        className={adminPrimaryBtnClass + " w-full"}>
         {saving && <Loader2 className="w-4 h-4 animate-spin" />} שמירה
       </button>
     </div>
@@ -564,11 +565,9 @@ function BackgroundsTab({
       ))}
       {msg && <p className="text-sm">{msg}</p>}
       <button onClick={save} disabled={saving}
-        className="py-3 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 transition-colors">
+        className={adminPrimaryBtnClass + " w-full"}>
         {saving && <Loader2 className="w-4 h-4 animate-spin" />} שמירה
       </button>
     </div>
   );
 }
-
-const ic = "w-full border border-stone-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-amber-400 text-sm";

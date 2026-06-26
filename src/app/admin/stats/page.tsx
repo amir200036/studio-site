@@ -99,8 +99,8 @@ export default async function StatsPage() {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-      <h1 className="text-2xl font-bold text-stone-800">סטטיסטיקות</h1>
+    <div className="space-y-8">
+      <h1 className="text-2xl sm:text-3xl font-bold text-stone-800">סטטיסטיקות</h1>
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -171,9 +171,29 @@ export default async function StatsPage() {
       )}
 
       {/* Recent bookings */}
-      <div className="rounded-2xl border border-stone-200 bg-white p-6">
+      <div className="rounded-2xl border border-stone-200 bg-white p-4 sm:p-6">
         <h2 className="text-lg font-bold text-stone-700 mb-4">הזמנות אחרונות</h2>
-        <div className="overflow-x-auto">
+
+        <div className="md:hidden flex flex-col gap-3">
+          {recentBookings.map((b) => (
+            <div key={b.id} className="border border-stone-100 rounded-xl p-4 flex flex-col gap-1">
+              <p className="font-medium text-stone-800">{b.customerName}</p>
+              <p className="text-sm text-stone-500">{b.workshop.name}</p>
+              <div className="flex justify-between text-sm pt-2 border-t border-stone-100 mt-1">
+                <span>{b.seats} מקומות</span>
+                <span className="font-semibold text-amber-700">{formatPrice(b.totalAmount)}</span>
+              </div>
+              <p className="text-xs text-stone-400">
+                {new Date(b.createdAt).toLocaleDateString("he-IL")}
+              </p>
+            </div>
+          ))}
+          {recentBookings.length === 0 && (
+            <p className="text-stone-400 text-center py-6">אין הזמנות עדיין</p>
+          )}
+        </div>
+
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-right text-stone-500 border-b border-stone-100">

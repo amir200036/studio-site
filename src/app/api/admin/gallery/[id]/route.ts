@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { deleteBlobUrlIfHosted } from "@/lib/blob-storage";
+import { requireAdminSession } from "@/lib/require-admin";
 
 interface Params { params: { id: string } }
 
@@ -25,8 +24,8 @@ function parseGalleryPatch(body: unknown) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error } = await requireAdminSession();
+  if (error) return error;
 
   const body = await req.json();
   const data = parseGalleryPatch(body);
@@ -39,8 +38,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(_: NextRequest, { params }: Params) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error } = await requireAdminSession();
+  if (error) return error;
 
   const existing = await prisma.galleryImage.findUnique({ where: { id: params.id } });
   if (!existing) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });

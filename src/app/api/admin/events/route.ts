@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { parseEventInput } from "@/lib/admin-api-validation";
+import { requireAdminSession } from "@/lib/require-admin";
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions);
-  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { error } = await requireAdminSession();
+  if (error) return error;
 
   const body = await req.json();
-  const event = await prisma.event.create({ data: body });
+  const data = parseEventInput(body);
+  if (!data) return NextResponse.json({ error: "נתוני אירוע לא תקינים" }, { status: 400 });
+
+  const event = await prisma.event.create({ data });
   return NextResponse.json(event);
 }

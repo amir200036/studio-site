@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { LogOut, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const links = [
   { href: "/admin", label: "לוח בקרה" },
@@ -26,6 +26,17 @@ function isNavActive(path: string, href: string) {
 export function AdminNavbar() {
   const path = usePathname();
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
   return (
     <header className="bg-amber-900 text-white shadow-lg">
@@ -53,7 +64,7 @@ export function AdminNavbar() {
         <div className="flex items-center gap-2">
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
-            className="flex items-center gap-1.5 text-amber-200 hover:text-white transition-colors text-sm flex-shrink-0"
+            className="flex items-center justify-center gap-1.5 min-h-11 px-3 text-amber-200 hover:text-white hover:bg-amber-800 rounded-lg transition-colors text-sm flex-shrink-0"
             title="יציאה"
           >
             <LogOut className="w-4 h-4" />
@@ -73,14 +84,14 @@ export function AdminNavbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="lg:hidden bg-amber-800 px-4 py-3 flex flex-col gap-1 border-t border-amber-700 max-h-[70vh] overflow-y-auto">
+        <div className="lg:hidden bg-amber-800 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] flex flex-col gap-1 border-t border-amber-700 max-h-[70vh] overflow-y-auto overscroll-contain">
           {links.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
               className={cn(
-                "px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                "px-4 py-3 min-h-12 rounded-xl text-base sm:text-sm font-medium transition-colors flex items-center",
                 isNavActive(path, l.href)
                   ? "bg-amber-700 text-white font-semibold"
                   : "text-amber-200 hover:bg-amber-700 hover:text-white"

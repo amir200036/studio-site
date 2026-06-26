@@ -30,7 +30,7 @@ export default async function AdminDashboard() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-bold text-stone-800">לוח בקרה</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-stone-800">לוח בקרה</h1>
         <p className="text-stone-400 mt-1">ברוכים הבאים לפאנל הניהול</p>
       </div>
 
@@ -51,10 +51,10 @@ export default async function AdminDashboard() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* כל הסדנאות המתוכננות */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 md:col-span-2">
-          <div className="flex justify-between items-center mb-4">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-stone-100 md:col-span-2">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
             <h2 className="font-bold text-stone-800 text-lg">סדנאות מתוכננות ({upcomingWorkshops.length})</h2>
-            <Link href="/admin/workshops" className="text-amber-700 text-sm hover:underline">ניהול סדנאות ←</Link>
+            <Link href="/admin/workshops" className="text-amber-700 text-sm hover:underline min-h-11 inline-flex items-center">ניהול סדנאות ←</Link>
           </div>
           {upcomingWorkshops.length === 0 ? (
             <p className="text-stone-400 text-sm">אין סדנאות מתוכננות</p>
@@ -68,7 +68,7 @@ export default async function AdminDashboard() {
                   <Link
                     key={w.id}
                     href={`/admin/workshops/${w.id}`}
-                    className="flex justify-between items-center py-3 px-4 rounded-xl hover:bg-stone-50 transition-colors border border-stone-100"
+                    className="flex justify-between items-center py-3 px-4 min-h-14 rounded-xl hover:bg-stone-50 transition-colors border border-stone-100"
                   >
                     <div>
                       <div className="font-medium text-stone-800 text-sm">{w.name}</div>
@@ -87,10 +87,10 @@ export default async function AdminDashboard() {
         </div>
 
         {/* הזמנות אחרונות */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 md:col-span-2">
-          <div className="flex justify-between items-center mb-4">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-stone-100 md:col-span-2">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-4">
             <h2 className="font-bold text-stone-800 text-lg">הזמנות אחרונות</h2>
-            <Link href="/admin/bookings" className="text-amber-700 text-sm hover:underline">הכל ←</Link>
+            <Link href="/admin/bookings" className="text-amber-700 text-sm hover:underline min-h-11 inline-flex items-center">הכל ←</Link>
           </div>
           {recentBookings.length === 0 ? (
             <p className="text-stone-400 text-sm">אין הזמנות עדיין</p>
