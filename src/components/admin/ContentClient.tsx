@@ -68,7 +68,7 @@ export function ContentClient({ content, faqs: initFaqs, events: initEvents, gal
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-3xl font-bold text-stone-800">ניהול תוכן</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold text-stone-800">ניהול תוכן</h1>
         <p className="text-sm text-stone-500 mt-1">
           העלאה וניהול תמונות — ב{" "}
           <Link href="/admin/gallery" className="text-amber-700 hover:text-amber-800 font-medium underline-offset-2 hover:underline">
