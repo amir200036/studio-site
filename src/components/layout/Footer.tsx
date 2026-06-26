@@ -2,11 +2,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { safeDbQuery } from "@/lib/safe-db";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
+import { STUDIO_ADDRESS, formatStudioPhone } from "@/lib/studio-contact";
 
 async function getSiteContent() {
   return safeDbQuery(async () => {
     const rows = await prisma.siteContent.findMany({
-      where: { key: { in: ["whatsapp", "email", "address", "phone"] } },
+      where: { key: { in: ["whatsapp", "email"] } },
     });
     const map: Record<string, string> = {};
     rows.forEach((r) => (map[r.key] = r.value));
@@ -48,9 +49,9 @@ export async function Footer() {
         <div>
           <h3 className="font-semibold text-amber-400 mb-4">יצרו קשר</h3>
           <div className="flex flex-col gap-2 text-sm text-stone-400">
-            {content.phone && <p>📞 {content.phone}</p>}
+            <p>📞 {formatStudioPhone()}</p>
             {content.email && <p>✉️ {content.email}</p>}
-            {content.address && <p>📍 {content.address}</p>}
+            <p>📍 {STUDIO_ADDRESS}</p>
             {waNumber && (
               <a
                 href={`https://wa.me/${waNumber}`}

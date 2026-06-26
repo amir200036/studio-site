@@ -1,11 +1,11 @@
-import { prisma } from "@/lib/prisma";
 import { getSiteUrl } from "@/lib/site-url";
+import { prisma } from "@/lib/prisma";
 import { safeDbQuery } from "@/lib/safe-db";
-
-const DEFAULT_ADDRESS = {
-  streetAddress: "אבנר בן יהודה 41",
-  addressLocality: "נס ציונה",
-};
+import {
+  STUDIO_CITY,
+  STUDIO_STREET,
+  formatStudioPhone,
+} from "@/lib/studio-contact";
 
 export async function LocalBusinessJsonLd() {
   const siteUrl = getSiteUrl().replace(/\/$/, "");
@@ -13,16 +13,13 @@ export async function LocalBusinessJsonLd() {
   const rows = await safeDbQuery(
     () =>
       prisma.siteContent.findMany({
-        where: { key: { in: ["phone", "email", "address", "hours", "whatsapp"] } },
+        where: { key: { in: ["email", "hours", "whatsapp"] } },
       }),
     []
   );
 
   const content: Record<string, string> = {};
   rows.forEach((r) => (content[r.key] = r.value));
-
-  const addressText = content.address || `${DEFAULT_ADDRESS.streetAddress}, ${DEFAULT_ADDRESS.addressLocality}`;
-  const locality = addressText.includes("נס ציונה") ? "נס ציונה" : DEFAULT_ADDRESS.addressLocality;
 
   const schema = {
     "@context": "https://schema.org",
@@ -33,8 +30,8 @@ export async function LocalBusinessJsonLd() {
       "סדנאות קדרות וקרמיקה בנס ציונה לזוגות, משפחות, ימי הולדת וגיבוש חברה. מדריכים מנוסים, אווירה חמה ומזמינה.",
     address: {
       "@type": "PostalAddress",
-      streetAddress: addressText.split(",")[0]?.trim() || DEFAULT_ADDRESS.streetAddress,
-      addressLocality: locality,
+      streetAddress: STUDIO_STREET,
+      addressLocality: STUDIO_CITY,
       addressCountry: "IL",
     },
     geo: {
@@ -42,9 +39,9 @@ export async function LocalBusinessJsonLd() {
       latitude: 31.915333642324743,
       longitude: 34.78527685110109,
     },
-    areaServed: { "@type": "City", name: "נס ציונה" },
+    areaServed: { "@type": "City", name: STUDIO_CITY },
     priceRange: "₪₪",
-    ...(content.phone ? { telephone: content.phone } : {}),
+    telephone: formatStudioPhone(),
     ...(content.email ? { email: content.email } : {}),
     openingHours: "Su-Th 09:00-20:00",
     sameAs: [],

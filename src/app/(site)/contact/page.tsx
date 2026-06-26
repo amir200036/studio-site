@@ -6,7 +6,7 @@ import { ContactForm } from "@/components/contact/ContactForm";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
-import { STUDIO_MAP_EMBED_URL } from "@/lib/studio-map";
+import { STUDIO_ADDRESS, STUDIO_MAP_EMBED_URL, STUDIO_PHONE, formatStudioPhone } from "@/lib/studio-contact";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 async function getContent() {
   return safeDbQuery(async () => {
     const rows = await prisma.siteContent.findMany({
-      where: { key: { in: ["phone", "email", "address", "hours", "whatsapp", "bg_image_contact"] } },
+      where: { key: { in: ["email", "hours", "whatsapp", "bg_image_contact"] } },
     });
     const map: Record<string, string> = {};
     rows.forEach((r: { key: string; value: string }) => (map[r.key] = r.value));
@@ -74,27 +74,23 @@ export default async function ContactPage() {
             <div className="bg-white rounded-2xl p-6 border border-stone-100 shadow-sm flex flex-col gap-5">
               <h2 className="font-bold text-stone-800 text-lg border-b border-stone-100 pb-3">פרטי הסטודיו</h2>
 
-              {info.address && (
-                <div className="flex gap-3">
-                  <span className="text-2xl">📍</span>
-                  <div>
-                    <div className="text-xs text-stone-400 mb-0.5">כתובת</div>
-                    <div className="font-medium text-stone-700">{info.address}</div>
-                  </div>
+              <div className="flex gap-3">
+                <span className="text-2xl">📍</span>
+                <div>
+                  <div className="text-xs text-stone-400 mb-0.5">כתובת</div>
+                  <div className="font-medium text-stone-700">{STUDIO_ADDRESS}</div>
                 </div>
-              )}
+              </div>
 
-              {info.phone && (
-                <div className="flex gap-3">
-                  <span className="text-2xl">📞</span>
-                  <div>
-                    <div className="text-xs text-stone-400 mb-0.5">טלפון</div>
-                    <a href={`tel:${info.phone}`} className="font-medium text-amber-700 hover:text-amber-800">
-                      {info.phone}
-                    </a>
-                  </div>
+              <div className="flex gap-3">
+                <span className="text-2xl">📞</span>
+                <div>
+                  <div className="text-xs text-stone-400 mb-0.5">טלפון</div>
+                  <a href={`tel:${STUDIO_PHONE}`} className="font-medium text-amber-700 hover:text-amber-800">
+                    {formatStudioPhone()}
+                  </a>
                 </div>
-              )}
+              </div>
 
               {info.email && (
                 <div className="flex gap-3">
