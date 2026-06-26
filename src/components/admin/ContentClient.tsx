@@ -6,6 +6,7 @@ import type { FAQ, Event, GalleryImage, Review } from "@prisma/client";
 import { Loader2, Trash2, Plus, Pencil, Save } from "lucide-react";
 import { GalleryImagePicker } from "./GalleryImagePicker";
 import { adminInputClass, adminPrimaryBtnClass, adminTouchBtnClass } from "@/lib/admin-ui";
+import { DEFAULT_TERMS } from "@/lib/default-terms";
 
 interface Props {
   content: Record<string, string>;
@@ -423,28 +424,7 @@ function ReviewsTab({ initReviews }: { initReviews: Review[] }) {
   );
 }
 
-// --- תקנון ---
-const DEFAULT_TERMS = `**1. כללי**
-אתר זה מופעל על ידי סטודיו קדרות. השימוש באתר ובשירותיו מהווה הסכמה לתנאים המפורטים להלן.
-
-**2. הרשמה לסדנאות**
-ההרשמה מתבצעת דרך האתר (WhatsApp) או בטלפון. שמירת מקום ותשלום — מול הסטודיו.
-
-**3. תשלומים**
-אין תשלום באשראי דרך האתר. התשלום מול הסטודיו. המחירים בשקלים חדשים (₪) וכוללים מע"מ.
-
-**4. ביטולים והחזרים**
-• הביטול וההחזר — לפי הסכמה מול הסטודיו.
-• ביטול מצד הסטודיו — החזר מלא יסוכם מולכם.
-
-**5. קניין רוחני**
-כל התמונות והתכנים באתר שייכים לסטודיו קדרות.
-
-**6. פרטיות**
-נשמרים שם מלא וכתובת מייל בלבד, לצורך אישור ההזמנה.
-
-**7. יצירת קשר**
-לשאלות בנוגע לתקנון — דרך עמוד צרו קשר.`;
+// --- תקנון --- (ברירת מחדל ב-src/lib/default-terms.ts)
 
 function TermsTab({ content }: { content: Record<string, string> }) {
   const [text, setText] = useState(content["terms_content"] || DEFAULT_TERMS);
@@ -470,7 +450,7 @@ function TermsTab({ content }: { content: Record<string, string> }) {
         <a href="/terms" target="_blank" className="text-xs text-amber-600 hover:underline">צפייה בתקנון ←</a>
       </div>
       <textarea
-        rows={20}
+        rows={28}
         value={text}
         onChange={(e) => setText(e.target.value)}
         className={adminInputClass + " resize-y font-mono text-xs leading-relaxed"}
