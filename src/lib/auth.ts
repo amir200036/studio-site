@@ -23,6 +23,9 @@ export const authOptions: NextAuthOptions = {
         let isValid = false;
         if (adminPassword.startsWith("$2")) {
           isValid = await bcrypt.compare(credentials.password, adminPassword);
+        } else if (process.env.NODE_ENV === "production") {
+          console.error("ADMIN_PASSWORD חייב להיות bcrypt hash בפרודקשן ($2...)");
+          return null;
         } else {
           isValid = credentials.password === adminPassword;
         }

@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import type { FAQ, Event, GalleryImage, Review } from "@prisma/client";
 import { Loader2, Trash2, Plus, Pencil, Save } from "lucide-react";
-import { ImageUploadField } from "./ImageUploadField";
+import { GalleryImagePicker } from "./GalleryImagePicker";
 
 interface Props {
   content: Record<string, string>;
@@ -13,16 +14,52 @@ interface Props {
   reviews: Review[];
 }
 
-type Tab = "hero" | "faq" | "events" | "gallery" | "reviews" | "backgrounds" | "terms";
+type Tab = "hero" | "faq" | "events" | "reviews" | "backgrounds" | "terms";
+
+const TAB_META: Record<Tab, { title: string; description: string }> = {
+  hero: {
+    title: "דף בית",
+    description: "כותרות, טקסט על הסטודיו וסטטיסטיקות. לבחירת תמונה — מספריית התמונות בסרגל.",
+  },
+  faq: {
+    title: "שאלות נפוצות",
+    description: "הוספה ומחיקה של שאלות ותשובות.",
+  },
+  events: {
+    title: "אירועים מיוחדים",
+    description: "אירועים שמוצגים בעמוד האירועים. תמונות — מספריית התמונות בסרגל.",
+  },
+  reviews: {
+    title: "ביקורות",
+    description: "ביקורות לקוחות שמוצגות בדף הבית.",
+  },
+  backgrounds: {
+    title: "רקעים",
+    description: "צבע רקע כללי ותמונות רקע לכל דף — מספריית התמונות בסרגל.",
+  },
+  terms: {
+    title: "תקנון",
+    description: "תוכן עמוד התקנון.",
+  },
+};
+
+function TabSectionHeader({ title, description }: { title: string; description: string }) {
+  return (
+    <div className="border-b border-stone-200 pb-4">
+      <h2 className="text-xl font-bold text-stone-800">{title}</h2>
+      <p className="text-sm text-stone-500 mt-1">{description}</p>
+    </div>
+  );
+}
 
 export function ContentClient({ content, faqs: initFaqs, events: initEvents, gallery: initGallery, reviews: initReviews }: Props) {
   const [tab, setTab] = useState<Tab>("hero");
+  const [gallery, setGallery] = useState(initGallery);
 
   const tabs: { key: Tab; label: string }[] = [
     { key: "hero", label: "דף בית" },
     { key: "faq", label: "שאלות נפוצות" },
     { key: "events", label: "אירועים" },
-    { key: "gallery", label: "גלריה" },
     { key: "reviews", label: "ביקורות" },
     { key: "backgrounds", label: "רקעים" },
     { key: "terms", label: "תקנון" },
@@ -30,30 +67,48 @@ export function ContentClient({ content, faqs: initFaqs, events: initEvents, gal
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold text-stone-800">ניהול תוכן</h1>
+      <div>
+        <h1 className="text-3xl font-bold text-stone-800">ניהול תוכן</h1>
+        <p className="text-sm text-stone-500 mt-1">
+          העלאה וניהול תמונות — ב{" "}
+          <Link href="/admin/gallery" className="text-amber-700 hover:text-amber-800 font-medium underline-offset-2 hover:underline">
+            ספריית תמונות
+          </Link>{" "}
+          בסרגל העליון.
+        </p>
+      </div>
 
       <div className="flex gap-2 flex-wrap">
         {tabs.map((t) => (
           <button key={t.key} onClick={() => setTab(t.key)}
-            className={`px-4 py-2 rounded-xl font-medium text-sm transition-colors ${tab === t.key ? "bg-amber-700 text-white" : "bg-white text-stone-600 hover:bg-amber-50 border border-stone-200"}`}>
+            className={`px-4 py-2 rounded-xl font-medium text-sm transition-colors min-h-10 ${tab === t.key ? "bg-amber-700 text-white" : "bg-white text-stone-600 hover:bg-amber-50 border border-stone-200"}`}>
             {t.label}
           </button>
         ))}
       </div>
 
-      {tab === "hero" && <HeroTab content={content} />}
+      <TabSectionHeader title={TAB_META[tab].title} description={TAB_META[tab].description} />
+
+      {tab === "hero" && <HeroTab content={content} gallery={gallery} onGalleryUpdate={setGallery} />}
       {tab === "faq" && <FAQTab initFaqs={initFaqs} />}
-      {tab === "events" && <EventsTab initEvents={initEvents} />}
-      {tab === "gallery" && <GalleryTab initGallery={initGallery} />}
+      {tab === "events" && <EventsTab initEvents={initEvents} gallery={gallery} onGalleryUpdate={setGallery} />}
       {tab === "reviews" && <ReviewsTab initReviews={initReviews} />}
-      {tab === "backgrounds" && <BackgroundsTab content={content} />}
+      {tab === "backgrounds" && <BackgroundsTab content={content} gallery={gallery} onGalleryUpdate={setGallery} />}
       {tab === "terms" && <TermsTab content={content} />}
     </div>
   );
 }
 
 // --- דף בית ---
-function HeroTab({ content }: { content: Record<string, string> }) {
+function HeroTab({
+  content,
+  gallery,
+  onGalleryUpdate,
+}: {
+  content: Record<string, string>;
+  gallery: GalleryImage[];
+  onGalleryUpdate: (g: GalleryImage[]) => void;
+}) {
   const fields: { key: string; label: string; type: string }[] = [
     { key: "hero_title", label: "כותרת Hero", type: "text" },
     { key: "hero_subtitle", label: "תת-כותרת Hero", type: "text" },
@@ -93,13 +148,12 @@ function HeroTab({ content }: { content: Record<string, string> }) {
             <textarea rows={4} value={values[f.key]} onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
               className={ic + " resize-none"} />
           ) : f.type === "imageUpload" ? (
-            <>
-              <ImageUploadField value={values[f.key]} onChange={(url) => setValues({ ...values, [f.key]: url })} />
-              {values[f.key] && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={values[f.key]} alt="" className="mt-2 h-24 rounded-xl object-cover border border-stone-200" />
-              )}
-            </>
+            <GalleryImagePicker
+              value={values[f.key]}
+              onChange={(url) => setValues({ ...values, [f.key]: url })}
+              gallery={gallery}
+              onGalleryUpdate={onGalleryUpdate}
+            />
           ) : (
             <input type={f.type} value={values[f.key]} onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
               className={ic} dir={f.type === "url" ? "ltr" : undefined} />
@@ -168,7 +222,15 @@ function FAQTab({ initFaqs }: { initFaqs: FAQ[] }) {
 }
 
 // --- אירועים ---
-function EventsTab({ initEvents }: { initEvents: Event[] }) {
+function EventsTab({
+  initEvents,
+  gallery,
+  onGalleryUpdate,
+}: {
+  initEvents: Event[];
+  gallery: GalleryImage[];
+  onGalleryUpdate: (g: GalleryImage[]) => void;
+}) {
   const [events, setEvents] = useState(initEvents);
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
@@ -240,11 +302,7 @@ function EventsTab({ initEvents }: { initEvents: Event[] }) {
               <textarea rows={3} value={editDesc} onChange={(ev) => setEditDesc(ev.target.value)} className={ic + " resize-none"} placeholder="תיאור" />
               <div>
                 <label className="block text-xs text-stone-500 mb-1">תמונה (אופציונלי)</label>
-                <ImageUploadField value={editImg} onChange={setEditImg} placeholder="URL תמונה (אופציונלי)" />
-                {editImg && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={editImg} alt="" className="mt-2 h-20 rounded-xl object-cover border border-stone-200" />
-                )}
+                <GalleryImagePicker value={editImg} onChange={setEditImg} gallery={gallery} onGalleryUpdate={onGalleryUpdate} />
               </div>
               <div>
                 <label className="block text-xs text-stone-500 mb-1">הודעת WhatsApp מותאמת (אופציונלי)</label>
@@ -289,70 +347,10 @@ function EventsTab({ initEvents }: { initEvents: Event[] }) {
         <textarea placeholder="תיאור" rows={3} value={desc} onChange={(e) => setDesc(e.target.value)} className={ic + " resize-none"} />
         <div>
           <label className="block text-xs text-stone-500 mb-1">תמונה (אופציונלי)</label>
-          <ImageUploadField value={img} onChange={setImg} placeholder="URL תמונה (אופציונלי)" />
-          {img && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={img} alt="" className="mt-2 h-20 rounded-xl object-cover border border-stone-200" />
-          )}
+          <GalleryImagePicker value={img} onChange={setImg} gallery={gallery} onGalleryUpdate={onGalleryUpdate} />
         </div>
         <button onClick={add} disabled={loading} className="py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm transition-colors">
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} הוסף אירוע
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// --- גלריה ---
-function GalleryTab({ initGallery }: { initGallery: GalleryImage[] }) {
-  const [gallery, setGallery] = useState(initGallery);
-  const [url, setUrl] = useState("");
-  const [caption, setCaption] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  async function add() {
-    if (!url) return;
-    setLoading(true);
-    const res = await fetch("/api/admin/gallery", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url, caption: caption || null, order: gallery.length }),
-    });
-    const img = await res.json();
-    setGallery([...gallery, img]);
-    setUrl(""); setCaption("");
-    setLoading(false);
-  }
-
-  async function remove(id: string) {
-    await fetch(`/api/admin/gallery/${id}`, { method: "DELETE" });
-    setGallery(gallery.filter((g) => g.id !== id));
-  }
-
-  return (
-    <div className="flex flex-col gap-4 max-w-2xl">
-      <div className="grid grid-cols-3 gap-3">
-        {gallery.map((img) => (
-          <div key={img.id} className="relative group rounded-xl overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={img.url} alt={img.caption || ""} className="w-full h-24 object-cover" />
-            <button onClick={() => remove(img.id)}
-              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-              <Trash2 className="w-5 h-5 text-white" />
-            </button>
-          </div>
-        ))}
-      </div>
-      <div className="bg-white rounded-2xl p-5 border border-stone-100 flex flex-col gap-3">
-        <h3 className="font-bold text-stone-800">הוספת תמונה</h3>
-        <ImageUploadField value={url} onChange={setUrl} placeholder="URL תמונה" />
-        {url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={url} alt="" className="h-24 rounded-xl object-cover border border-stone-200 w-full" />
-        )}
-        <input placeholder="כיתוב (אופציונלי)" value={caption} onChange={(e) => setCaption(e.target.value)} className={ic} />
-        <button onClick={add} disabled={loading || !url} className="py-2.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 text-sm transition-colors disabled:opacity-50">
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />} הוסף תמונה
         </button>
       </div>
     </div>
@@ -487,7 +485,15 @@ function TermsTab({ content }: { content: Record<string, string> }) {
 }
 
 // --- רקעים ---
-function BackgroundsTab({ content }: { content: Record<string, string> }) {
+function BackgroundsTab({
+  content,
+  gallery,
+  onGalleryUpdate,
+}: {
+  content: Record<string, string>;
+  gallery: GalleryImage[];
+  onGalleryUpdate: (g: GalleryImage[]) => void;
+}) {
   const pages = [
     { imgKey: "bg_image_home", label: "דף בית" },
     { imgKey: "bg_image_workshops", label: "סדנאות" },
@@ -519,7 +525,9 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
 
   return (
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-6 max-w-2xl">
-      <p className="text-sm text-stone-500">הצבע הכללי חל על כל האתר. תמונת רקע לדף ספציפי תכסה את הצבע.</p>
+      <p className="text-sm text-stone-500">
+        הצבע הכללי חל על כל האתר. תמונת רקע לדף ספציפי תכסה את הצבע. בחרו תמונה מספריית התמונות.
+      </p>
 
       {/* Global bg color */}
       <div className="flex items-center gap-4">
@@ -539,10 +547,15 @@ function BackgroundsTab({ content }: { content: Record<string, string> }) {
           <p className="text-sm font-semibold text-stone-700">{p.label}</p>
           <div className="flex items-start gap-3">
             <label className="text-xs text-stone-500 w-20 pt-2.5">תמונת רקע</label>
-            <ImageUploadField value={values[p.imgKey]} onChange={(url) => set(p.imgKey, url)} />
+            <GalleryImagePicker
+              value={values[p.imgKey]}
+              onChange={(url) => set(p.imgKey, url)}
+              gallery={gallery}
+              onGalleryUpdate={onGalleryUpdate}
+            />
           </div>
           {values[p.imgKey] && (
-            <div className="h-16 rounded-xl overflow-hidden border border-stone-200 relative">
+            <div className="h-16 rounded-xl overflow-hidden border border-stone-200 ms-[5.5rem]">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={values[p.imgKey]} alt="" className="w-full h-full object-cover" />
             </div>

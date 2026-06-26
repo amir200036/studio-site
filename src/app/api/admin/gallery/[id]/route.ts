@@ -5,6 +5,15 @@ import { prisma } from "@/lib/prisma";
 
 interface Params { params: { id: string } }
 
+export async function PATCH(req: NextRequest, { params }: Params) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const body = await req.json();
+  const img = await prisma.galleryImage.update({ where: { id: params.id }, data: body });
+  return NextResponse.json(img);
+}
+
 export async function DELETE(_: NextRequest, { params }: Params) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

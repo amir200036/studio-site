@@ -35,7 +35,11 @@ async function getHomeData() {
   return safeDbQuery(async () => {
     const [contentRows, gallery, reviews, workshops] = await Promise.all([
       prisma.siteContent.findMany(),
-      prisma.galleryImage.findMany({ orderBy: { order: "asc" }, take: 8 }),
+      prisma.galleryImage.findMany({
+        where: { showOnHomepage: true },
+        orderBy: { order: "asc" },
+        take: 8,
+      }),
       prisma.review.findMany({ where: { approved: true }, orderBy: { createdAt: "desc" }, take: 6 }),
       prisma.workshop.findMany({
         where: visiblePublicWorkshopsWhere(),

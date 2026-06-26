@@ -13,9 +13,15 @@ const links = [
   { href: "/admin/bookings", label: "הזמנות" },
   { href: "/admin/customers", label: "לקוחות" },
   { href: "/admin/content", label: "תוכן" },
+  { href: "/admin/gallery", label: "ספריית תמונות" },
   { href: "/admin/settings", label: "הגדרות" },
   { href: "/admin/stats", label: "סטטיסטיקות" },
 ];
+
+function isNavActive(path: string, href: string) {
+  if (href === "/admin") return path === "/admin";
+  return path === href || path.startsWith(href + "/");
+}
 
 export function AdminNavbar() {
   const path = usePathname();
@@ -26,15 +32,15 @@ export function AdminNavbar() {
       <div className="max-w-7xl mx-auto px-4 flex items-center justify-between h-14">
         <span className="text-amber-300 font-bold text-sm whitespace-nowrap">🏺 ניהול</span>
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-1 flex-1 mx-4">
+        {/* Desktop nav — מל lg ומעלה; טאבלט ומובייל בתפריט המבורגר */}
+        <div className="hidden lg:flex items-center gap-1 flex-1 mx-4 overflow-x-auto">
           {links.map((l) => (
             <Link
               key={l.href}
               href={l.href}
               className={cn(
                 "px-3 py-2 rounded-lg text-sm whitespace-nowrap transition-colors",
-                path === l.href
+                isNavActive(path, l.href)
                   ? "bg-amber-700 text-white font-semibold"
                   : "text-amber-200 hover:bg-amber-800 hover:text-white"
               )}
@@ -56,7 +62,8 @@ export function AdminNavbar() {
 
           <button
             onClick={() => setOpen(!open)}
-            className="md:hidden p-2 rounded-lg text-amber-200 hover:bg-amber-800 hover:text-white transition-colors"
+            className="lg:hidden min-h-11 min-w-11 flex items-center justify-center rounded-lg text-amber-200 hover:bg-amber-800 hover:text-white transition-colors"
+            aria-expanded={open}
             aria-label="תפריט"
           >
             {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -66,7 +73,7 @@ export function AdminNavbar() {
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden bg-amber-800 px-4 py-3 flex flex-col gap-1 border-t border-amber-700">
+        <div className="lg:hidden bg-amber-800 px-4 py-3 flex flex-col gap-1 border-t border-amber-700 max-h-[70vh] overflow-y-auto">
           {links.map((l) => (
             <Link
               key={l.href}
@@ -74,7 +81,7 @@ export function AdminNavbar() {
               onClick={() => setOpen(false)}
               className={cn(
                 "px-4 py-3 rounded-xl text-sm font-medium transition-colors",
-                path === l.href
+                isNavActive(path, l.href)
                   ? "bg-amber-700 text-white font-semibold"
                   : "text-amber-200 hover:bg-amber-700 hover:text-white"
               )}

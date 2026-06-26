@@ -75,13 +75,14 @@ model Event {
   updatedAt        DateTime @updatedAt
 }
 
-// תמונות גלריה
+// תמונות גלריה — ספריית מדיה מרכזית לאדמין
 model GalleryImage {
-  id        String   @id @default(cuid())
-  url       String
-  caption   String?
-  order     Int      @default(0)
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  url            String
+  caption        String?
+  order          Int      @default(0)
+  showOnHomepage Boolean  @default(false)
+  createdAt      DateTime @default(now())
 }
 
 // תוכן עריך (Hero, About, הגדרות)

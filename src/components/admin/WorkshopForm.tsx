@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Workshop } from "@prisma/client";
 import { Loader2, Trash2 } from "lucide-react";
-import { ImageUploadField } from "./ImageUploadField";
+import { GalleryImagePicker } from "./GalleryImagePicker";
 
 interface Props {
   workshop?: Workshop;
@@ -105,11 +105,7 @@ export function WorkshopForm({ workshop }: Props) {
       </Field>
 
       <Field label="תמונה (אופציונלי)">
-        <ImageUploadField value={imageUrl} onChange={setImageUrl} />
-        {imageUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={imageUrl} alt="" className="mt-2 h-28 w-full rounded-xl object-cover border border-stone-200" />
-        )}
+        <GalleryImagePicker value={imageUrl} onChange={setImageUrl} />
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
