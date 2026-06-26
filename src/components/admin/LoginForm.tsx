@@ -27,7 +27,7 @@ export function LoginForm() {
       setError("מייל או סיסמה שגויים.");
       setLoading(false);
     } else {
-      router.push("/admin");
+      router.push("/admin/workshops");
       router.refresh();
     }
   }

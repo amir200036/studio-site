@@ -8,7 +8,6 @@ import { LogOut, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const links = [
-  { href: "/admin", label: "לוח בקרה" },
   { href: "/admin/workshops", label: "סדנאות" },
   { href: "/admin/content", label: "תוכן" },
   { href: "/admin/gallery", label: "ספריית תמונות" },
@@ -16,7 +15,6 @@ const links = [
 ];
 
 function isNavActive(path: string, href: string) {
-  if (href === "/admin") return path === "/admin";
   return path === href || path.startsWith(href + "/");
 }
 

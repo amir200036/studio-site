@@ -5,7 +5,7 @@ import { LoginForm } from "@/components/admin/LoginForm";
 
 export default async function LoginPage() {
   const session = await getServerSession(authOptions);
-  if (session) redirect("/admin");
+  if (session) redirect("/admin/workshops");
 
   return (
     <div className="min-h-screen bg-stone-100 flex items-center justify-center px-4 py-8 pb-[max(2rem,env(safe-area-inset-bottom))]">
