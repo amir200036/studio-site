@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { safeDbQuery } from "@/lib/safe-db";
 import {
   STUDIO_CITY,
+  STUDIO_EMAIL,
   STUDIO_STREET,
   formatStudioPhone,
 } from "@/lib/studio-contact";
@@ -13,7 +14,7 @@ export async function LocalBusinessJsonLd() {
   const rows = await safeDbQuery(
     () =>
       prisma.siteContent.findMany({
-        where: { key: { in: ["email", "hours", "whatsapp"] } },
+        where: { key: { in: ["hours", "whatsapp"] } },
       }),
     []
   );
@@ -42,7 +43,7 @@ export async function LocalBusinessJsonLd() {
     areaServed: { "@type": "City", name: STUDIO_CITY },
     priceRange: "₪₪",
     telephone: formatStudioPhone(),
-    ...(content.email ? { email: content.email } : {}),
+    email: STUDIO_EMAIL,
     openingHours: "Su-Th 09:00-20:00",
     sameAs: [],
   };

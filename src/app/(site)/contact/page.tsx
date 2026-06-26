@@ -6,7 +6,7 @@ import { ContactForm } from "@/components/contact/ContactForm";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
-import { STUDIO_ADDRESS, STUDIO_MAP_EMBED_URL, STUDIO_PHONE, formatStudioPhone } from "@/lib/studio-contact";
+import { STUDIO_ADDRESS, STUDIO_EMAIL, STUDIO_MAP_EMBED_URL, STUDIO_PHONE, formatStudioPhone } from "@/lib/studio-contact";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 async function getContent() {
   return safeDbQuery(async () => {
     const rows = await prisma.siteContent.findMany({
-      where: { key: { in: ["email", "hours", "whatsapp", "bg_image_contact"] } },
+      where: { key: { in: ["hours", "whatsapp", "bg_image_contact"] } },
     });
     const map: Record<string, string> = {};
     rows.forEach((r: { key: string; value: string }) => (map[r.key] = r.value));
@@ -92,17 +92,15 @@ export default async function ContactPage() {
                 </div>
               </div>
 
-              {info.email && (
-                <div className="flex gap-3">
-                  <span className="text-2xl">✉️</span>
-                  <div>
-                    <div className="text-xs text-stone-400 mb-0.5">מייל</div>
-                    <a href={`mailto:${info.email}`} className="font-medium text-amber-700 hover:text-amber-800" dir="ltr">
-                      {info.email}
-                    </a>
-                  </div>
+              <div className="flex gap-3">
+                <span className="text-2xl">✉️</span>
+                <div>
+                  <div className="text-xs text-stone-400 mb-0.5">מייל</div>
+                  <a href={`mailto:${STUDIO_EMAIL}`} className="font-medium text-amber-700 hover:text-amber-800" dir="ltr">
+                    {STUDIO_EMAIL}
+                  </a>
                 </div>
-              )}
+              </div>
 
               {info.hours && (
                 <div className="flex gap-3">

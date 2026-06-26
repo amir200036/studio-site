@@ -1,5 +1,6 @@
 // שכבת שירות מיילים — Resend API (fetch ישיר)
 import { escapeHtml } from "@/lib/sanitize";
+import { STUDIO_EMAIL } from "@/lib/studio-contact";
 
 const BRAND_NAME = "יד יוצרת";
 
@@ -8,7 +9,7 @@ function getFromAddress(): string {
 }
 
 function getDefaultReplyTo(): string | undefined {
-  const reply = process.env.RESEND_REPLY_TO?.trim() || process.env.ADMIN_EMAIL?.trim();
+  const reply = process.env.RESEND_REPLY_TO?.trim() || STUDIO_EMAIL;
   return reply || undefined;
 }
 

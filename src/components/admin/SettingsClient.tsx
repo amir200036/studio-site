@@ -10,7 +10,6 @@ interface Props {
 
 const fields = [
   { key: "whatsapp", label: "מספר WhatsApp (עם קידומת מדינה)", placeholder: "972525771221", dir: "ltr" as const },
-  { key: "email", label: "מייל הסטודיו", placeholder: "studio@example.com", dir: "ltr" as const },
   { key: "hours", label: "שעות פעילות", placeholder: "ראשון–חמישי: 09:00–18:00\nשישי: 09:00–13:00", textarea: true },
 ];
 

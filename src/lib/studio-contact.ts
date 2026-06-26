@@ -4,6 +4,7 @@ export const STUDIO_ADDRESS = "אבנר בן יהודה 41, נס ציונה";
 export const STUDIO_STREET = "אבנר בן יהודה 41";
 export const STUDIO_CITY = "נס ציונה";
 export const STUDIO_PHONE = "0525771221";
+export const STUDIO_EMAIL = "levysharona3@gmail.com";
 
 export function formatStudioPhone(phone = STUDIO_PHONE): string {
   const digits = phone.replace(/\D/g, "");

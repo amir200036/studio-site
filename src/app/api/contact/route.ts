@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendContactFormEmail } from "@/lib/email";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { STUDIO_EMAIL } from "@/lib/studio-contact";
 
 export async function POST(req: NextRequest) {
   // Rate limiting — 3 פניות לדקה
@@ -30,15 +31,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "כתובת מייל לא תקינה." }, { status: 400 });
     }
 
-    const adminEmail = process.env.ADMIN_EMAIL?.trim() || "";
-    if (!adminEmail) {
-      return NextResponse.json(
-        { error: "השרת לא מוגדר לקבלת פניות. נסו דרך WhatsApp." },
-        { status: 503 }
-      );
-    }
-
-    const sent = await sendContactFormEmail(adminEmail, name, email, message);
+    const sent = await sendContactFormEmail(STUDIO_EMAIL, name, email, message);
 
     if (!sent) {
       return NextResponse.json(

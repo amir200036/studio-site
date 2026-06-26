@@ -10,7 +10,6 @@ export const SITE_CONTENT_KEYS = new Set([
   "stat_years",
   "stat_students",
   "stat_workshops",
-  "email",
   "hours",
   "whatsapp",
   "terms_content",
