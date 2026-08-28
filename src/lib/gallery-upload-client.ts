@@ -1,9 +1,13 @@
 import type { GalleryImage } from "@prisma/client";
 import { prepareImageFileForUpload } from "@/lib/prepare-image-file";
 
+/**
+ * העלאה אחת. /api/admin/upload כותב לאחסון *ורושם בספרייה* באותה בקשה,
+ * ומגלגל אחורה את הקובץ אם הרישום נכשל — כך שלא נוצר קובץ יתום.
+ * הפרמטר order לא נדרש יותר; השרת קובע אותו.
+ */
 export async function uploadImageToGallery(
-  file: File,
-  order: number
+  file: File
 ): Promise<{ image?: GalleryImage; error?: string }> {
   let prepared: File;
   try {
@@ -14,21 +18,16 @@ export async function uploadImageToGallery(
 
   const fd = new FormData();
   fd.append("file", prepared);
-  const up = await fetch("/api/admin/upload", { method: "POST", body: fd });
-  let upData: { url?: string; error?: string };
-  try {
-    upData = await up.json();
-  } catch {
-    return { error: `שגיאת שרת (${up.status})` };
-  }
-  if (!up.ok) return { error: upData.error || "שגיאה בהעלאה" };
 
-  const res = await fetch("/api/admin/gallery", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ url: upData.url, caption: null, order }),
-  });
-  if (!res.ok) return { error: "ההעלאה הצליחה אך לא נשמרה בספרייה" };
-  const image = (await res.json()) as GalleryImage;
-  return { image };
+  const res = await fetch("/api/admin/upload", { method: "POST", body: fd });
+  let data: { url?: string; image?: GalleryImage; error?: string };
+  try {
+    data = await res.json();
+  } catch {
+    return { error: `שגיאת שרת (${res.status})` };
+  }
+
+  if (!res.ok) return { error: data.error || "שגיאה בהעלאה" };
+  if (!data.image) return { error: "התמונה הועלתה אך לא נרשמה בספרייה" };
+  return { image: data.image };
 }

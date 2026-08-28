@@ -23,7 +23,7 @@ export function GalleryLibraryPanel({ initialGallery, showPageHeader }: Props) {
   async function handleFile(file: File) {
     setUploading(true);
     setError("");
-    const { image, error: err } = await uploadImageToGallery(file, gallery.length);
+    const { image, error: err } = await uploadImageToGallery(file);
     if (err || !image) setError(err || "שגיאה");
     else setGallery([...gallery, image]);
     setUploading(false);

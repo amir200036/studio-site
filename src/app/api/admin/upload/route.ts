@@ -1,8 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { put } from "@vercel/blob";
+import { del, put } from "@vercel/blob";
 import path from "path";
 import fs from "fs/promises";
 import { requireAdminSession } from "@/lib/require-admin";
+import { prisma } from "@/lib/prisma";
+import { revalidateSite } from "@/lib/revalidate-site";
+
+/**
+ * רושם את הקובץ בספריית התמונות באותה בקשה שבה הוא הועלה.
+ * קודם ההעלאה והרישום היו שתי בקשות: אם השנייה נכשלה, הקובץ נשאר
+ * באחסון בלי שאף רשומה מפנה אליו — כך נוצרו 21 היתומים.
+ * אם הרישום נכשל, מוחקים את הקובץ שזה עתה נכתב כדי לא להשאיר יתום.
+ */
+async function registerInGallery(url: string, cleanup: () => Promise<void>) {
+  try {
+    const order = await prisma.galleryImage.count();
+    const image = await prisma.galleryImage.create({
+      data: { url, order, showOnHomepage: false },
+    });
+    revalidateSite();
+    return { image, error: null as string | null };
+  } catch (e) {
+    console.error("[upload] gallery insert failed, rolling back:", e instanceof Error ? e.message : e);
+    await cleanup().catch(() => undefined);
+    return { image: null, error: "התמונה לא נשמרה בספרייה והועלה בוטלה. נסו שוב." };
+  }
+}
 
 const ALLOWED_MIME = new Set(["image/jpeg", "image/jpg", "image/png", "image/webp"]);
 const MAX_BYTES = 8 * 1024 * 1024;
@@ -62,7 +85,9 @@ export async function POST(req: NextRequest) {
         access: "public",
         contentType: meta.mime,
       });
-      return NextResponse.json({ url: blob.url });
+      const { image, error: dbError } = await registerInGallery(blob.url, () => del(blob.url));
+      if (dbError) return NextResponse.json({ error: dbError }, { status: 500 });
+      return NextResponse.json({ url: blob.url, image });
     }
 
     // בלי Blob נשארת רק כתיבה לדיסק המקומי. ב-Vercel מערכת הקבצים זמנית,
@@ -78,8 +103,13 @@ export async function POST(req: NextRequest) {
     const dir = path.join(process.cwd(), "public", "uploads");
     await fs.mkdir(dir, { recursive: true });
     const localName = path.basename(filename);
-    await fs.writeFile(path.join(dir, localName), bytes);
-    return NextResponse.json({ url: `/uploads/${localName}` });
+    const localPath = path.join(dir, localName);
+    await fs.writeFile(localPath, bytes);
+
+    const localUrl = `/uploads/${localName}`;
+    const { image, error: dbError } = await registerInGallery(localUrl, () => fs.unlink(localPath));
+    if (dbError) return NextResponse.json({ error: dbError }, { status: 500 });
+    return NextResponse.json({ url: localUrl, image });
   } catch (e) {
     console.error("Upload error:", e);
     return NextResponse.json({ error: "שגיאה בהעלאה. נסו שוב." }, { status: 500 });
