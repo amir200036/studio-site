@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { deleteBlobUrlIfHosted } from "@/lib/blob-storage";
+import { deleteBlobIfUnreferenced } from "@/lib/blob-cleanup";
 import { requireAdminSession } from "@/lib/require-admin";
 
 interface Params { params: { id: string } }
@@ -45,7 +45,7 @@ export async function DELETE(_: NextRequest, { params }: Params) {
   if (!existing) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
 
   await prisma.galleryImage.delete({ where: { id: params.id } });
-  await deleteBlobUrlIfHosted(existing.url);
+  await deleteBlobIfUnreferenced(existing.url);
 
   return NextResponse.json({ success: true });
 }

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { sendCancellationEmail } from "@/lib/email";
 import { parseWorkshopInput } from "@/lib/admin-api-validation";
 import { requireAdminSession } from "@/lib/require-admin";
+import { deleteBlobIfUnreferenced } from "@/lib/blob-cleanup";
 
 interface Params { params: { id: string } }
 
@@ -14,7 +15,17 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const data = parseWorkshopInput(body);
   if (!data) return NextResponse.json({ error: "נתוני סדנה לא תקינים" }, { status: 400 });
 
+  const existing = await prisma.workshop.findUnique({
+    where: { id: params.id },
+    select: { imageUrl: true },
+  });
+  if (!existing) return NextResponse.json({ error: "לא נמצאה" }, { status: 404 });
+
   const workshop = await prisma.workshop.update({ where: { id: params.id }, data });
+  if (existing.imageUrl && existing.imageUrl !== workshop.imageUrl) {
+    await deleteBlobIfUnreferenced(existing.imageUrl);
+  }
+
   return NextResponse.json(workshop);
 }
 
@@ -36,5 +47,7 @@ export async function DELETE(_: NextRequest, { params }: Params) {
   );
 
   await prisma.workshop.delete({ where: { id: params.id } });
+  await deleteBlobIfUnreferenced(workshop.imageUrl);
+
   return NextResponse.json({ success: true });
 }

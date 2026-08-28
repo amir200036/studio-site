@@ -1,7 +1,9 @@
 import { defineConfig } from "prisma/config";
 import dotenv from "dotenv";
 
-// .env.local קודם (vercel env pull), אחריו .env כ-fallback
+// .env.development.local (מסד הפיתוח המקומי) גובר על .env.local (פרודקשן מ-vercel env pull).
+// dotenv לא דורס משתנה שכבר נטען, ולכן הקובץ הראשון מנצח.
+dotenv.config({ path: ".env.development.local" });
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 

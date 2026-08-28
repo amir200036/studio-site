@@ -3,7 +3,11 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import dotenv from "dotenv";
 import { DEFAULT_TERMS } from "../src/lib/default-terms";
+import { pgSslFor } from "../src/lib/pg-ssl";
 
+// .env.development.local (מסד הפיתוח המקומי) גובר על .env.local (פרודקשן מ-vercel env pull).
+// dotenv לא דורס משתנה שכבר נטען, ולכן הקובץ הראשון מנצח.
+dotenv.config({ path: ".env.development.local" });
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
@@ -26,7 +30,7 @@ async function main() {
 
   const pool = new Pool({
     connectionString: cleanedUrl,
-    ssl: { rejectUnauthorized: false },
+    ssl: pgSslFor(cleanedUrl),
   });
   const prisma = new PrismaClient({ adapter: new PrismaPg(pool) });
 

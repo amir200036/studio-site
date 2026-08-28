@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { filterAllowedSiteContent } from "@/lib/site-content-keys";
+import { filterAllowedSiteContent, IMAGE_CONTENT_KEYS } from "@/lib/site-content-keys";
+import { collectReplacedImageUrls, deleteBlobIfUnreferenced } from "@/lib/blob-cleanup";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -15,6 +16,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "אין מפתחות תקינים לעדכון" }, { status: 400 });
   }
 
+  // הערכים הקודמים של מפתחות התמונה — כדי לנקות קובץ שהוחלף
+  const imageKeys = IMAGE_CONTENT_KEYS.filter((k) => k in data);
+  const previous = imageKeys.length
+    ? await prisma.siteContent.findMany({
+        where: { key: { in: [...imageKeys] } },
+        select: { key: true, value: true },
+      })
+    : [];
+
   await Promise.all(
     Object.entries(data).map(([key, value]) =>
       prisma.siteContent.upsert({
@@ -24,6 +34,10 @@ export async function POST(req: NextRequest) {
       })
     )
   );
+
+  for (const url of collectReplacedImageUrls(previous, data)) {
+    await deleteBlobIfUnreferenced(url);
+  }
 
   return NextResponse.json({ success: true });
 }

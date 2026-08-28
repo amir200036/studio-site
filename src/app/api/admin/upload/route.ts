@@ -65,6 +65,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ url: blob.url });
     }
 
+    // בלי Blob נשארת רק כתיבה לדיסק המקומי. ב-Vercel מערכת הקבצים זמנית,
+    // ולכן "הצלחה" כזו בפרודקשן פירושה תמונה שנעלמת בדפלוי הבא — עדיף להיכשל בקול.
+    if (process.env.NODE_ENV === "production") {
+      console.error("BLOB_READ_WRITE_TOKEN חסר — ההעלאה נחסמה כדי שהתמונה לא תיעלם בדפלוי הבא");
+      return NextResponse.json(
+        { error: "אחסון התמונות אינו מוגדר, והתמונה לא נשמרה. פנו למפתח." },
+        { status: 503 }
+      );
+    }
+
     const dir = path.join(process.cwd(), "public", "uploads");
     await fs.mkdir(dir, { recursive: true });
     const localName = path.basename(filename);
