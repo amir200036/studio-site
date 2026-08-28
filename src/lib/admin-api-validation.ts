@@ -138,6 +138,20 @@ export function parseFaqInput(body: unknown): FaqInput | null {
   return { question: b.question.trim(), answer: b.answer.trim(), order };
 }
 
+/** PATCH חלקי לשאלה נפוצה — בלי המיזוג, עריכת טקסט הייתה מאפסת את order */
+export function parseFaqPatch(
+  body: unknown,
+  existing: { question: string; answer: string; order: number }
+): FaqInput | null {
+  if (!body || typeof body !== "object") return null;
+  const b = body as Record<string, unknown>;
+  const merged: Record<string, unknown> = { ...existing };
+  for (const key of ["question", "answer", "order"] as const) {
+    if (key in b) merged[key] = b[key];
+  }
+  return parseFaqInput(merged);
+}
+
 export type EventInput = {
   name: string;
   description: string;
@@ -212,6 +226,20 @@ export function parseReviewInput(body: unknown): ReviewInput | null {
   const rating = Number(b.rating ?? 5);
   if (!Number.isInteger(rating) || rating < 1 || rating > 5) return null;
   return { authorName: b.authorName.trim(), content: b.content.trim(), rating };
+}
+
+/** PATCH חלקי לביקורת — בלי המיזוג, עריכת טקסט הייתה מאפסת את הדירוג ל-5 */
+export function parseReviewPatch(
+  body: unknown,
+  existing: { authorName: string; content: string; rating: number }
+): ReviewInput | null {
+  if (!body || typeof body !== "object") return null;
+  const b = body as Record<string, unknown>;
+  const merged: Record<string, unknown> = { ...existing };
+  for (const key of ["authorName", "content", "rating"] as const) {
+    if (key in b) merged[key] = b[key];
+  }
+  return parseReviewInput(merged);
 }
 
 export type AdminEmailInput = { to?: string; subject: string; body: string };

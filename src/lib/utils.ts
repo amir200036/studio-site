@@ -10,9 +10,13 @@ export function formatPrice(amount: number): string {
   return `₪${amount.toLocaleString("he-IL")}`;
 }
 
+/** אזור הזמן של הסטודיו — ה-runtime של Vercel רץ ב-UTC */
+const TZ = "Asia/Jerusalem";
+
 export function formatDate(date: Date | string | null | undefined): string {
   if (date == null) return "—";
   return new Date(date).toLocaleDateString("he-IL", {
+    timeZone: TZ,
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -23,6 +27,7 @@ export function formatDate(date: Date | string | null | undefined): string {
 export function formatDateTime(date: Date | string | null | undefined): string {
   if (date == null) return "—";
   return new Date(date).toLocaleDateString("he-IL", {
+    timeZone: TZ,
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -35,6 +40,7 @@ export function formatDateTime(date: Date | string | null | undefined): string {
 export function formatTime(date: Date | string | null | undefined): string {
   if (date == null) return "—";
   return new Date(date).toLocaleTimeString("he-IL", {
+    timeZone: TZ,
     hour: "2-digit",
     minute: "2-digit",
   });

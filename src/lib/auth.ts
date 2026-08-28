@@ -11,10 +11,23 @@ export const authOptions: NextAuthOptions = {
         email: { label: "מייל", type: "email" },
         password: { label: "סיסמה", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const account = await verifyAdminCredentials(credentials.email, credentials.password);
+        // בלי מפתח לקוח, מגבלת הקצב הייתה גלובלית לכל כתובת מייל —
+        // 8 ניסיונות כושלים מכל מקום בעולם היו נועלים את המנהל האמיתי.
+        const headers = req?.headers as Record<string, string | undefined> | undefined;
+        const forwarded = headers?.["x-forwarded-for"];
+        const clientKey =
+          headers?.["x-real-ip"]?.trim() ||
+          forwarded?.split(",").map((p) => p.trim()).filter(Boolean).pop() ||
+          "unknown";
+
+        const account = await verifyAdminCredentials(
+          credentials.email,
+          credentials.password,
+          clientKey
+        );
         if (!account) return null;
 
         return {

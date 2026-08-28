@@ -13,7 +13,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const existing = await prisma.event.findUnique({ where: { id: params.id } });
   if (!existing) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
   const data = parseEventPatch(body, existing);
   if (!data) return NextResponse.json({ error: "נתוני אירוע לא תקינים" }, { status: 400 });
 

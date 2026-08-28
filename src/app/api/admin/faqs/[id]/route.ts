@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { parseFaqInput } from "@/lib/admin-api-validation";
+import { parseFaqPatch } from "@/lib/admin-api-validation";
 import { requireAdminSession } from "@/lib/require-admin";
 
 interface Params { params: { id: string } }
@@ -9,8 +9,12 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const { error } = await requireAdminSession();
   if (error) return error;
 
-  const body = await req.json();
-  const data = parseFaqInput(body);
+  const body = await req.json().catch(() => null);
+
+  const existing = await prisma.fAQ.findUnique({ where: { id: params.id } });
+  if (!existing) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
+
+  const data = parseFaqPatch(body, existing);
   if (!data) return NextResponse.json({ error: "נתוני שאלה לא תקינים" }, { status: 400 });
 
   const faq = await prisma.fAQ.update({ where: { id: params.id }, data });

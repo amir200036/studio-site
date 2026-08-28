@@ -4,7 +4,8 @@ const BLOB_HOST = "blob.vercel-storage.com";
 
 export function isVercelBlobUrl(url: string): boolean {
   try {
-    return new URL(url).hostname.includes(BLOB_HOST);
+    const host = new URL(url).hostname.toLowerCase();
+    return host === BLOB_HOST || host.endsWith(`.${BLOB_HOST}`);
   } catch {
     return false;
   }

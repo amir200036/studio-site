@@ -9,7 +9,7 @@ export async function Footer() {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <span className="text-2xl">🏺</span>
-            <span className="text-lg font-bold text-amber-400">סטודיו קדרות</span>
+            <span className="text-lg font-bold text-amber-400">יד יוצרת</span>
           </div>
           <p className="text-stone-400 text-sm leading-relaxed">
             מקום שבו חמר הופך ליצירה, ואנשים הופכים לאמנים. בואו לגלות את שמחת הקדרות.
@@ -49,7 +49,7 @@ export async function Footer() {
 
       <div className="border-t border-stone-700">
         <div className="max-w-6xl mx-auto px-4 py-4 text-xs text-stone-500 text-center md:text-start">
-          <p>© {new Date().getFullYear()} סטודיו קדרות. כל הזכויות שמורות.</p>
+          <p>© {new Date().getFullYear()} יד יוצרת — סטודיו לקדרות וקרמיקה. כל הזכויות שמורות.</p>
         </div>
       </div>
     </footer>

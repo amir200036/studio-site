@@ -27,7 +27,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const { error } = await requireAdminSession();
   if (error) return error;
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
   const data = parseGalleryPatch(body);
   if (!data) {
     return NextResponse.json({ error: "אין שדות תקינים לעדכון" }, { status: 400 });

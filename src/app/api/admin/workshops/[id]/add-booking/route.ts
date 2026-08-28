@@ -10,7 +10,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   const { error } = await requireAdminSession();
   if (error) return error;
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
   const data = parseBookingInput(body);
   if (!data) return NextResponse.json({ error: "נתוני הזמנה לא תקינים" }, { status: 400 });
 

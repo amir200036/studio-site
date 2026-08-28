@@ -22,11 +22,16 @@ export function Navbar({ bgColor }: { bgColor?: string }) {
       <div className="max-w-6xl mx-auto px-4 flex items-center justify-between gap-2 h-16 min-h-16">
         {/* לוגו — מכווץ במובייל כדי שלא יידחק כפתור התפריט */}
         <Link href="/" className="flex items-center gap-2 group min-w-0 flex-1 md:flex-initial">
-          <span
-            className="text-lg sm:text-xl md:text-2xl text-amber-800 group-hover:text-amber-700 transition-colors truncate"
-            style={{ fontFamily: "var(--font-rubik)", fontWeight: 800 }}
-          >
-            סטודיו לקדרות וקרמיקה
+          <span className="flex flex-col min-w-0 leading-tight">
+            <span
+              className="text-lg sm:text-xl md:text-2xl text-amber-800 group-hover:text-amber-700 transition-colors truncate"
+              style={{ fontFamily: "var(--font-rubik)", fontWeight: 800 }}
+            >
+              יד יוצרת
+            </span>
+            <span className="text-[11px] sm:text-xs text-stone-500 truncate">
+              סטודיו לקדרות וקרמיקה בנס ציונה
+            </span>
           </span>
         </Link>
 

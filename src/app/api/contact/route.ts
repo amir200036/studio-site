@@ -12,7 +12,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { name, email, message } = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") {
+      return NextResponse.json({ error: "קלט לא תקין." }, { status: 400 });
+    }
+    const { name, email, message } = body as Record<string, unknown>;
 
     if (!name || !email || !message) {
       return NextResponse.json({ error: "כל השדות נדרשים." }, { status: 400 });

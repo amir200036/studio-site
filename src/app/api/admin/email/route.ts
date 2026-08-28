@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const { error } = await requireAdminSession();
   if (error) return error;
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
   const data = parseAdminEmailInput(body, true);
   if (!data?.to) return NextResponse.json({ error: "נתוני מייל לא תקינים" }, { status: 400 });
 

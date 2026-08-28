@@ -95,8 +95,8 @@ export default async function HomePage() {
         <HeroSection content={content} transparent={hasBgImage} />
         <AboutSection content={content} />
         <WorkshopsPreview workshops={workshops} />
-        <GallerySection images={gallery} />
         <ReviewsSection reviews={reviews} />
+        <GallerySection images={gallery} />
       </div>
     </>
   );
