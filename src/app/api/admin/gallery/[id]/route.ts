@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { deleteBlobIfUnreferenced } from "@/lib/blob-cleanup";
 import { requireAdminSession } from "@/lib/require-admin";
+import { revalidateSite } from "@/lib/revalidate-site";
 
 interface Params { params: { id: string } }
 
@@ -34,6 +35,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 
   const img = await prisma.galleryImage.update({ where: { id: params.id }, data });
+  revalidateSite();
   return NextResponse.json(img);
 }
 
@@ -47,5 +49,6 @@ export async function DELETE(_: NextRequest, { params }: Params) {
   await prisma.galleryImage.delete({ where: { id: params.id } });
   await deleteBlobIfUnreferenced(existing.url);
 
+  revalidateSite();
   return NextResponse.json({ success: true });
 }

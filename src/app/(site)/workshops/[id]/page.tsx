@@ -1,4 +1,6 @@
-export const dynamic = "force-dynamic";
+// נשמר ב-CDN ומתרענן כל 5 דקות. כל שמירה באדמין קוראת ל-revalidatePath
+// ומרעננת מיד, כך שאין המתנה לשינוי תוכן.
+export const revalidate = 300;
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";

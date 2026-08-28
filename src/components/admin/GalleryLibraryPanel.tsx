@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Eye, EyeOff, ExternalLink, Trash2 } from "lucide-react";
 import { GalleryUploadButtons } from "./GalleryUploadButtons";
 import { uploadImageToGallery } from "@/lib/gallery-upload-client";
+import { OrphanImageImport } from "./OrphanImageImport";
 
 interface Props {
   initialGallery: GalleryImage[];
@@ -55,6 +56,9 @@ export function GalleryLibraryPanel({ initialGallery, showPageHeader }: Props) {
           </p>
         </div>
       )}
+
+      {/* שחזור תמונות שנשארו באחסון בלי הפניה במסד */}
+      <OrphanImageImport onImported={setGallery} />
 
       {/* העלאה ראשונה במובייל */}
       <section className="bg-white rounded-2xl p-4 sm:p-5 border border-amber-200 shadow-sm flex flex-col gap-3">

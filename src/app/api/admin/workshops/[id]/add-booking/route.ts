@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getAvailableSeats } from "@/lib/utils";
 import { parseBookingInput } from "@/lib/admin-api-validation";
 import { requireAdminSession } from "@/lib/require-admin";
+import { revalidateSite } from "@/lib/revalidate-site";
 
 interface Params { params: { id: string } }
 
@@ -41,5 +42,6 @@ export async function POST(req: NextRequest, { params }: Params) {
     },
   });
 
+  revalidateSite();
   return NextResponse.json(booking);
 }

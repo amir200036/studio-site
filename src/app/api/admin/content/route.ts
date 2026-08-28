@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { filterAllowedSiteContent, IMAGE_CONTENT_KEYS } from "@/lib/site-content-keys";
 import { collectReplacedImageUrls, deleteBlobIfUnreferenced } from "@/lib/blob-cleanup";
+import { revalidateSite } from "@/lib/revalidate-site";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -49,5 +50,6 @@ export async function POST(req: NextRequest) {
     await deleteBlobIfUnreferenced(url);
   }
 
+  revalidateSite();
   return NextResponse.json({ success: true });
 }

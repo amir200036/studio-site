@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAllowedImageUrl } from "@/lib/sanitize";
 import { requireAdminSession } from "@/lib/require-admin";
+import { revalidateSite } from "@/lib/revalidate-site";
 
 function parseGalleryCreate(body: unknown) {
   if (!body || typeof body !== "object") return null;
@@ -39,5 +40,6 @@ export async function POST(req: NextRequest) {
   }
 
   const img = await prisma.galleryImage.create({ data });
+  revalidateSite();
   return NextResponse.json(img);
 }

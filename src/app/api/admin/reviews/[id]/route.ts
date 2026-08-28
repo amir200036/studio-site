@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseReviewPatch } from "@/lib/admin-api-validation";
 import { requireAdminSession } from "@/lib/require-admin";
+import { revalidateSite } from "@/lib/revalidate-site";
 
 interface Params { params: { id: string } }
 
@@ -18,6 +19,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   if (!data) return NextResponse.json({ error: "נתוני ביקורת לא תקינים" }, { status: 400 });
 
   const review = await prisma.review.update({ where: { id: params.id }, data });
+  revalidateSite();
   return NextResponse.json(review);
 }
 
@@ -26,5 +28,6 @@ export async function DELETE(_: NextRequest, { params }: Params) {
   if (error) return error;
 
   await prisma.review.delete({ where: { id: params.id } });
+  revalidateSite();
   return NextResponse.json({ success: true });
 }

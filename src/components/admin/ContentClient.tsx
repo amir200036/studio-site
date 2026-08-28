@@ -17,7 +17,7 @@ interface Props {
   reviews: Review[];
 }
 
-type Tab = "hero" | "faq" | "events" | "reviews" | "backgrounds" | "terms";
+type Tab = "hero" | "faq" | "events" | "reviews" | "backgrounds" | "hours" | "terms";
 
 const TAB_META: Record<Tab, { title: string; description: string }> = {
   hero: {
@@ -39,6 +39,10 @@ const TAB_META: Record<Tab, { title: string; description: string }> = {
   backgrounds: {
     title: "רקעים",
     description: "צבע רקע כללי ותמונות רקע לכל דף — מספריית התמונות בסרגל.",
+  },
+  hours: {
+    title: "שעות פעילות",
+    description: "מוצג בעמוד 'צרו קשר'. שורה לכל יום.",
   },
   terms: {
     title: "תקנון",
@@ -65,6 +69,7 @@ export function ContentClient({ content, faqs: initFaqs, events: initEvents, gal
     { key: "events", label: "אירועים" },
     { key: "reviews", label: "ביקורות" },
     { key: "backgrounds", label: "רקעים" },
+    { key: "hours", label: "שעות פעילות" },
     { key: "terms", label: "תקנון" },
   ];
 
@@ -97,6 +102,7 @@ export function ContentClient({ content, faqs: initFaqs, events: initEvents, gal
       {tab === "events" && <EventsTab initEvents={initEvents} gallery={gallery} onGalleryUpdate={setGallery} />}
       {tab === "reviews" && <ReviewsTab initReviews={initReviews} />}
       {tab === "backgrounds" && <BackgroundsTab content={content} gallery={gallery} onGalleryUpdate={setGallery} />}
+      {tab === "hours" && <HoursTab content={content} />}
       {tab === "terms" && <TermsTab content={content} />}
     </div>
   );
@@ -468,6 +474,47 @@ function TermsTab({ content }: { content: Record<string, string> }) {
   );
 }
 
+// --- שעות פעילות (היה דף /admin/settings שלם עבור שדה יחיד) ---
+function HoursTab({ content }: { content: Record<string, string> }) {
+  const initial = content["hours"] || "";
+  const [text, setText] = useState(initial);
+  const [saved, setSaved] = useState(initial);
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState("");
+  const dirty = text !== saved;
+
+  async function save() {
+    setSaving(true);
+    const res = await fetch("/api/admin/content", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ hours: text }),
+    });
+    setSaving(false);
+    if (res.ok) setSaved(text);
+    setMsg(res.ok ? "✅ נשמר!" : "❌ שגיאה בשמירה");
+    setTimeout(() => setMsg(""), 2500);
+  }
+
+  return (
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-4 max-w-4xl">
+      <div>
+        <p className="text-sm text-stone-500 mb-1">שורה לכל יום, למשל: ראשון–חמישי: 09:00–20:00</p>
+        <a href="/contact" target="_blank" className="text-xs text-amber-600 hover:underline">צפייה בעמוד צרו קשר ←</a>
+      </div>
+      <textarea
+        rows={6}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        className={adminInputClass + " resize-y leading-relaxed"}
+        placeholder={"ראשון–חמישי: 09:00–20:00\nשישי: 09:00–14:00\nשבת: סגור"}
+        dir="rtl"
+      />
+      <StickySaveBar dirty={dirty} saving={saving} message={msg} onSave={save} />
+    </div>
+  );
+}
+
 // --- רקעים ---
 function BackgroundsTab({
   content,
@@ -486,9 +533,12 @@ function BackgroundsTab({
     { imgKey: "bg_image_contact", label: "צרו קשר ומידע" },
   ];
 
-  const allKeys = ["global_bg_color", ...pages.map((p) => p.imgKey)];
+  const allKeys = ["global_bg_color", "hero_text_color", ...pages.map((p) => p.imgKey)];
   const initial = Object.fromEntries(
-    allKeys.map((k) => [k, content[k] || (k === "global_bg_color" ? "#fdf8f0" : "")])
+    allKeys.map((k) => [
+      k,
+      content[k] || (k === "global_bg_color" ? "#fdf8f0" : k === "hero_text_color" ? "#78350f" : ""),
+    ])
   );
   const [values, setValues] = useState<Record<string, string>>(initial);
   const [saved, setSaved] = useState<Record<string, string>>(initial);
@@ -528,6 +578,19 @@ function BackgroundsTab({
         />
         <span className="text-xs text-stone-400 font-mono">{values["global_bg_color"]}</span>
         <button type="button" onClick={() => set("global_bg_color", "#fdf8f0")} className="text-xs text-stone-400 hover:text-stone-600 underline">איפוס</button>
+      </div>
+
+      {/* hero_text_color נקרא ב-HeroSection מאז ומעולם, אבל לא הייתה שום דרך להגדיר אותו */}
+      <div className="flex items-center gap-4">
+        <label className="text-sm font-medium text-stone-700 w-28">צבע כותרת</label>
+        <input
+          type="color"
+          value={values["hero_text_color"]}
+          onChange={(e) => set("hero_text_color", e.target.value)}
+          className="w-10 h-10 rounded-lg border border-stone-200 cursor-pointer p-0.5 bg-white"
+        />
+        <span className="text-xs text-stone-400 font-mono">{values["hero_text_color"]}</span>
+        <button type="button" onClick={() => set("hero_text_color", "#78350f")} className="text-xs text-stone-400 hover:text-stone-600 underline">איפוס</button>
       </div>
 
       {pages.map((p) => (

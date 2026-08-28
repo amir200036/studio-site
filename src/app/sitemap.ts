@@ -3,7 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { visiblePublicWorkshopsWhere } from "@/lib/workshop-filters";
 import { getSiteUrl } from "@/lib/site-url";
 
-export const dynamic = "force-dynamic";
+// נשמר ב-CDN ומתרענן כל 5 דקות. כל שמירה באדמין קוראת ל-revalidatePath
+// ומרעננת מיד, כך שאין המתנה לשינוי תוכן.
+export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const BASE_URL = getSiteUrl().replace(/\/$/, "");

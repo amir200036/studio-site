@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { revalidateSite } from "@/lib/revalidate-site";
 
 /** ביטול הרשמה במערכת (ללא תשלום אונליין — ללא החזר אוטומטי) */
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
@@ -31,5 +32,6 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
     },
   });
 
+  revalidateSite();
   return NextResponse.json({ success: true });
 }

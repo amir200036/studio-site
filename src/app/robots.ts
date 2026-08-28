@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/site-url";
 
-export const dynamic = "force-dynamic";
+// נשמר ב-CDN ומתרענן כל 5 דקות. כל שמירה באדמין קוראת ל-revalidatePath
+// ומרעננת מיד, כך שאין המתנה לשינוי תוכן.
+export const revalidate = 300;
 
 export default function robots(): MetadataRoute.Robots {
   const base = getSiteUrl().replace(/\/$/, "");

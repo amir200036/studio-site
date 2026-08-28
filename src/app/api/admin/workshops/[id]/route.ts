@@ -4,6 +4,7 @@ import { sendCancellationEmail } from "@/lib/email";
 import { parseWorkshopPatch } from "@/lib/admin-api-validation";
 import { requireAdminSession } from "@/lib/require-admin";
 import { deleteBlobIfUnreferenced } from "@/lib/blob-cleanup";
+import { revalidateSite } from "@/lib/revalidate-site";
 
 interface Params { params: { id: string } }
 
@@ -24,6 +25,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     await deleteBlobIfUnreferenced(existing.imageUrl);
   }
 
+  revalidateSite();
   return NextResponse.json(workshop);
 }
 
@@ -47,5 +49,6 @@ export async function DELETE(_: NextRequest, { params }: Params) {
   await prisma.workshop.delete({ where: { id: params.id } });
   await deleteBlobIfUnreferenced(workshop.imageUrl);
 
+  revalidateSite();
   return NextResponse.json({ success: true });
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseReviewInput } from "@/lib/admin-api-validation";
 import { requireAdminSession } from "@/lib/require-admin";
+import { revalidateSite } from "@/lib/revalidate-site";
 
 export async function POST(req: NextRequest) {
   const { error } = await requireAdminSession();
@@ -14,5 +15,6 @@ export async function POST(req: NextRequest) {
   const review = await prisma.review.create({
     data: { ...data, approved: true },
   });
+  revalidateSite();
   return NextResponse.json(review);
 }
