@@ -131,6 +131,20 @@ export function parseEventInput(body: unknown): EventInput | null {
   };
 }
 
+const EVENT_PATCH_FIELDS = [
+  "name",
+  "description",
+  "imageUrl",
+  "whatsappMessage",
+  "active",
+  "order",
+] as const;
+
+/**
+ * PATCH חלקי: שדה שלא נשלח שומר על ערכו הקיים.
+ * בלי המיזוג הזה `parseEventInput` היה מחיל ברירות מחדל על שדות חסרים —
+ * עריכת שם/תיאור הייתה מאפסת את `order` ומחזירה אירוע מוסתר לתצוגה.
+ */
 export function parseEventPatch(
   body: unknown,
   existing: { name: string; description: string; imageUrl: string | null; whatsappMessage: string | null; active: boolean; order: number }
@@ -138,18 +152,12 @@ export function parseEventPatch(
   if (!body || typeof body !== "object") return null;
   const b = body as Record<string, unknown>;
 
-  if (typeof b.active === "boolean" && Object.keys(b).length === 1) {
-    return {
-      name: existing.name,
-      description: existing.description,
-      imageUrl: existing.imageUrl,
-      whatsappMessage: existing.whatsappMessage,
-      active: b.active,
-      order: existing.order,
-    };
+  const merged: Record<string, unknown> = { ...existing };
+  for (const key of EVENT_PATCH_FIELDS) {
+    if (key in b) merged[key] = b[key];
   }
 
-  return parseEventInput(body);
+  return parseEventInput(merged);
 }
 
 export type ReviewInput = { authorName: string; content: string; rating: number };
