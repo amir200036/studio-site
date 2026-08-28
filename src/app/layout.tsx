@@ -42,9 +42,7 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <body className={`${assistant.variable} ${rubik.variable} font-sans antialiased bg-stone-50 text-stone-800`}>
-        <div className="overflow-x-hidden">
-          {children}
-        </div>
+        {children}
         <Analytics />
       </body>
     </html>

@@ -6,6 +6,7 @@ import type { FAQ, Event, GalleryImage, Review } from "@prisma/client";
 import { Loader2, Trash2, Plus, Pencil, Save } from "lucide-react";
 import { GalleryImagePicker } from "./GalleryImagePicker";
 import { adminInputClass, adminPrimaryBtnClass, adminTouchBtnClass } from "@/lib/admin-ui";
+import { StickySaveBar } from "./StickySaveBar";
 import { DEFAULT_TERMS } from "@/lib/default-terms";
 
 interface Props {
@@ -111,23 +112,25 @@ function HeroTab({
   gallery: GalleryImage[];
   onGalleryUpdate: (g: GalleryImage[]) => void;
 }) {
-  const fields: { key: string; label: string; type: string }[] = [
-    { key: "hero_title", label: "כותרת Hero", type: "text" },
-    { key: "hero_subtitle", label: "תת-כותרת Hero", type: "text" },
-    { key: "hero_cta", label: "טקסט כפתור Hero", type: "text" },
+  // תוויות בעברית פשוטה — "Hero" ו-"About" הם מונחי מפתחים, לא של בעל הסטודיו
+  const fields: { key: string; label: string; type: string; hint?: string }[] = [
+    { key: "hero_title", label: "כותרת ראשית", type: "text", hint: "המשפט הגדול בראש דף הבית" },
+    { key: "hero_subtitle", label: "משפט משנה", type: "text" },
+    { key: "hero_cta", label: "טקסט הכפתור הראשי", type: "text" },
     { key: "about_title", label: "כותרת 'על הסטודיו'", type: "text" },
-    { key: "about_text", label: "טקסט על הסטודיו", type: "textarea" },
-    { key: "about_image", label: "תמונת About", type: "imageUpload" },
+    { key: "about_text", label: "טקסט 'על הסטודיו'", type: "textarea" },
+    { key: "about_image", label: "תמונה לצד 'על הסטודיו'", type: "imageUpload" },
     { key: "stat_years", label: "שנות ניסיון", type: "text" },
     { key: "stat_students", label: "מספר תלמידים", type: "text" },
     { key: "stat_workshops", label: "מספר סדנאות", type: "text" },
   ];
 
-  const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries(fields.map((f) => [f.key, content[f.key] || ""]))
-  );
+  const initial = Object.fromEntries(fields.map((f) => [f.key, content[f.key] || ""]));
+  const [values, setValues] = useState<Record<string, string>>(initial);
+  const [saved, setSaved] = useState<Record<string, string>>(initial);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const dirty = JSON.stringify(values) !== JSON.stringify(saved);
 
   async function save() {
     setSaving(true);
@@ -137,15 +140,19 @@ function HeroTab({
       body: JSON.stringify(values),
     });
     setSaving(false);
-    setMsg(res.ok ? "✅ נשמר!" : "❌ שגיאה");
-    setTimeout(() => setMsg(""), 2000);
+    if (res.ok) setSaved(values);
+    setMsg(res.ok ? "✅ נשמר!" : "❌ שגיאה בשמירה");
+    setTimeout(() => setMsg(""), 2500);
   }
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-4 max-w-2xl">
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-4 max-w-4xl">
       {fields.map((f) => (
         <div key={f.key}>
-          <label className="block text-sm font-medium text-stone-700 mb-1">{f.label}</label>
+          <label className="block text-sm font-medium text-stone-700 mb-1">
+            {f.label}
+            {f.hint && <span className="font-normal text-stone-400"> — {f.hint}</span>}
+          </label>
           {f.type === "textarea" ? (
             <textarea rows={4} value={values[f.key]} onChange={(e) => setValues({ ...values, [f.key]: e.target.value })}
               className={adminInputClass + " resize-none"} />
@@ -163,11 +170,7 @@ function HeroTab({
         </div>
       ))}
 
-      {msg && <p className="text-sm">{msg}</p>}
-      <button onClick={save} disabled={saving}
-        className={adminPrimaryBtnClass + " w-full"}>
-        {saving && <Loader2 className="w-4 h-4 animate-spin" />} שמירה
-      </button>
+      <StickySaveBar dirty={dirty} saving={saving} message={msg} onSave={save} />
     </div>
   );
 }
@@ -427,9 +430,12 @@ function ReviewsTab({ initReviews }: { initReviews: Review[] }) {
 // --- תקנון --- (ברירת מחדל ב-src/lib/default-terms.ts)
 
 function TermsTab({ content }: { content: Record<string, string> }) {
-  const [text, setText] = useState(content["terms_content"] || DEFAULT_TERMS);
+  const initial = content["terms_content"] || DEFAULT_TERMS;
+  const [text, setText] = useState(initial);
+  const [saved, setSaved] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const dirty = text !== saved;
 
   async function save() {
     setSaving(true);
@@ -439,12 +445,13 @@ function TermsTab({ content }: { content: Record<string, string> }) {
       body: JSON.stringify({ terms_content: text }),
     });
     setSaving(false);
-    setMsg(res.ok ? "✅ נשמר!" : "❌ שגיאה");
-    setTimeout(() => setMsg(""), 2000);
+    if (res.ok) setSaved(text);
+    setMsg(res.ok ? "✅ נשמר!" : "❌ שגיאה בשמירה");
+    setTimeout(() => setMsg(""), 2500);
   }
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-4 max-w-2xl">
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-4 max-w-4xl">
       <div>
         <p className="text-sm text-stone-500 mb-1">עצבו את תוכן התקנון. השתמשו ב-<code className="bg-stone-100 px-1 rounded">**כותרת**</code> לכותרות סעיפים ושורה ריקה בין פסקאות.</p>
         <a href="/terms" target="_blank" className="text-xs text-amber-600 hover:underline">צפייה בתקנון ←</a>
@@ -456,11 +463,7 @@ function TermsTab({ content }: { content: Record<string, string> }) {
         className={adminInputClass + " resize-y font-mono text-xs leading-relaxed"}
         dir="rtl"
       />
-      {msg && <p className="text-sm">{msg}</p>}
-      <button onClick={save} disabled={saving}
-        className={adminPrimaryBtnClass + " w-full"}>
-        {saving && <Loader2 className="w-4 h-4 animate-spin" />} שמירה
-      </button>
+      <StickySaveBar dirty={dirty} saving={saving} message={msg} onSave={save} />
     </div>
   );
 }
@@ -484,11 +487,14 @@ function BackgroundsTab({
   ];
 
   const allKeys = ["global_bg_color", ...pages.map((p) => p.imgKey)];
-  const [values, setValues] = useState<Record<string, string>>(
-    Object.fromEntries(allKeys.map((k) => [k, content[k] || (k === "global_bg_color" ? "#fdf8f0" : "")]))
+  const initial = Object.fromEntries(
+    allKeys.map((k) => [k, content[k] || (k === "global_bg_color" ? "#fdf8f0" : "")])
   );
+  const [values, setValues] = useState<Record<string, string>>(initial);
+  const [saved, setSaved] = useState<Record<string, string>>(initial);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const dirty = JSON.stringify(values) !== JSON.stringify(saved);
 
   function set(key: string, val: string) { setValues((v) => ({ ...v, [key]: val })); }
 
@@ -500,12 +506,13 @@ function BackgroundsTab({
       body: JSON.stringify(values),
     });
     setSaving(false);
-    setMsg(res.ok ? "✅ נשמר!" : "❌ שגיאה");
-    setTimeout(() => setMsg(""), 2000);
+    if (res.ok) setSaved(values);
+    setMsg(res.ok ? "✅ נשמר!" : "❌ שגיאה בשמירה");
+    setTimeout(() => setMsg(""), 2500);
   }
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-6 max-w-2xl">
+    <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-6 max-w-4xl">
       <p className="text-sm text-stone-500">
         הצבע הכללי חל על כל האתר. תמונת רקע לדף ספציפי תכסה את הצבע. בחרו תמונה מספריית התמונות.
       </p>
@@ -543,11 +550,7 @@ function BackgroundsTab({
           )}
         </div>
       ))}
-      {msg && <p className="text-sm">{msg}</p>}
-      <button onClick={save} disabled={saving}
-        className={adminPrimaryBtnClass + " w-full"}>
-        {saving && <Loader2 className="w-4 h-4 animate-spin" />} שמירה
-      </button>
+      <StickySaveBar dirty={dirty} saving={saving} message={msg} onSave={save} />
     </div>
   );
 }

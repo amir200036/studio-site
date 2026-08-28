@@ -13,7 +13,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   const bgColor = row?.value || "#fdf8f0";
 
   return (
-    <div style={{ backgroundColor: bgColor, minHeight: "100vh" }}>
+    <div className="overflow-x-clip" style={{ backgroundColor: bgColor, minHeight: "100vh" }}>
       <LocalBusinessJsonLd />
       <Navbar bgColor={bgColor} />
       <main>{children}</main>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Workshop } from "@prisma/client";
-import { Loader2, Trash2 } from "lucide-react";
+import { ExternalLink, Loader2, Trash2 } from "lucide-react";
 import { adminInputClass, adminPrimaryBtnClass } from "@/lib/admin-ui";
 import { GalleryImagePicker } from "./GalleryImagePicker";
 import { WorkshopWhatsAppEditor } from "./WorkshopWhatsAppEditor";
@@ -81,8 +81,21 @@ export function WorkshopForm({ workshop }: Props) {
   const priceNum = parseFloat(price) || 0;
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-4 max-w-2xl">
-      <h2 className="font-bold text-stone-800 text-lg">{workshop ? "עריכת סדנה" : "סדנה חדשה"}</h2>
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-4 max-w-4xl">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-bold text-stone-800 text-lg">{workshop ? "עריכת סדנה" : "סדנה חדשה"}</h2>
+        {workshop && (
+          <a
+            href={`/workshops/${workshop.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-sm text-amber-700 hover:text-amber-800 font-medium"
+          >
+            <ExternalLink className="w-4 h-4" aria-hidden="true" />
+            צפייה בדף באתר
+          </a>
+        )}
+      </div>
 
       <Field label="שם הסדנה">
         <input type="text" required value={name} onChange={(e) => setName(e.target.value)}
@@ -135,21 +148,23 @@ export function WorkshopForm({ workshop }: Props) {
 
       {error && <p className="text-red-600 text-sm bg-red-50 px-4 py-2 rounded-lg">{error}</p>}
 
-      <div className="flex flex-col sm:flex-row gap-3 mt-2">
-        <button type="submit" disabled={loading}
-          className={adminPrimaryBtnClass + " flex-1 w-full"}>
-          {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-          {loading ? "שומר..." : "שמירה"}
-        </button>
+      <button type="submit" disabled={loading}
+        className={adminPrimaryBtnClass + " w-full mt-2"}>
+        {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+        {loading ? "שומר..." : "שמירה"}
+      </button>
 
-        {workshop && (
+      {/* מחיקה הופרדה משמירה — קודם הן ישבו זו לצד זו באותה שורה */}
+      {workshop && (
+        <div className="mt-6 pt-4 border-t border-stone-200 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-stone-500">מחיקת הסדנה היא לצמיתות ואי אפשר לבטל אותה.</p>
           <button type="button" onClick={handleDelete} disabled={deleting}
-            className="px-4 py-3 min-h-12 w-full sm:w-auto bg-red-50 hover:bg-red-100 text-red-600 font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5">
+            className="px-4 py-2.5 min-h-11 bg-white hover:bg-red-50 text-red-600 text-sm font-bold rounded-xl border border-red-200 transition-colors flex items-center justify-center gap-1.5">
             {deleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-            מחיקה
+            מחיקת הסדנה
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </form>
   );
 }
