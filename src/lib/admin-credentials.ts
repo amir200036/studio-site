@@ -7,7 +7,7 @@ export type AdminAccount = {
 };
 
 /** מנהלים מ-ADMIN_EMAIL / ADMIN_PASSWORD ו-ADMIN_EMAIL_2 / ADMIN_PASSWORD_2 */
-export function getAdminAccounts(): AdminAccount[] {
+function getAdminAccounts(): AdminAccount[] {
   const pairs: [string | undefined, string | undefined][] = [
     [process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD],
     [process.env.ADMIN_EMAIL_2, process.env.ADMIN_PASSWORD_2],

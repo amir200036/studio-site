@@ -11,7 +11,7 @@ export const IMAGE_CONTENT_KEYS = [
 ] as const;
 
 /** מפתחות SiteContent מותרים לעדכון דרך /api/admin/content */
-export const SITE_CONTENT_KEYS = new Set<string>([
+const SITE_CONTENT_KEYS = new Set<string>([
   "hero_title",
   "hero_subtitle",
   "hero_cta",
