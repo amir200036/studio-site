@@ -22,9 +22,8 @@
 | Analytics | `@vercel/analytics` (injected in root layout.tsx) |
 | Icons | Lucide React |
 | Fonts | Google Fonts — Assistant (Hebrew + Latin) + Rubik 800 for headings |
-| Form handling | react-hook-form + @hookform/resolvers + zod |
-| Utilities | clsx, tailwind-merge, bcryptjs, date-fns |
-| Extra UI | @headlessui/react, @heroicons/react |
+| Form handling | plain React state — there is no react-hook-form / zod in this project |
+| Utilities | clsx, tailwind-merge, bcryptjs, heic2any (HEIC → JPEG on iPhone uploads) |
 
 ---
 
@@ -155,16 +154,14 @@ studio-site/
 │   │   ├── admin/             # ADMIN pages — completely separate from (site)
 │   │   │   ├── layout.tsx     # Shows AdminNavbar only when session exists
 │   │   │   ├── login/page.tsx # Login page
-│   │   │   ├── page.tsx       # Dashboard: KPI cards, upcoming workshops, recent bookings
-│   │   │   ├── stats/page.tsx # Detailed stats: 14-day chart, top workshops, KPIs
+│   │   │   ├── page.tsx       # redirect → /admin/workshops
+│   │   │   ├── stats/page.tsx # Content statistics + "what needs attention" checklist
 │   │   │   ├── workshops/     # Workshop management
-│   │   │   │   ├── page.tsx   # List all workshops
+│   │   │   │   ├── page.tsx   # Full table: duration, price, price/hour, seats, image, status
 │   │   │   │   ├── new/page.tsx # Create workshop form
-│   │   │   │   └── [id]/page.tsx # Edit workshop + view/add bookings + email attendees
-│   │   │   ├── bookings/page.tsx  # All bookings table (all statuses)
-│   │   │   ├── customers/page.tsx # Customer list, individual email, newsletter
-│   │   │   ├── content/page.tsx   # 6-tab content editor
-│   │   │   └── settings/page.tsx  # Contact info, hours, map embed
+│   │   │   │   └── [id]/page.tsx # Edit workshop
+│   │   │   ├── gallery/page.tsx   # Media library + orphaned-image recovery
+│   │   │   └── content/page.tsx   # 7-tab content editor
 │   │   └── api/
 │   │       ├── auth/[...nextauth]/  # NextAuth handler
 │   │       ├── contact/             # Contact form email (Resend)
@@ -175,7 +172,9 @@ studio-site/
 │   │   ├── workshops/         # WorkshopCard.tsx, WorkshopWhatsAppForm.tsx
 │   │   ├── faq/               # FAQAccordion.tsx
 │   │   ├── contact/           # ContactForm.tsx
-│   │   └── admin/             # AdminNavbar.tsx, ContentClient.tsx, CustomersClient.tsx, ImageUploadField.tsx, LoginForm.tsx, SettingsClient.tsx, WorkshopBookings.tsx, WorkshopForm.tsx
+│   │   └── admin/             # AdminNavbar, ContentClient, GalleryImagePicker, GalleryLibraryPanel,
+│   │                           # GalleryUploadButtons, LoginForm, OrphanImageImport, StickySaveBar,
+│   │                           # WorkshopForm, WorkshopWhatsAppEditor
 │   ├── lib/
 │   │   ├── auth.ts            # NextAuth config
 │   │   ├── prisma.ts          # Prisma singleton (PrismaPg / PostgreSQL adapter)
@@ -252,12 +251,8 @@ background images all reference `GalleryImage.url` values chosen through `Galler
 | `stat_years` | Years stat |
 | `stat_students` | Students stat |
 | `stat_workshops` | Workshops stat |
-| `phone` | Studio phone |
-| `email` | Studio email |
-| `address` | Studio address |
-| `hours` | Opening hours (multi-line) |
-| `whatsapp` | WhatsApp number (digits only, e.g. 972501234567) |
-| `map_embed` | Google Maps embed `src` URL |
+| `hours` | Opening hours (multi-line), edited in the שעות פעילות tab |
+| `hero_text_color` | Hero heading colour (hex) |
 | `terms_content` | Terms & conditions (markdown-like, **heading** format) |
 | `global_bg_color` | Site-wide background color (hex) — applies to all pages via `(site)/layout.tsx` |
 | `bg_image_home` | Home page Hero section background image URL |
@@ -265,6 +260,10 @@ background images all reference `GalleryImage.url` values chosen through `Galler
 | `bg_image_events` | Events page background image URL |
 | `bg_image_faq` | FAQ page background image URL |
 | `bg_image_contact` | Contact page background image URL |
+
+Phone, e-mail, address, WhatsApp number and the map embed are **not** content keys — they are constants
+in `src/lib/studio-contact.ts` and cannot be changed from the panel. Rows for `phone`, `email`,
+`address`, `whatsapp` and `map_embed` may still exist in the production database; nothing reads them.
 
 ---
 
@@ -278,7 +277,7 @@ NEXT_PUBLIC_SITE_URL="https://your-domain.com"
 NEXTAUTH_SECRET="..."          # Generate: openssl rand -base64 32
 NEXTAUTH_URL="http://localhost:3000"
 ADMIN_EMAIL="amir@gmail.com"
-ADMIN_PASSWORD="amir123"       # Plain text for dev; bcrypt hash for prod
+ADMIN_PASSWORD="..."           # Plain text allowed in dev only; production requires a bcrypt hash
 
 # Email (Resend)
 RESEND_API_KEY="re_..."
@@ -313,8 +312,12 @@ DATABASE_URL="postgresql://amir@localhost:5432/studio_dev"
 
 ## Admin Panel
 
-**URL**: `http://localhost:3000/admin/login`  
-**Default credentials**: `amir@gmail.com` / `amir123`
+**URL**: `http://localhost:3000/admin/login`
+
+Credentials come from `ADMIN_EMAIL` / `ADMIN_PASSWORD` (and the optional `_2` pair). Production uses
+bcrypt hashes — a plaintext password is refused there. For local work set your own pair in
+`.env.development.local`; the values in `.env.local` are the production ones. Do not commit
+credentials to this file.
 
 ### Admin Pages:
 Registration runs through WhatsApp, so the dashboard / bookings / customers pages were removed —
@@ -327,7 +330,7 @@ Registration runs through WhatsApp, so the dashboard / bookings / customers page
 | `/admin/workshops/new` | Create workshop form |
 | `/admin/workshops/[id]` | Edit workshop |
 | `/admin/gallery` | Media library — upload and manage `GalleryImage` rows |
-| `/admin/content` | 6-tab editor: Hero, FAQ, Events, Reviews, Backgrounds, Terms. The Hero / Backgrounds / Terms tabs use `StickySaveBar` (`src/components/admin/StickySaveBar.tsx`): the save button stays pinned to the viewport, shows whether there are unsaved changes, and warns before leaving the page with edits pending |
+| `/admin/content` | 7-tab editor: Hero, FAQ, Events, Reviews, Backgrounds, שעות פעילות, Terms. The Hero / Backgrounds / Terms tabs use `StickySaveBar` (`src/components/admin/StickySaveBar.tsx`): the save button stays pinned to the viewport, shows whether there are unsaved changes, and warns before leaving the page with edits pending |
 | — | `/admin/settings` was deleted; opening hours are a tab in `/admin/content` |
 | `/admin/stats` | Content statistics — active workshops, seats, price range, rating, and a "what needs attention" checklist. Shows **no** registration or revenue figures: WhatsApp registration never creates a `Booking`, so there is nothing to count |
 | `/admin` | **redirect → `/admin/workshops`** |
@@ -391,7 +394,7 @@ orphaned. This exists because a production incident left 21 files stranded this 
 
 ## Public Pages
 
-All public pages use `export const dynamic = "force-dynamic"` — required for DB reads at request time.
+Public pages are ISR (`export const revalidate = 300`) — see **Caching** under Key Patterns.
 
 ### Metadata:
 Every public page exports `Metadata` with `title`, `description`, `alternates.canonical`, and `openGraph`. The root layout sets the default `metadataBase` and global `metadata`.
@@ -421,7 +424,10 @@ did) breaks `position: sticky` for every descendant on every page. The horizonta
 lives on the public layout as `overflow-x-clip`, which does not create a scroll container.
 
 ### next/Image usage:
-All `<img>` tags have been replaced with `next/Image`. Remote images are allowed from any hostname via `next.config.mjs`. Images use `fill` with a relative parent for cards, or explicit `width/height` for hero.
+Public images use `next/Image`. `next.config.mjs` allows **only** `*.public.blob.vercel-storage.com`:
+with `hostname: "**"` anyone could call `/_next/image?url=<any URL>` and use the deployment as an
+image proxy on our bandwidth. Every image originates from `/api/admin/upload`, which returns a Blob
+URL, so nothing legitimate is affected — do not widen this back.
 
 ---
 
@@ -482,12 +488,11 @@ Never construct class names dynamically (e.g. `bg-${color}-500`) — Tailwind wo
 ## Email System (Resend)
 
 Functions in `src/lib/email.ts` (uses direct fetch to Resend API, not the resend npm package):
-- `sendBookingConfirmation(booking)` — to customer after payment
-- `sendAdminNotification(booking)` — to admin on new booking
-- `sendCancellationEmail(to, customerName, workshopName, workshopDate)` — to customer when workshop deleted
-- `sendRefundNotification(info)` — to customer AND admin when individual booking is refunded
-- `sendWebhookFailureNotification(info)` — to admin when Stripe webhook processing fails (with auto-refund info)
-- `sendCustomEmail(to, subject, body)` — admin-triggered; returns `Promise<boolean>` (empty `to` or Resend failure → `false`; dev without key → `true` after console log)
+- `sendCancellationEmail(to, customerName, workshopName, workshopDate)` — to customer when a workshop is deleted
+- `sendCustomEmail(to, subject, body)` — admin-triggered; returns `Promise<boolean>`
+- `sendContactFormEmail(to, name, email, message)` — the public contact form
+
+Those three are the whole module. The Stripe-era booking/refund/webhook mails are gone.
 
 Development: if `RESEND_API_KEY` is empty or `"re_..."`, emails log to console and `sendEmail` reports success for local flow.
 
@@ -544,7 +549,13 @@ brew services stop  postgresql@17   # stop it
 - **Public Navbar in admin**: Fixed by using `(site)/` route group — admin pages no longer inherit root layout's Navbar+Footer
 - **next/Image conversion**: All `<img>` tags replaced with `next/Image` for performance. `next.config.mjs` allows all remote hostnames
 - **Stripe removal**: online payment was dropped in favour of WhatsApp registration. `stripeSessionId` / `refundId` and the Stripe webhook are gone; `Booking` keeps only `cancelledAt`
-- **Image upload**: Added `ImageUploadField` component + `/api/admin/upload` route supporting Vercel Blob in prod and local fallback in dev
+- **Image upload**: `GalleryImagePicker` + `/api/admin/upload` — Vercel Blob in production, local
+  `public/uploads/` in dev, and a hard 503 in production when the Blob token is missing
+- **Orphaned images**: an upload that succeeded in Blob while its database insert failed left files
+  with no reference. Recoverable from `/admin/gallery` — see Recovering orphaned images
+- **Admin lockout**: the login rate-limit bucket keyed on `"unknown"` instead of the client IP, so 8
+  failed attempts from anywhere locked the real admin out
+- **Sticky broken everywhere**: the root layout wrapped every page in `overflow-x-hidden`
 
 ---
 
