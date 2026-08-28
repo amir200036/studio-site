@@ -47,7 +47,9 @@ export function collectReplacedImageUrls(
     // מפתח שלא נכלל בעדכון הזה עדיין מחזיק את הערך שלו — אסור להתייחס אליו כמוחלף
     if (!(row.key in next)) continue;
     const old = row.value?.trim();
-    if (!old || old === next[row.key]) continue;
+    // משווים מקוצץ מול מקוצץ — אחרת ערך ישן עם רווח נלווה נראה "מוחלף"
+    // והתמונה שעדיין בשימוש נמחקת
+    if (!old || old === next[row.key]?.trim()) continue;
     replaced.add(old);
   }
   return Array.from(replaced);

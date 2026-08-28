@@ -10,6 +10,7 @@ import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { WorkshopsPreview } from "@/components/home/WorkshopsPreview";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
+import { toJsonLd } from "@/lib/sanitize";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -87,7 +88,7 @@ export default async function HomePage() {
       {aggregateRatingSchema && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(aggregateRatingSchema) }}
+          dangerouslySetInnerHTML={{ __html: toJsonLd(aggregateRatingSchema) }}
         />
       )}
       <div>

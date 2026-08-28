@@ -7,6 +7,7 @@ import {
   STUDIO_STREET,
   formatStudioPhone,
 } from "@/lib/studio-contact";
+import { toJsonLd } from "@/lib/sanitize";
 
 export async function LocalBusinessJsonLd() {
   const siteUrl = getSiteUrl().replace(/\/$/, "");
@@ -51,7 +52,7 @@ export async function LocalBusinessJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: toJsonLd(schema) }}
     />
   );
 }

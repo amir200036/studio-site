@@ -9,8 +9,18 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const raw: Record<string, string> = await req.json();
-  const data = filterAllowedSiteContent(raw);
+  const raw: Record<string, string> = await req.json().catch(() => null);
+  if (!raw || typeof raw !== "object") {
+    return NextResponse.json({ error: "גוף בקשה לא תקין" }, { status: 400 });
+  }
+
+  const { data, rejected } = filterAllowedSiteContent(raw);
+  if (rejected.length > 0) {
+    return NextResponse.json(
+      { error: `כתובת תמונה לא חוקית: ${rejected.join(", ")}` },
+      { status: 400 }
+    );
+  }
 
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "אין מפתחות תקינים לעדכון" }, { status: 400 });

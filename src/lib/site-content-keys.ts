@@ -1,3 +1,5 @@
+import { isAllowedImageUrl } from "@/lib/sanitize";
+
 /** מפתחות SiteContent שהערך שלהם הוא URL של תמונה — משמשים גם לניקוי קבצים יתומים */
 export const IMAGE_CONTENT_KEYS = [
   "about_image",
@@ -25,12 +27,38 @@ export const SITE_CONTENT_KEYS = new Set<string>([
   ...IMAGE_CONTENT_KEYS,
 ]);
 
-export function filterAllowedSiteContent(data: Record<string, string>): Record<string, string> {
+const IMAGE_KEY_SET = new Set<string>(IMAGE_CONTENT_KEYS);
+
+/**
+ * מסנן מפתחות מותרים. ערכי תמונה נשמרים תמיד מקוצצי-רווחים ומאומתים —
+ * ערך עם רווח נלווה נשמר בעבר כמות שהוא, וניקוי ה-Blob (שמשווה ערך מדויק)
+ * היה מסמן תמונה בשימוש כמוחלפת ומוחק אותה.
+ * `rejected` מחזיק מפתחות תמונה עם URL לא חוקי, כדי שהראוט יחזיר שגיאה
+ * במקום "נשמר" שקרי.
+ */
+export function filterAllowedSiteContent(data: Record<string, string>): {
+  data: Record<string, string>;
+  rejected: string[];
+} {
   const filtered: Record<string, string> = {};
+  const rejected: string[] = [];
+
   for (const [key, value] of Object.entries(data)) {
     if (!SITE_CONTENT_KEYS.has(key)) continue;
     if (typeof value !== "string") continue;
+
+    if (IMAGE_KEY_SET.has(key)) {
+      const url = value.trim();
+      if (url && !isAllowedImageUrl(url)) {
+        rejected.push(key);
+        continue;
+      }
+      filtered[key] = url;
+      continue;
+    }
+
     filtered[key] = value;
   }
-  return filtered;
+
+  return { data: filtered, rejected };
 }

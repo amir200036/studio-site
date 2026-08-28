@@ -59,6 +59,48 @@ export function parseWorkshopInput(body: unknown): WorkshopInput | null {
   };
 }
 
+const WORKSHOP_PATCH_FIELDS = [
+  "name",
+  "date",
+  "durationHours",
+  "description",
+  "imageUrl",
+  "pricePerPerson",
+  "maxParticipants",
+  "status",
+  "whatsappMessage",
+] as const;
+
+/**
+ * PATCH חלקי לסדנה: שדה שלא נשלח שומר על ערכו הקיים.
+ * קריטי במיוחד ל-imageUrl — `parseWorkshopInput` היה מאפס אותו ל-null,
+ * וניקוי ה-Blob היה מוחק את הקובץ בעקבות זאת.
+ */
+export function parseWorkshopPatch(
+  body: unknown,
+  existing: {
+    name: string;
+    date: Date | null;
+    durationHours: number;
+    description: string;
+    imageUrl: string | null;
+    pricePerPerson: number;
+    maxParticipants: number;
+    status: string;
+    whatsappMessage: string | null;
+  }
+): WorkshopInput | null {
+  if (!body || typeof body !== "object") return null;
+  const b = body as Record<string, unknown>;
+
+  const merged: Record<string, unknown> = { ...existing };
+  for (const key of WORKSHOP_PATCH_FIELDS) {
+    if (key in b) merged[key] = b[key];
+  }
+
+  return parseWorkshopInput(merged);
+}
+
 export type BookingInput = {
   customerName: string;
   customerEmail: string;

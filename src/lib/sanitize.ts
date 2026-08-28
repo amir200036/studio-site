@@ -39,3 +39,15 @@ export function isAllowedImageUrl(url: string | null | undefined): boolean {
     return false;
   }
 }
+
+/**
+ * סריאליזציה בטוחה ל-<script type="application/ld+json">.
+ * JSON.stringify לא מברח "<", ולכן טקסט מהמסד שמכיל "</script>" היה
+ * סוגר את התגית ומאפשר הזרקת סקריפט.
+ */
+export function toJsonLd(value: unknown): string {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/>/g, "\\u003e")
+    .replace(/&/g, "\\u0026");
+}

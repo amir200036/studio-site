@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendCancellationEmail } from "@/lib/email";
-import { parseWorkshopInput } from "@/lib/admin-api-validation";
+import { parseWorkshopPatch } from "@/lib/admin-api-validation";
 import { requireAdminSession } from "@/lib/require-admin";
 import { deleteBlobIfUnreferenced } from "@/lib/blob-cleanup";
 
@@ -11,15 +11,13 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   const { error } = await requireAdminSession();
   if (error) return error;
 
-  const body = await req.json();
-  const data = parseWorkshopInput(body);
-  if (!data) return NextResponse.json({ error: "נתוני סדנה לא תקינים" }, { status: 400 });
+  const body = await req.json().catch(() => null);
 
-  const existing = await prisma.workshop.findUnique({
-    where: { id: params.id },
-    select: { imageUrl: true },
-  });
+  const existing = await prisma.workshop.findUnique({ where: { id: params.id } });
   if (!existing) return NextResponse.json({ error: "לא נמצאה" }, { status: 404 });
+
+  const data = parseWorkshopPatch(body, existing);
+  if (!data) return NextResponse.json({ error: "נתוני סדנה לא תקינים" }, { status: 400 });
 
   const workshop = await prisma.workshop.update({ where: { id: params.id }, data });
   if (existing.imageUrl && existing.imageUrl !== workshop.imageUrl) {

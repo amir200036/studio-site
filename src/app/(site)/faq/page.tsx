@@ -5,6 +5,7 @@ import { pageBackground } from "@/lib/utils";
 import { FAQAccordion } from "@/components/faq/FAQAccordion";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
+import { toJsonLd } from "@/lib/sanitize";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -61,7 +62,7 @@ export default async function FAQPage() {
       {faqSchema && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          dangerouslySetInnerHTML={{ __html: toJsonLd(faqSchema) }}
         />
       )}
       <div style={pageBackground("", content["bg_image_faq"] || "")}>
