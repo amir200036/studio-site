@@ -1,7 +1,8 @@
 export const dynamic = "force-dynamic";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { formatPrice } from "@/lib/utils";
+import { formatDateShort, formatPrice } from "@/lib/utils";
+import { ExternalLink, ImageOff } from "lucide-react";
 
 async function getWorkshops() {
   return prisma.workshop.findMany({
@@ -11,6 +12,12 @@ async function getWorkshops() {
 
 export default async function AdminWorkshopsPage() {
   const workshops = await getWorkshops();
+
+  const activeCount = workshops.filter((w) => w.status === "active").length;
+  const totalCapacity = workshops
+    .filter((w) => w.status === "active")
+    .reduce((sum, w) => sum + w.maxParticipants, 0);
+  const withoutImage = workshops.filter((w) => !w.imageUrl?.trim()).length;
 
   const statusColors: Record<string, string> = {
     active: "bg-green-100 text-green-700",
@@ -28,7 +35,10 @@ export default async function AdminWorkshopsPage() {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-stone-800">ניהול סדנאות</h1>
-          <p className="text-stone-400 mt-1">{workshops.length} סדנאות במערכת</p>
+          <p className="text-stone-400 mt-1">
+            {workshops.length} סדנאות · {activeCount} פעילות · {totalCapacity} מקומות
+            {withoutImage > 0 && ` · ${withoutImage} בלי תמונה`}
+          </p>
         </div>
         <Link
           href="/admin/workshops/new"
@@ -62,8 +72,14 @@ export default async function AdminWorkshopsPage() {
                 </div>
                 <div className="flex justify-between text-sm pt-1 border-t border-stone-100">
                   <span className="font-bold text-amber-700">{formatPrice(w.pricePerPerson)}</span>
-                  <span className="text-stone-500">עד {w.maxParticipants} משתתפים</span>
+                  <span className="text-stone-500">{w.durationHours} שע׳ · עד {w.maxParticipants} משתתפים</span>
                 </div>
+                {!w.imageUrl?.trim() && (
+                  <span className="inline-flex items-center gap-1 text-xs text-amber-600 font-medium">
+                    <ImageOff className="w-3.5 h-3.5" aria-hidden="true" />
+                    חסרה תמונה
+                  </span>
+                )}
               </Link>
             ))}
           </div>
@@ -73,8 +89,8 @@ export default async function AdminWorkshopsPage() {
               <table className="w-full text-sm">
                 <thead className="bg-stone-50 border-b border-stone-100">
                   <tr>
-                    {["שם הסדנה", "מחיר", "משתתפים", "סטטוס", "פעולות"].map((h) => (
-                      <th key={h} className="text-right px-4 py-3 font-semibold text-stone-600">{h}</th>
+                    {["שם הסדנה", "משך", "מחיר", "לשעה", "מקומות", "תמונה", "סטטוס", "נוצרה", "פעולות"].map((h) => (
+                      <th key={h} className="text-right px-4 py-3 font-semibold text-stone-600 whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
@@ -82,15 +98,41 @@ export default async function AdminWorkshopsPage() {
                   {workshops.map((w) => (
                     <tr key={w.id} className="border-b border-stone-50 hover:bg-stone-50 transition-colors">
                       <td className="px-4 py-3 font-medium text-stone-800">{w.name}</td>
-                      <td className="px-4 py-3">{formatPrice(w.pricePerPerson)}</td>
-                      <td className="px-4 py-3 text-stone-600">עד {w.maxParticipants}</td>
+                      <td className="px-4 py-3 text-stone-600 whitespace-nowrap">{w.durationHours} שע׳</td>
+                      <td className="px-4 py-3 font-medium text-amber-700 whitespace-nowrap">{formatPrice(w.pricePerPerson)}</td>
+                      <td className="px-4 py-3 text-stone-400 whitespace-nowrap">
+                        {w.durationHours > 0 ? formatPrice(Math.round(w.pricePerPerson / w.durationHours)) : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-stone-600 whitespace-nowrap">עד {w.maxParticipants}</td>
                       <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusColors[w.status] || ""}`}>
+                        {w.imageUrl?.trim() ? (
+                          <span className="text-green-600 text-xs font-medium">יש</span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-amber-600 text-xs font-medium" title="לסדנה אין תמונה">
+                            <ImageOff className="w-3.5 h-3.5" aria-hidden="true" />
+                            חסרה
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${statusColors[w.status] || ""}`}>
                           {statusLabels[w.status] || w.status}
                         </span>
                       </td>
+                      <td className="px-4 py-3 text-stone-400 text-xs whitespace-nowrap">{formatDateShort(w.createdAt)}</td>
                       <td className="px-4 py-3">
-                        <Link href={`/admin/workshops/${w.id}`} className="text-amber-700 hover:underline">עריכה</Link>
+                        <span className="flex items-center gap-3 whitespace-nowrap">
+                          <Link href={`/admin/workshops/${w.id}`} className="text-amber-700 hover:underline">עריכה</Link>
+                          <a
+                            href={`/workshops/${w.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-stone-400 hover:text-amber-700"
+                            title="צפייה בדף באתר"
+                          >
+                            <ExternalLink className="w-4 h-4" aria-hidden="true" />
+                          </a>
+                        </span>
                       </td>
                     </tr>
                   ))}

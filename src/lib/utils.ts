@@ -24,6 +24,17 @@ export function formatDate(date: Date | string | null | undefined): string {
   });
 }
 
+/** תאריך קצר לטבלאות — 28.8.2026 */
+export function formatDateShort(date: Date | string | null | undefined): string {
+  if (date == null) return "—";
+  return new Date(date).toLocaleDateString("he-IL", {
+    timeZone: TZ,
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+  });
+}
+
 export function formatDateTime(date: Date | string | null | undefined): string {
   if (date == null) return "—";
   return new Date(date).toLocaleDateString("he-IL", {
