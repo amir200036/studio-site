@@ -342,7 +342,7 @@ Registration runs through WhatsApp, so the dashboard / bookings / customers page
 - **Events** — create/edit/delete events. Each event has: name, description, image URL (with upload), custom WhatsApp message, active/hidden toggle
 - **Gallery** — moved out of the tabs into its own page at `/admin/gallery`
 - **Reviews** — admin fills reviews directly (approved=true automatically), delete
-- **Terms** — free-text editor. Use `**Section Title**` for bold headings
+- **Terms** — free-text editor. Use `**Section Title**` for bold headings. The live text is the `terms_content` row, not `src/lib/default-terms.ts`; when the default is updated, "טען את הנוסח המעודכן" copies it into the editor (saved only on שמירה)
 - **Backgrounds** — global background colour, hero heading colour (`hero_text_color`), and a background image per public page
 - **שעות פעילות** — opening hours shown on `/contact`; replaced the standalone `/admin/settings` page
 

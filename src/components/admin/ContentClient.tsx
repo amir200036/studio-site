@@ -460,7 +460,22 @@ function TermsTab({ content }: { content: Record<string, string> }) {
     <div className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-4 max-w-4xl">
       <div>
         <p className="text-sm text-stone-500 mb-1">עצבו את תוכן התקנון. השתמשו ב-<code className="bg-stone-100 px-1 rounded">**כותרת**</code> לכותרות סעיפים ושורה ריקה בין פסקאות.</p>
-        <a href="/terms" target="_blank" className="text-xs text-amber-600 hover:underline">צפייה בתקנון ←</a>
+        <div className="flex flex-wrap items-center gap-3">
+          <a href="/terms" target="_blank" className="text-xs text-amber-600 hover:underline">צפייה בתקנון ←</a>
+          {text !== DEFAULT_TERMS && (
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm("להחליף את הטקסט בעורך בנוסח המעודכן של התקנון? השינוי יישמר רק אחרי לחיצה על שמירה.")) {
+                  setText(DEFAULT_TERMS);
+                }
+              }}
+              className="text-xs px-3 py-1.5 rounded-lg border border-amber-300 text-amber-800 hover:bg-amber-50"
+            >
+              טען את הנוסח המעודכן
+            </button>
+          )}
+        </div>
       </div>
       <textarea
         rows={28}
