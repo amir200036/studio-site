@@ -78,7 +78,6 @@ export function WorkshopForm({ workshop }: Props) {
   }
 
   const durationNum = parseFloat(duration) || 0;
-  const priceNum = parseFloat(price) || 0;
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 shadow-sm border border-stone-100 flex flex-col gap-4 max-w-4xl">
@@ -117,7 +116,7 @@ export function WorkshopForm({ workshop }: Props) {
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="מחיר לאדם (₪)">
+        <Field label="מחיר לאדם (₪) — לשימוש פנימי, לא מוצג באתר">
           <input type="number" required min="0" value={price} onChange={(e) => setPrice(e.target.value)}
             className={adminInputClass} />
         </Field>
@@ -142,7 +141,6 @@ export function WorkshopForm({ workshop }: Props) {
           onChange={setWhatsappMessage}
           workshopName={name}
           durationHours={durationNum}
-          pricePerPerson={priceNum}
         />
       </div>
 

@@ -18,19 +18,6 @@ export type WorkshopWhatsAppParams = {
 
 const PRICE_TOKENS = ["{{pricePerPerson}}", "{{total}}"];
 
-/** תבנית ברירת מחדל (כש־whatsappMessage ריק בעריכת סדנה) */
-const DEFAULT_WHATSAPP_TEMPLATE = `שלום! אני מעוניין/ת להירשם לסדנה {{workshopName}}
-משך הסדנה: {{durationHours}} שעות
-מספר מקומות: {{seats}}
-שם מלא: {{customerName}}`;
-
-export function buildDefaultWorkshopInquiryMessage(params: WorkshopWhatsAppParams): string {
-  let msg = applyWorkshopWhatsAppTemplate(DEFAULT_WHATSAPP_TEMPLATE, params);
-  const email = params.customerEmail?.trim();
-  if (email) msg += `\nמייל: ${email}`;
-  return msg;
-}
-
 /**
  * מילוי תבנית מותאמת מהמנהל.
  * משתנים: {{workshopName}}, {{customerName}}, {{seats}},
@@ -64,51 +51,39 @@ export function applyWorkshopWhatsAppTemplate(template: string, params: Workshop
   return out;
 }
 
-export function buildWorkshopInquiryMessage(
-  params: WorkshopWhatsAppParams,
-  customTemplate?: string | null
-): string {
-  const t = customTemplate?.trim();
-  if (t) return applyWorkshopWhatsAppTemplate(t, params);
-  return buildDefaultWorkshopInquiryMessage(params);
-}
-
-export function workshopWhatsAppHref(
-  params: WorkshopWhatsAppParams,
-  phone: string,
-  customTemplate?: string | null
-): string {
-  const message = buildWorkshopInquiryMessage(params, customTemplate);
-  return buildWhatsAppUrl(phone, message);
-}
-
 /** משתנים שאין להם ערך כשהלקוח רק לוחץ "דברו איתנו" בלי למלא טופס */
 const FORM_ONLY_TOKENS = ["{{customerName}}", "{{customerEmail}}", "{{seats}}"];
 
+type InterestWorkshop = {
+  name: string;
+  date?: Date | string | null;
+  durationHours: number;
+  whatsappMessage?: string | null;
+};
+
 /**
- * קישור WhatsApp מדף הסדנה — לחיצה אחת, בלי טופס.
+ * ההודעה שנפתחת כשלוחצים "דברו איתנו ב-WhatsApp" בדף הסדנה — לחיצה אחת, בלי טופס.
  * אם המנהל שמר תבנית לסדנה, היא משמשת בלי השורות שתלויות בטופס (שם, מקומות)
  * ובלי שורות המחיר. אחרת — הודעה קצרה עם שם הסדנה.
  */
-export function workshopInterestWhatsAppHref(
-  workshop: { name: string; date?: Date | string | null; durationHours: number; whatsappMessage?: string | null },
-  phone: string
-): string {
+export function workshopInterestMessage(workshop: InterestWorkshop): string {
   const template = workshop.whatsappMessage
     ?.split("\n")
     .filter((line) => !FORM_ONLY_TOKENS.some((token) => line.includes(token)))
     .join("\n")
     .trim();
-  const message = template
-    ? applyWorkshopWhatsAppTemplate(template, {
-        workshopName: workshop.name,
-        workshopDate: workshop.date ?? null,
-        durationHours: workshop.durationHours,
-        pricePerPerson: 0,
-        seats: 1,
-        total: 0,
-        customerName: "",
-      })
-    : `שלום! אשמח לקבל פרטים על ${workshop.name} 🙂`;
-  return buildWhatsAppUrl(phone, message);
+  if (!template) return `שלום! אשמח לקבל פרטים על ${workshop.name} 🙂`;
+  return applyWorkshopWhatsAppTemplate(template, {
+    workshopName: workshop.name,
+    workshopDate: workshop.date ?? null,
+    durationHours: workshop.durationHours,
+    pricePerPerson: 0,
+    seats: 1,
+    total: 0,
+    customerName: "",
+  });
+}
+
+export function workshopInterestWhatsAppHref(workshop: InterestWorkshop, phone: string): string {
+  return buildWhatsAppUrl(phone, workshopInterestMessage(workshop));
 }

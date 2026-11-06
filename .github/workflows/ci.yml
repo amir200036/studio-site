@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    # מסד ריק ומקומי לבנייה בלבד. CI לא רואה אף סוד של Vercel ולא מגיע למסד החי.
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: studio_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      POSTGRES_URL: postgresql://ci:ci@localhost:5432/studio_ci
+      POSTGRES_PRISMA_URL: postgresql://ci:ci@localhost:5432/studio_ci
+      POSTGRES_URL_NON_POOLING: postgresql://ci:ci@localhost:5432/studio_ci
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/studio_ci
+      NEXTAUTH_SECRET: ci-only-secret-not-used-anywhere-else-0123456789
+      NEXTAUTH_URL: http://127.0.0.1:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Create the schema in the CI database
+        run: npx prisma db push
+
+      - name: Typecheck, lint, unit tests, build, runtime audit
+        run: npm run verify

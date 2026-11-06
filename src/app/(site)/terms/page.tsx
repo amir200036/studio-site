@@ -10,7 +10,7 @@ import { DEFAULT_TERMS, TERMS_LAST_UPDATED } from "@/lib/default-terms";
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 export const metadata: Metadata = {
-  title: "תנאי שימוש | יד יוצרת — סדנת קדרות בנס ציונה",
+  title: "תנאי שימוש",
   description:
     "תקנון ותנאי שימוש של סדנת קדרות יד יוצרת — מדיניות ביטול, החזרים, תשלומים ופרטיות.",
   alternates: {

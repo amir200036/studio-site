@@ -14,7 +14,7 @@ import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 export const metadata: Metadata = {
-  title: "אירועים מיוחדים וגיבוש חברה | יד יוצרת — סדנת קדרות בנס ציונה",
+  title: "אירועים מיוחדים וגיבוש חברה",
   description:
     "ימי הולדת, גיבוש חברה ואירועים מיוחדים בסדנת קדרות בנס ציונה. חוויה ייחודית שכולם ייזכרו — צרו קשר לפרטים.",
   alternates: {

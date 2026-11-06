@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!workshop || workshop.status !== "active") {
     return { title: "סדנה" };
   }
-  const title = `${workshop.name} | סדנאות קדרות — יד יוצרת`;
+  const title = workshop.name;
   const when = workshop.date
     ? `${formatDate(workshop.date)} · `
     : `${workshop.durationHours} שעות · מועד ב-WhatsApp · `;

@@ -11,11 +11,11 @@
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 14 (App Router) |
+| Framework | Next.js 16 (App Router) + React 19 — `src/proxy.ts` replaces `middleware.ts`; route `params` are Promises |
 | Language | TypeScript |
 | Styling | Tailwind CSS v3 + PostCSS + autoprefixer |
 | Database | Prisma 7 + PostgreSQL (Vercel Postgres, both dev and prod) |
-| Auth | NextAuth.js v4 (Credentials provider, JWT strategy) + middleware.ts |
+| Auth | NextAuth.js v4 (Credentials provider, JWT strategy) + `src/proxy.ts`; every `/api/admin/*` handler also checks the session |
 | Public checkout | אין — הרשמה לסדנה דרך WhatsApp מדף `/workshops/[id]` |
 | Prices | **Never shown publicly.** `pricePerPerson` stays in the DB and the admin, but no public page, meta description or WhatsApp message shows it; template lines with `{{pricePerPerson}}` / `{{total}}` are dropped (`src/lib/workshop-whatsapp.ts`) |
 | Email | Resend API (via direct fetch, not resend npm package) |
@@ -24,7 +24,8 @@
 | Icons | Lucide React |
 | Fonts | Google Fonts — Assistant (Hebrew + Latin) + Rubik 800 for headings |
 | Form handling | plain React state — there is no react-hook-form / zod in this project |
-| Utilities | clsx, tailwind-merge, bcryptjs, heic2any (HEIC → JPEG on iPhone uploads) |
+| Utilities | clsx, tailwind-merge, bcryptjs, heic2any (HEIC → JPEG on iPhone uploads), sharp (re-encodes every upload) |
+| Tests / CI | Vitest (`src/**/*.test.ts`), ESLint 9 flat config; `.github/workflows/ci.yml` runs `npm run verify` on every push |
 
 ---
 
@@ -130,14 +131,13 @@ studio-site/
 │   ├── schema.prisma          # DB models (PostgreSQL)
 │   └── seed.ts                # Sample data seeder
 ├── prisma.config.ts           # CLI datasource URL (Prisma 7) — reads .env.local then .env
-├── public/
-│   ├── llms.txt               # AI agent map (edit URLs if domain changes)
-│   └── robots.txt             # Bot permissions + sitemap URL (edit Sitemap line in prod)
 ├── src/
 │   ├── app/
 │   │   ├── layout.tsx         # Root layout — HTML, body, fonts, JSON-LD LocalBusiness, Vercel Analytics
 │   │   ├── globals.css        # @tailwind directives only
 │   │   ├── sitemap.ts         # Dynamic sitemap — static pages + visible public workshops
+│   │   ├── robots.ts          # robots.txt — production only; /admin and /api/ excluded in EVERY bot group
+│   │   ├── llms.txt/route.ts  # /llms.txt for AI agents, built from the DB (src/lib/llms-txt.ts)
 │   │   ├── error.tsx          # Global error boundary
 │   │   ├── not-found.tsx      # 404 page
 │   │   ├── (site)/            # Route group — PUBLIC pages
@@ -170,7 +170,7 @@ studio-site/
 │   ├── components/
 │   │   ├── layout/            # Navbar.tsx, Footer.tsx
 │   │   ├── home/              # HeroSection.tsx, AboutSection.tsx, GallerySection.tsx, ReviewsSection.tsx, WorkshopsPreview.tsx
-│   │   ├── workshops/         # WorkshopCard.tsx, WorkshopWhatsAppForm.tsx
+│   │   ├── workshops/         # WorkshopCard.tsx, WorkshopInterestLink.tsx (one WhatsApp button, no form)
 │   │   ├── faq/               # FAQAccordion.tsx
 │   │   ├── contact/           # ContactForm.tsx
 │   │   └── admin/             # AdminNavbar, ContentClient, GalleryImagePicker, GalleryLibraryPanel,
@@ -183,7 +183,7 @@ studio-site/
 │   │   ├── rate-limit.ts      # In-memory rate limiter
 │   │   ├── site-url.ts        # getSiteUrl() for canonical URLs
 │   │   └── utils.ts           # cn(), formatPrice(), formatDate(), formatDateTime(), formatTime(), buildWhatsAppUrl(), pageBackground(), getAvailableSeats()
-│   └── middleware.ts          # NextAuth withAuth — protects /admin/* routes
+│   └── proxy.ts               # NextAuth withAuth for /admin/*, auth POST rate limit, malformed cookie → login
 ```
 
 ### Important: Route Groups
@@ -355,7 +355,8 @@ if (session) return <AdminNavbar> + <main>{children}</main>
 The `(site)` Navbar/Footer never appears in `/admin/*` — they use separate layouts.
 
 ### Admin Route Protection:
-`src/middleware.ts` uses `next-auth/middleware` `withAuth` to protect all `/admin/*` paths (except `/admin/login`).
+`src/proxy.ts` uses `next-auth/middleware` `withAuth` to protect all `/admin/*` paths (except `/admin/login`).
+The proxy is not the only guard: every `/api/admin/*` handler calls `requireAdminSession` itself.
 
 ### Image Upload:
 `GalleryImagePicker` handles both URL input and file upload. The API route `/api/admin/upload` accepts
@@ -469,8 +470,9 @@ returning, so an edit appears on the site immediately instead of waiting out the
 add a mutating admin route, add that call** — otherwise the change will look like it did not save.
 Never call it from a GET handler.
 
-Public queries go through `safeDbQuery`, so a database outage prerenders empty content rather than
-crashing; ISR re-renders it once the database is back.
+Public queries go through `safeDbQuery`. Only transient connection errors (P1001/P1002/P1008/P1017)
+fall back to empty content; anything else is rethrown, so a failed ISR regeneration keeps serving the
+last good page instead of caching an empty one. Every failure is logged through `securityLog`.
 
 ### Canonical site URL:
 Use `getSiteUrl()` from `src/lib/site-url.ts` anywhere you need an absolute URL (metadata `alternates`, OpenGraph, sitemap, JSON-LD). Order: `NEXT_PUBLIC_SITE_URL` → `https://${VERCEL_URL}` → `http://localhost:3000`.
@@ -518,6 +520,8 @@ For production with multiple instances → replace with Upstash Redis.
 ```bash
 npm run dev          # Start dev server (port 3000)
 npm run build        # Production build
+npm run verify       # typecheck + lint + unit tests + build + runtime npm audit (what CI runs)
+npm test             # Vitest unit tests
 npm run db:push      # Apply schema changes — targets LOCAL studio_dev
 npm run db:seed      # DESTRUCTIVE: deleteMany() on every table, then demo data — targets LOCAL studio_dev
 npm run db:studio    # Prisma Studio (visual DB browser) — targets LOCAL studio_dev
@@ -580,8 +584,8 @@ Populates:
 
 | Location | Type | Notes |
 |---|---|---|
-| `src/app/layout.tsx` | `LocalBusiness` + `ArtStudio` | Static — hardcoded address, geo, hours |
-| `src/app/(site)/page.tsx` | `LocalBusiness` + `AggregateRating` | Dynamic — calculated from approved reviews; only rendered when reviews exist |
+| `src/components/seo/LocalBusinessJsonLd.tsx` | `LocalBusiness` + `ArtStudio` | Address/geo from `studio-contact.ts`; `openingHoursSpecification` parsed from the admin hours text (`src/lib/opening-hours.ts`) — omitted entirely if any line does not parse. No `priceRange`: prices are never published |
+| `src/app/(site)/page.tsx` | `LocalBusiness` + `AggregateRating` | Average and count over **all** approved reviews (`prisma.review.aggregate`), not just the 6 shown |
 | `src/app/(site)/faq/page.tsx` | `FAQPage` | Dynamic — built from DB FAQs; only rendered when FAQs exist |
 
 All schemas use `https://schema.org` context. No `Event` schema is currently rendered on the workshops page. Workshop detail URLs exist at `/workshops/[id]` and are included in the sitemap.
@@ -591,8 +595,8 @@ All schemas use `https://schema.org` context. No `Event` schema is currently ren
 ## GEO & AI Optimization
 
 ### קבצים שאסור למחוק או לשנות מבלי להבין למה
-- `public/llms.txt` — מפת דרכים לסוכני AI (GPTBot, ClaudeBot, PerplexityBot וכו'); עדכנו קישורים אם הדומיין משתנה
-- `public/robots.txt` — הרשאות לבוטי AI ומיקום sitemap; עדכנו שורת `Sitemap` בפרודקשן
+- `src/app/llms.txt/route.ts` — מפת דרכים לסוכני AI (GPTBot, ClaudeBot, PerplexityBot וכו'), נבנית מהמסד; הכתובות מ-`getSiteUrl()`
+- `src/app/robots.ts` — הרשאות לבוטי AI ומיקום sitemap. בוט מציית רק לקבוצה שלו, לכן `/admin` ו-`/api/` חסומים בכל קבוצה
 - `src/app/sitemap.ts` — sitemap דינמי עם דפים סטטיים וסדנאות ציבוריות פעילות
 
 ### עקרונות GEO לכתיבת תוכן
@@ -604,7 +608,7 @@ All schemas use `https://schema.org` context. No `Event` schema is currently ren
 
 ### חוקי זהב
 - אין לחסום בוטי AI ב-robots.txt
-- כל שינוי בתוכן הדפים = שיקול בעדכון `public/llms.txt`
+- כל שינוי בתוכן הדפים = שיקול בעדכון `src/lib/llms-txt.ts`
 - שמות דפים, כתובות וטלפונים — חייבים להיות זהים בכל מקום (NAP consistency)
 - סדנאות חדשות נכנסות אוטומטית ל-sitemap
 

@@ -13,7 +13,7 @@ import { safeDbQuery } from "@/lib/safe-db";
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 export const metadata: Metadata = {
-  title: "סדנאות קדרות בנס ציונה | יד יוצרת — הרשמה ב-WhatsApp",
+  title: "סדנאות קדרות — פרטים ב-WhatsApp",
   description:
     "כל סדנאות הקדרות הקרובות בנס ציונה — פרטים והרשמה ישירה ב-WhatsApp. מתאים למתחילים ומנוסים כאחד.",
   alternates: {

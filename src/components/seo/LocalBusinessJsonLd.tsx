@@ -8,6 +8,7 @@ import {
   formatStudioPhone,
 } from "@/lib/studio-contact";
 import { toJsonLd } from "@/lib/sanitize";
+import { parseOpeningHours } from "@/lib/opening-hours";
 
 export async function LocalBusinessJsonLd() {
   const siteUrl = getSiteUrl().replace(/\/$/, "");
@@ -22,6 +23,8 @@ export async function LocalBusinessJsonLd() {
 
   const content: Record<string, string> = {};
   rows.forEach((r) => (content[r.key] = r.value));
+
+  const openingHoursSpecification = parseOpeningHours(content.hours);
 
   const schema = {
     "@context": "https://schema.org",
@@ -44,7 +47,8 @@ export async function LocalBusinessJsonLd() {
     areaServed: { "@type": "City", name: STUDIO_CITY },
     telephone: formatStudioPhone(),
     email: STUDIO_EMAIL,
-    openingHours: "Su-Th 09:00-20:00",
+    // מתוך שעות הפעילות שבפאנל. טקסט שלא מתפרש מלא — בלי שעות בכלל, לא שעות שגויות.
+    ...(openingHoursSpecification ? { openingHoursSpecification } : {}),
     sameAs: [],
   };
 

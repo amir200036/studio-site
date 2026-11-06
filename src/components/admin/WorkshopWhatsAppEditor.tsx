@@ -1,26 +1,17 @@
 "use client";
 
 import { useMemo, useRef } from "react";
-import {
-  applyWorkshopWhatsAppTemplate,
-  buildDefaultWorkshopInquiryMessage,
-} from "@/lib/workshop-whatsapp";
+import { workshopInterestMessage } from "@/lib/workshop-whatsapp";
 import { adminInputClass } from "@/lib/admin-ui";
 
 const INSERT_FIELDS: { label: string; token: string }[] = [
   { label: "שם הסדנה", token: "{{workshopName}}" },
-  { label: "שם הלקוח", token: "{{customerName}}" },
-  { label: "מספר מקומות", token: "{{seats}}" },
   { label: "משך (שעות)", token: "{{durationHours}}" },
 ];
 
 const SAMPLE = {
   workshopName: "סדנת יסודות הקדרות",
   durationHours: 3,
-  pricePerPerson: 180,
-  seats: 2,
-  total: 360,
-  customerName: "ישראל ישראלי",
 };
 
 interface Props {
@@ -28,7 +19,6 @@ interface Props {
   onChange: (value: string) => void;
   workshopName: string;
   durationHours: number;
-  pricePerPerson: number;
 }
 
 export function WorkshopWhatsAppEditor({
@@ -36,7 +26,6 @@ export function WorkshopWhatsAppEditor({
   onChange,
   workshopName,
   durationHours,
-  pricePerPerson,
 }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -61,24 +50,21 @@ export function WorkshopWhatsAppEditor({
     onChange("");
   }
 
-  const preview = useMemo(() => {
-    const params = {
-      workshopName: workshopName.trim() || SAMPLE.workshopName,
-      durationHours: durationHours > 0 ? durationHours : SAMPLE.durationHours,
-      pricePerPerson: pricePerPerson > 0 ? pricePerPerson : SAMPLE.pricePerPerson,
-      seats: SAMPLE.seats,
-      total: (pricePerPerson > 0 ? pricePerPerson : SAMPLE.pricePerPerson) * SAMPLE.seats,
-      customerName: SAMPLE.customerName,
-    };
-    const trimmed = value.trim();
-    if (!trimmed) return buildDefaultWorkshopInquiryMessage(params);
-    return applyWorkshopWhatsAppTemplate(trimmed, params);
-  }, [value, workshopName, durationHours, pricePerPerson]);
+  // אותה פונקציה שבונה את ההודעה בדף הסדנה — התצוגה המקדימה היא בדיוק מה שהלקוח יראה
+  const preview = useMemo(
+    () =>
+      workshopInterestMessage({
+        name: workshopName.trim() || SAMPLE.workshopName,
+        durationHours: durationHours > 0 ? durationHours : SAMPLE.durationHours,
+        whatsappMessage: value,
+      }),
+    [value, workshopName, durationHours]
+  );
 
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-stone-500 leading-relaxed">
-        ההודעה שתיפתח ללקוח/ה ב-WhatsApp אחרי מילוי הטופס. השאירו ריק לברירת המחדל של האתר.
+        ההודעה שנפתחת ללקוח/ה ב-WhatsApp בלחיצה על ״דברו איתנו״ בדף הסדנה. השאירו ריק להודעת ברירת המחדל.
       </p>
 
       <div className="flex flex-wrap gap-2">
@@ -107,12 +93,12 @@ export function WorkshopWhatsAppEditor({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={adminInputClass + " resize-y text-base leading-relaxed"}
-        placeholder={`לדוגמה:\nשלום! אשמח להירשם ל{{workshopName}}\nשם: {{customerName}}\nמקומות: {{seats}}`}
+        placeholder={`לדוגמה:\nשלום! אשמח לשמוע על {{workshopName}} ({{durationHours}} שעות)`}
         dir="rtl"
       />
 
       <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
-        <p className="text-xs font-semibold text-stone-500 mb-2">תצוגה מקדימה (דוגמה)</p>
+        <p className="text-xs font-semibold text-stone-500 mb-2">כך ההודעה תיראה ללקוח</p>
         <p className="text-sm text-stone-700 whitespace-pre-line leading-relaxed">{preview}</p>
       </div>
     </div>

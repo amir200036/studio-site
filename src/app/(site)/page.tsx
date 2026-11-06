@@ -17,7 +17,7 @@ import { toJsonLd } from "@/lib/sanitize";
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 export const metadata: Metadata = {
-  title: "סדנת קדרות בנס ציונה | יד יוצרת — חוויה יצירתית לזוגות, משפחות וחברות",
+  title: { absolute: "סדנת קדרות בנס ציונה | יד יוצרת — חוויה יצירתית לזוגות, משפחות וחברות" },
   description:
     "סדנאות קדרות וקרמיקה בנס ציונה — חוויה יצירתית לזוגות, משפחות, ימי הולדת וגיבוש. מדריכים מנוסים, אווירה חמה. הזמינו מקום עכשיו!",
   alternates: {
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
 
 async function getHomeData() {
   return safeDbQuery(async () => {
-    const [contentRows, gallery, reviews, workshops] = await Promise.all([
+    const [contentRows, gallery, reviews, workshops, ratingStats] = await Promise.all([
       prisma.siteContent.findMany(),
       prisma.galleryImage.findMany({
         where: { showOnHomepage: true },
@@ -50,6 +50,12 @@ async function getHomeData() {
         orderBy: { createdAt: "desc" },
         take: 6,
       }),
+      // הדירוג מחושב מכל הביקורות המאושרות, לא רק מ-6 שמוצגות בעמוד
+      prisma.review.aggregate({
+        where: { approved: true },
+        _avg: { rating: true },
+        _count: { _all: true },
+      }),
     ]);
 
     const content: Record<string, string> = {};
@@ -57,19 +63,19 @@ async function getHomeData() {
     const openWorkshops = workshops
       .filter((w) => getAvailableSeats(w.maxParticipants, w.bookings) > 0)
       .slice(0, 3);
-    return { content, gallery, reviews, workshops: openWorkshops };
-  }, { content: {}, gallery: [], reviews: [], workshops: [] });
+    const rating = { average: ratingStats._avg.rating ?? 0, count: ratingStats._count._all };
+    return { content, gallery, reviews, workshops: openWorkshops, rating };
+  }, { content: {}, gallery: [], reviews: [], workshops: [], rating: { average: 0, count: 0 } });
 }
 
 export default async function HomePage() {
-  const { content, gallery, reviews, workshops } = await getHomeData();
+  const { content, gallery, reviews, workshops, rating } = await getHomeData();
   const hasBgImage = !!content["bg_image_home"];
 
   // AggregateRating JSON-LD — only when approved reviews exist
   let aggregateRatingSchema = null;
-  if (reviews.length > 0) {
-    const totalRating = reviews.reduce((sum, r) => sum + r.rating, 0);
-    const avgRating = (totalRating / reviews.length).toFixed(1);
+  if (rating.count > 0) {
+    const avgRating = rating.average.toFixed(1);
     aggregateRatingSchema = {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
@@ -78,7 +84,7 @@ export default async function HomePage() {
       aggregateRating: {
         "@type": "AggregateRating",
         ratingValue: avgRating,
-        reviewCount: reviews.length,
+        reviewCount: rating.count,
         bestRating: 5,
         worstRating: 1,
       },

@@ -12,7 +12,7 @@ import { toJsonLd } from "@/lib/sanitize";
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 export const metadata: Metadata = {
-  title: "שאלות נפוצות | יד יוצרת — סדנת קדרות בנס ציונה",
+  title: "שאלות נפוצות",
   description:
     "תשובות לשאלות הנפוצות ביותר על סדנאות קדרות בנס ציונה — רמות ניסיון, מדיניות ביטול, גיל מינימלי ועוד.",
   alternates: {

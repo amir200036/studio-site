@@ -7,16 +7,16 @@ import { pageBackground } from "@/lib/utils";
 import { ContactForm } from "@/components/contact/ContactForm";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
-import { STUDIO_ADDRESS, STUDIO_EMAIL, STUDIO_MAP_EMBED_URL, STUDIO_PHONE, formatStudioPhone, studioWhatsAppUrl } from "@/lib/studio-contact";
+import { STUDIO_ADDRESS, STUDIO_EMAIL, STUDIO_GOOGLE_MAPS_URL, STUDIO_MAP_EMBED_URL, STUDIO_PHONE, STUDIO_WAZE_URL, formatStudioPhone, studioWhatsAppUrl } from "@/lib/studio-contact";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
-import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, MessageCircle, Navigation, Phone } from "lucide-react";
 
 const ICON = "w-10 h-10 p-2.5 rounded-full bg-amber-50 text-amber-700 shrink-0";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
 export const metadata: Metadata = {
-  title: "יצירת קשר | יד יוצרת — סדנת קדרות בנס ציונה",
+  title: "יצירת קשר",
   description:
     "צרו קשר עם סדנת הקדרות יד יוצרת בנס ציונה — טלפון, WhatsApp, מייל וטופס יצירת קשר. אבנר בן יהודה 41, נס ציונה.",
   alternates: {
@@ -84,6 +84,26 @@ export default async function ContactPage() {
                 <div>
                   <div className="text-xs text-stone-500 mb-0.5">כתובת</div>
                   <div className="font-medium text-stone-700">{STUDIO_ADDRESS}</div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <a
+                      href={STUDIO_WAZE_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 min-h-10 px-4 rounded-full border border-amber-300 text-amber-800 font-semibold text-sm hover:bg-amber-50 transition-colors"
+                    >
+                      <Navigation className="w-4 h-4" aria-hidden="true" />
+                      Waze
+                    </a>
+                    <a
+                      href={STUDIO_GOOGLE_MAPS_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 min-h-10 px-4 rounded-full border border-amber-300 text-amber-800 font-semibold text-sm hover:bg-amber-50 transition-colors"
+                    >
+                      <MapPin className="w-4 h-4" aria-hidden="true" />
+                      Google Maps
+                    </a>
+                  </div>
                 </div>
               </div>
 
