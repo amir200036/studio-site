@@ -56,6 +56,7 @@ logs
 # Cache
 .cache/
 .turbo/
+/.worktrees/
 
 # Test
 /cypress/screenshots

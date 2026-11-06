@@ -19,11 +19,11 @@ import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
 
-type Props = { params: { id: string } };
+type Props = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const base = getSiteUrl().replace(/\/$/, "");
-  const { id } = params;
+  const { id } = await params;
   const workshop = await safeDbQuery(
     () =>
       prisma.workshop.findUnique({
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function WorkshopDetailPage({ params }: Props) {
-  const { id } = params;
+  const { id } = await params;
   const { workshop, content } = await safeDbQuery(async () => {
     const [w, rows] = await Promise.all([
       prisma.workshop.findUnique({

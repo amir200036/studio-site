@@ -4,9 +4,10 @@ import { sendCustomEmail } from "@/lib/email";
 import { parseAdminEmailInput } from "@/lib/admin-api-validation";
 import { requireAdminSession } from "@/lib/require-admin";
 
-interface Params { params: { id: string } }
+interface Params { params: Promise<{ id: string }> }
 
 export async function POST(req: NextRequest, { params }: Params) {
+  const { id } = await params;
   const { error } = await requireAdminSession();
   if (error) return error;
 
@@ -18,7 +19,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   const message = parsed.body;
 
   const workshop = await prisma.workshop.findUnique({
-    where: { id: params.id },
+    where: { id: id },
     include: { bookings: { where: { paymentStatus: "paid" } } },
   });
 

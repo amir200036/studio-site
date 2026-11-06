@@ -5,12 +5,13 @@ import { prisma } from "@/lib/prisma";
 import { revalidateSite } from "@/lib/revalidate-site";
 
 /** ביטול הרשמה במערכת (ללא תשלום אונליין — ללא החזר אוטומטי) */
-export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const booking = await prisma.booking.findUnique({
-    where: { id: params.id },
+    where: { id: id },
     include: { workshop: true },
   });
 

@@ -6,46 +6,65 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "admin:hash-password": "node scripts/hash-admin-password.mjs",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "audit:runtime": "node scripts/runtime-audit.mjs",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run build && npm run audit:runtime"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "^7.7.0",
-    "@prisma/client": "^7.7.0",
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
     "@types/pg": "^8.20.0",
     "@vercel/analytics": "^2.0.1",
-    "@vercel/blob": "^2.3.3",
+    "@vercel/blob": "2.8.2",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.1.1",
     "heic2any": "^0.0.4",
     "lucide-react": "^1.8.0",
-    "next": "14.2.35",
-    "next-auth": "^4.24.14",
+    "next": "16.4.5",
+    "next-auth": "4.24.15",
     "pg": "^8.20.0",
-    "prisma": "^7.7.0",
-    "react": "^18",
-    "react-dom": "^18",
-    "tailwind-merge": "^3.5.0"
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "tailwind-merge": "^3.5.0",
+    "sharp": "0.35.5"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.7",
     "autoprefixer": "^10.5.0",
     "dotenv": "^17.4.2",
-    "eslint": "^8",
-    "eslint-config-next": "^15.3.2",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.5",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "tsx": "^4.21.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11",
+    "prisma": "7.10.0"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "overrides": {
+    "baseline-browser-mapping": "2.11.22",
+    "browserslist": "4.28.9",
+    "deepmerge-ts": "8.0.2",
+    "mysql2": "3.24.4",
+    "undici": "6.29.1",
+    "source-map-js": "1.2.2",
+    "zod": "4.6.6",
+    "fast-uri": "3.1.9"
   }
 }

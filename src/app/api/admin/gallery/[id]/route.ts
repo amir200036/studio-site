@@ -4,7 +4,7 @@ import { deleteBlobIfUnreferenced } from "@/lib/blob-cleanup";
 import { requireAdminSession } from "@/lib/require-admin";
 import { revalidateSite } from "@/lib/revalidate-site";
 
-interface Params { params: { id: string } }
+interface Params { params: Promise<{ id: string }> }
 
 function parseGalleryPatch(body: unknown) {
   if (!body || typeof body !== "object") return null;
@@ -25,6 +25,7 @@ function parseGalleryPatch(body: unknown) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
+  const { id } = await params;
   const { error } = await requireAdminSession();
   if (error) return error;
 
@@ -34,19 +35,20 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json({ error: "אין שדות תקינים לעדכון" }, { status: 400 });
   }
 
-  const img = await prisma.galleryImage.update({ where: { id: params.id }, data });
+  const img = await prisma.galleryImage.update({ where: { id: id }, data });
   revalidateSite();
   return NextResponse.json(img);
 }
 
 export async function DELETE(_: NextRequest, { params }: Params) {
+  const { id } = await params;
   const { error } = await requireAdminSession();
   if (error) return error;
 
-  const existing = await prisma.galleryImage.findUnique({ where: { id: params.id } });
+  const existing = await prisma.galleryImage.findUnique({ where: { id: id } });
   if (!existing) return NextResponse.json({ error: "לא נמצא" }, { status: 404 });
 
-  await prisma.galleryImage.delete({ where: { id: params.id } });
+  await prisma.galleryImage.delete({ where: { id: id } });
   await deleteBlobIfUnreferenced(existing.url);
 
   revalidateSite();

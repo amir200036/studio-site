@@ -6,21 +6,22 @@ import { requireAdminSession } from "@/lib/require-admin";
 import { deleteBlobIfUnreferenced } from "@/lib/blob-cleanup";
 import { revalidateSite } from "@/lib/revalidate-site";
 
-interface Params { params: { id: string } }
+interface Params { params: Promise<{ id: string }> }
 
 export async function PATCH(req: NextRequest, { params }: Params) {
+  const { id } = await params;
   const { error } = await requireAdminSession();
   if (error) return error;
 
   const body = await req.json().catch(() => null);
 
-  const existing = await prisma.workshop.findUnique({ where: { id: params.id } });
+  const existing = await prisma.workshop.findUnique({ where: { id: id } });
   if (!existing) return NextResponse.json({ error: "לא נמצאה" }, { status: 404 });
 
   const data = parseWorkshopPatch(body, existing);
   if (!data) return NextResponse.json({ error: "נתוני סדנה לא תקינים" }, { status: 400 });
 
-  const workshop = await prisma.workshop.update({ where: { id: params.id }, data });
+  const workshop = await prisma.workshop.update({ where: { id: id }, data });
   if (existing.imageUrl && existing.imageUrl !== workshop.imageUrl) {
     await deleteBlobIfUnreferenced(existing.imageUrl);
   }
@@ -30,11 +31,12 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 }
 
 export async function DELETE(_: NextRequest, { params }: Params) {
+  const { id } = await params;
   const { error } = await requireAdminSession();
   if (error) return error;
 
   const workshop = await prisma.workshop.findUnique({
-    where: { id: params.id },
+    where: { id: id },
     include: { bookings: { where: { paymentStatus: "paid" } } },
   });
 
@@ -46,7 +48,7 @@ export async function DELETE(_: NextRequest, { params }: Params) {
     )
   );
 
-  await prisma.workshop.delete({ where: { id: params.id } });
+  await prisma.workshop.delete({ where: { id: id } });
   await deleteBlobIfUnreferenced(workshop.imageUrl);
 
   revalidateSite();

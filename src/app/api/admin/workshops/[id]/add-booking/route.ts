@@ -5,9 +5,10 @@ import { parseBookingInput } from "@/lib/admin-api-validation";
 import { requireAdminSession } from "@/lib/require-admin";
 import { revalidateSite } from "@/lib/revalidate-site";
 
-interface Params { params: { id: string } }
+interface Params { params: Promise<{ id: string }> }
 
 export async function POST(req: NextRequest, { params }: Params) {
+  const { id } = await params;
   const { error } = await requireAdminSession();
   if (error) return error;
 
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   if (!data) return NextResponse.json({ error: "נתוני הזמנה לא תקינים" }, { status: 400 });
 
   const workshop = await prisma.workshop.findUnique({
-    where: { id: params.id },
+    where: { id: id },
     include: { bookings: { where: { paymentStatus: "paid" } } },
   });
   if (!workshop) return NextResponse.json({ error: "לא נמצאה" }, { status: 404 });
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   const booking = await prisma.booking.create({
     data: {
-      workshopId: params.id,
+      workshopId: id,
       customerName: data.customerName,
       customerEmail: data.customerEmail,
       seats: data.seats,

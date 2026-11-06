@@ -4,12 +4,13 @@ import { notFound } from "next/navigation";
 import { WorkshopForm } from "@/components/admin/WorkshopForm";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function EditWorkshopPage({ params }: Props) {
+  const { id } = await params;
   const workshop = await prisma.workshop.findUnique({
-    where: { id: params.id },
+    where: { id: id },
   });
 
   if (!workshop) notFound();
