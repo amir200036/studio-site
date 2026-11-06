@@ -13,7 +13,8 @@ import {
   getAvailableSeats,
   pageBackground,
 } from "@/lib/utils";
-import { WorkshopWhatsAppForm } from "@/components/workshops/WorkshopWhatsAppForm";
+import { WorkshopInterestLink } from "@/components/workshops/WorkshopInterestLink";
+import { CalendarDays, Clock, Users } from "lucide-react";
 import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
@@ -77,11 +78,11 @@ export default async function WorkshopDetailPage({ params }: Props) {
       <div style={pageBackground("", content["bg_image_workshops"] || "")}>
         <div className="max-w-3xl mx-auto px-4 py-16">
           <Link href="/workshops" className="text-amber-700 hover:underline text-sm mb-6 inline-block">
-            ← חזרה לכל הסדנאות
+            → חזרה לכל הסדנאות
           </Link>
           <div className="bg-white rounded-2xl border border-stone-100 shadow-sm p-8 text-center">
             <h1 className="text-2xl font-bold text-stone-800 mb-2">{workshop.name}</h1>
-            <p className="text-stone-500">
+            <p className="text-stone-600">
               {isPast ? "סדנה זו כבר התקיימה." : "הסדנה מלאה."}
             </p>
           </div>
@@ -94,7 +95,7 @@ export default async function WorkshopDetailPage({ params }: Props) {
     <div style={pageBackground("", content["bg_image_workshops"] || "")}>
       <div className="max-w-3xl mx-auto px-4 py-10">
         <Link href="/workshops" className="text-amber-700 hover:underline text-sm mb-6 inline-block">
-          ← חזרה לכל הסדנאות
+          → חזרה לכל הסדנאות
         </Link>
 
         <div className="bg-white rounded-2xl border border-stone-100 shadow-sm overflow-hidden mb-8">
@@ -103,29 +104,37 @@ export default async function WorkshopDetailPage({ params }: Props) {
               <Image src={workshop.imageUrl} alt={workshop.name} fill className="object-cover" sizes="(max-width:768px) 100vw, 768px" priority />
             </div>
           ) : (
-            <div className="w-full h-48 bg-gradient-to-br from-amber-100 to-stone-200 flex items-center justify-center">
-              <span className="text-7xl opacity-40">🏺</span>
-            </div>
+            /* בלי תמונה — פס מבטא כמו ב-WorkshopCard, לא ריבוע ממלא מקום */
+            <div className="h-1.5 bg-gradient-to-l from-amber-500 via-amber-600 to-orange-500" aria-hidden="true" />
           )}
           <div className="p-6 md:p-8">
-            <h1 className="text-3xl font-bold text-amber-900 mb-2">{workshop.name}</h1>
-            {workshop.date ? (
-              <>
-                <p className="text-amber-700 font-medium mb-1">📅 {formatDate(workshop.date)}</p>
-                <p className="text-stone-500 text-sm mb-6">
-                  🕐 {formatTime(workshop.date)} · {workshop.durationHours} שעות · {formatWorkshopSeatsAvailability(available)}
-                </p>
-              </>
-            ) : (
-              <p className="text-stone-600 text-sm mb-6">
-                ⏱️ משך כ־{workshop.durationHours} שעות · המועד יתואם ב-WhatsApp · {formatWorkshopSeatsAvailability(available)}
-              </p>
-            )}
-            <p className="text-stone-600 leading-relaxed whitespace-pre-line">{workshop.description}</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-amber-900 mb-4">{workshop.name}</h1>
+            <ul className="flex flex-wrap gap-2 mb-6 text-sm">
+              {workshop.date && (
+                <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 font-medium">
+                  <CalendarDays className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  {formatDate(workshop.date)} · {formatTime(workshop.date)}
+                </li>
+              )}
+              <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 font-medium">
+                <Clock className="w-4 h-4 shrink-0" aria-hidden="true" />
+                כ־{workshop.durationHours} שעות
+              </li>
+              <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 text-amber-800 font-medium">
+                <Users className="w-4 h-4 shrink-0" aria-hidden="true" />
+                {formatWorkshopSeatsAvailability(available)}
+              </li>
+              {!workshop.date && (
+                <li className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-green-50 text-green-800 font-medium">
+                  המועד מתואם ב-WhatsApp
+                </li>
+              )}
+            </ul>
+            <p className="text-stone-700 text-lg leading-relaxed whitespace-pre-line">{workshop.description}</p>
           </div>
         </div>
 
-        <WorkshopWhatsAppForm workshop={workshop} whatsappNumber={waNumber} />
+        <WorkshopInterestLink workshop={workshop} whatsappNumber={waNumber} />
       </div>
     </div>
   );

@@ -81,3 +81,34 @@ export function workshopWhatsAppHref(
   const message = buildWorkshopInquiryMessage(params, customTemplate);
   return buildWhatsAppUrl(phone, message);
 }
+
+/** משתנים שאין להם ערך כשהלקוח רק לוחץ "דברו איתנו" בלי למלא טופס */
+const FORM_ONLY_TOKENS = ["{{customerName}}", "{{customerEmail}}", "{{seats}}"];
+
+/**
+ * קישור WhatsApp מדף הסדנה — לחיצה אחת, בלי טופס.
+ * אם המנהל שמר תבנית לסדנה, היא משמשת בלי השורות שתלויות בטופס (שם, מקומות)
+ * ובלי שורות המחיר. אחרת — הודעה קצרה עם שם הסדנה.
+ */
+export function workshopInterestWhatsAppHref(
+  workshop: { name: string; date?: Date | string | null; durationHours: number; whatsappMessage?: string | null },
+  phone: string
+): string {
+  const template = workshop.whatsappMessage
+    ?.split("\n")
+    .filter((line) => !FORM_ONLY_TOKENS.some((token) => line.includes(token)))
+    .join("\n")
+    .trim();
+  const message = template
+    ? applyWorkshopWhatsAppTemplate(template, {
+        workshopName: workshop.name,
+        workshopDate: workshop.date ?? null,
+        durationHours: workshop.durationHours,
+        pricePerPerson: 0,
+        seats: 1,
+        total: 0,
+        customerName: "",
+      })
+    : `שלום! אשמח לקבל פרטים על ${workshop.name} 🙂`;
+  return buildWhatsAppUrl(phone, message);
+}

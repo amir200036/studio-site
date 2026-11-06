@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Workshop, Booking } from "@prisma/client";
-import { Clock, MessageCircle, Users } from "lucide-react";
+import { ArrowLeft, Clock, Users } from "lucide-react";
 import { formatWorkshopSeatsAvailability, getAvailableSeats } from "@/lib/utils";
 
 type WorkshopWithBookings = Workshop & { bookings: Pick<Booking, "seats" | "paymentStatus">[] };
@@ -18,7 +18,7 @@ export function WorkshopCard({ workshop }: Props) {
     available === 0 ? "text-red-600" : available <= 3 ? "text-orange-600" : "text-green-700";
 
   return (
-    <article className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-stone-200/70 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1 transition-all duration-200 flex flex-col">
+    <article className="w-full group bg-white rounded-2xl overflow-hidden shadow-sm border border-stone-200/70 hover:shadow-xl hover:border-amber-200 hover:-translate-y-1 transition-all duration-200 flex flex-col">
       {hasImage ? (
         <Link
           href={`/workshops/${workshop.id}`}
@@ -50,7 +50,7 @@ export function WorkshopCard({ workshop }: Props) {
           </Link>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-stone-500">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-stone-600">
           <span className="inline-flex items-center gap-1.5">
             <Clock className="w-4 h-4 text-amber-600 shrink-0" aria-hidden="true" />
             {workshop.durationHours} שעות
@@ -69,8 +69,8 @@ export function WorkshopCard({ workshop }: Props) {
           href={`/workshops/${workshop.id}`}
           className="w-full py-3 min-h-12 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl transition-colors text-sm inline-flex items-center justify-center gap-2 mt-1"
         >
-          <MessageCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
-          פרטים והרשמה
+          לפרטים נוספים
+          <ArrowLeft className="w-4 h-4 shrink-0" aria-hidden="true" />
         </Link>
       </div>
     </article>

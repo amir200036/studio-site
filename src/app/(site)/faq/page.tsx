@@ -72,7 +72,7 @@ export default async function FAQPage() {
           <div className="mb-12 text-center">
             <div className="w-12 h-1 bg-amber-500 rounded-full mx-auto mb-4" />
             <h1 className="text-4xl font-bold text-amber-900">שאלות נפוצות</h1>
-            <p className="text-stone-500 mt-2 text-lg">כל מה שרציתם לדעת על הסטודיו שלנו</p>
+            <p className="text-stone-600 mt-2 text-lg">כל מה שרציתם לדעת על הסטודיו שלנו</p>
           </div>
 
           {faqs.length === 0 ? (

@@ -62,8 +62,21 @@ export function buildWhatsAppUrl(phone: string, message: string): string {
   return `https://wa.me/${clean}?text=${encodeURIComponent(message)}`;
 }
 
+/**
+ * רקע לעמוד שלם. מעל התמונה נפרסת שכבת קרם שקופה למחצה: הכותרות והטקסט
+ * יושבים ישירות על הרקע, ובלעדיה תמונה צבעונית או כהה הופכת אותם לבלתי
+ * קריאים. בלי background-attachment: fixed — iOS Safari מציג אותו כתמונה
+ * מוגדלת ומטושטשת.
+ */
 export function pageBackground(color: string, image: string): React.CSSProperties | undefined {
-  if (image) return { backgroundImage: `url(${image})`, backgroundSize: "cover", backgroundPosition: "center", backgroundAttachment: "fixed" };
+  if (image) {
+    const url = image.replace(/["\\\n]/g, "");
+    return {
+      backgroundImage: `linear-gradient(rgba(253, 248, 240, 0.86), rgba(253, 248, 240, 0.92)), url("${url}")`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+    };
+  }
   if (color) return { backgroundColor: color };
   return undefined;
 }

@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, MessageCircle, X } from "lucide-react";
+import { studioWhatsAppUrl } from "@/lib/studio-contact";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -46,7 +47,27 @@ export function Navbar({ bgColor }: { bgColor?: string }) {
               {link.label}
             </Link>
           ))}
+          <a
+            href={studioWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="ms-2 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-bold transition-colors shadow-sm"
+          >
+            <MessageCircle className="w-4 h-4" aria-hidden="true" />
+            WhatsApp
+          </a>
         </nav>
+
+        {/* מובייל: WhatsApp תמיד בהישג יד, ליד ההמבורגר */}
+        <a
+          href={studioWhatsAppUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="שלחו לנו WhatsApp"
+          className="md:hidden shrink-0 min-h-11 min-w-11 flex items-center justify-center rounded-full bg-green-600 hover:bg-green-700 text-white transition-colors"
+        >
+          <MessageCircle className="w-5 h-5" aria-hidden="true" />
+        </a>
 
         {/* המבורגר מובייל */}
         <button

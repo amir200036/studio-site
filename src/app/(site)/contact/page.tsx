@@ -9,6 +9,9 @@ import { getSiteUrl } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { STUDIO_ADDRESS, STUDIO_EMAIL, STUDIO_MAP_EMBED_URL, STUDIO_PHONE, formatStudioPhone, studioWhatsAppUrl } from "@/lib/studio-contact";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
+import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+
+const ICON = "w-10 h-10 p-2.5 rounded-full bg-amber-50 text-amber-700 shrink-0";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
 
@@ -53,7 +56,7 @@ export default async function ContactPage() {
         <div className="mb-10">
           <div className="w-12 h-1 bg-amber-500 rounded-full mb-4" />
           <h1 className="text-4xl font-bold text-amber-900">צרו קשר</h1>
-          <p className="text-stone-500 mt-2 text-lg">נשמח לשמוע מכם!</p>
+          <p className="text-stone-600 mt-2 text-lg">נשמח לשמוע מכם!</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -65,9 +68,9 @@ export default async function ContactPage() {
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-3 py-4 px-6 bg-green-500 hover:bg-green-600 text-white font-bold text-lg rounded-2xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                className="flex items-center justify-center gap-3 py-4 px-6 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-2xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
-                <span className="text-2xl">💬</span>
+                <MessageCircle className="w-6 h-6 shrink-0" aria-hidden="true" />
                 שלחו לנו WhatsApp — {formatStudioPhone()}
               </a>
             )}
@@ -77,17 +80,17 @@ export default async function ContactPage() {
               <h2 className="font-bold text-stone-800 text-lg border-b border-stone-100 pb-3">פרטי הסטודיו</h2>
 
               <div className="flex gap-3">
-                <span className="text-2xl">📍</span>
+                <MapPin className={ICON} aria-hidden="true" />
                 <div>
-                  <div className="text-xs text-stone-400 mb-0.5">כתובת</div>
+                  <div className="text-xs text-stone-500 mb-0.5">כתובת</div>
                   <div className="font-medium text-stone-700">{STUDIO_ADDRESS}</div>
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <span className="text-2xl">📞</span>
+                <Phone className={ICON} aria-hidden="true" />
                 <div>
-                  <div className="text-xs text-stone-400 mb-0.5">טלפון</div>
+                  <div className="text-xs text-stone-500 mb-0.5">טלפון</div>
                   <a href={`tel:${STUDIO_PHONE}`} className="font-medium text-amber-700 hover:text-amber-800">
                     {formatStudioPhone()}
                   </a>
@@ -95,9 +98,9 @@ export default async function ContactPage() {
               </div>
 
               <div className="flex gap-3">
-                <span className="text-2xl">✉️</span>
+                <Mail className={ICON} aria-hidden="true" />
                 <div>
-                  <div className="text-xs text-stone-400 mb-0.5">מייל</div>
+                  <div className="text-xs text-stone-500 mb-0.5">מייל</div>
                   <a href={`mailto:${STUDIO_EMAIL}`} className="font-medium text-amber-700 hover:text-amber-800" dir="ltr">
                     {STUDIO_EMAIL}
                   </a>
@@ -106,9 +109,9 @@ export default async function ContactPage() {
 
               {info.hours && (
                 <div className="flex gap-3">
-                  <span className="text-2xl">🕐</span>
+                  <Clock className={ICON} aria-hidden="true" />
                   <div>
-                    <div className="text-xs text-stone-400 mb-0.5">שעות פעילות</div>
+                    <div className="text-xs text-stone-500 mb-0.5">שעות פעילות</div>
                     <div className="font-medium text-stone-700 whitespace-pre-wrap">{info.hours}</div>
                   </div>
                 </div>

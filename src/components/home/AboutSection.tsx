@@ -33,7 +33,7 @@ export function AboutSection({ content }: Props) {
             {stats.map((s) => (
               <div key={s.label} className="text-center px-2">
                 <div className="text-2xl sm:text-4xl font-extrabold text-amber-700">{s.num}</div>
-                <div className="text-xs sm:text-sm text-stone-500 mt-1 leading-tight">{s.label}</div>
+                <div className="text-xs sm:text-sm text-stone-600 mt-1 leading-tight">{s.label}</div>
               </div>
             ))}
           </div>
@@ -69,7 +69,7 @@ export function AboutSection({ content }: Props) {
               {stats.map((s) => (
                 <div key={s.label} className="text-center p-2 sm:p-3 bg-amber-50 rounded-xl">
                   <div className="text-lg sm:text-2xl font-extrabold text-amber-700">{s.num}</div>
-                  <div className="text-xs text-stone-500 mt-1 leading-tight">{s.label}</div>
+                  <div className="text-xs text-stone-600 mt-1 leading-tight">{s.label}</div>
                 </div>
               ))}
             </div>
