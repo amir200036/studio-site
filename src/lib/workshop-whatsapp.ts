@@ -16,12 +16,12 @@ export type WorkshopWhatsAppParams = {
   customerEmail?: string;
 };
 
+const PRICE_TOKENS = ["{{pricePerPerson}}", "{{total}}"];
+
 /** תבנית ברירת מחדל (כש־whatsappMessage ריק בעריכת סדנה) */
 const DEFAULT_WHATSAPP_TEMPLATE = `שלום! אני מעוניין/ת להירשם לסדנה {{workshopName}}
 משך הסדנה: {{durationHours}} שעות
-מחיר לאדם: {{pricePerPerson}}
 מספר מקומות: {{seats}}
-סכום משוער: {{total}}
 שם מלא: {{customerName}}`;
 
 export function buildDefaultWorkshopInquiryMessage(params: WorkshopWhatsAppParams): string {
@@ -34,9 +34,15 @@ export function buildDefaultWorkshopInquiryMessage(params: WorkshopWhatsAppParam
 /**
  * מילוי תבנית מותאמת מהמנהל.
  * משתנים: {{workshopName}}, {{customerName}}, {{seats}},
- * {{pricePerPerson}}, {{total}}, {{durationHours}}
+ * {{durationHours}}, {{date}}, {{time}} — שורות עם {{pricePerPerson}} / {{total}} מושמטות
  */
 export function applyWorkshopWhatsAppTemplate(template: string, params: WorkshopWhatsAppParams): string {
+  // המחיר לא מוצג באתר ולא נשלח בהודעה. תבנית ישנה מהפאנל עדיין עלולה להכיל
+  // {{pricePerPerson}} או {{total}} — השורה כולה יורדת, כדי שלא תישאר "מחיר לאדם:" ריקה.
+  template = template
+    .split("\n")
+    .filter((line) => !PRICE_TOKENS.some((token) => line.includes(token)))
+    .join("\n");
   const raw = params.workshopDate;
   const d = raw != null && raw !== "" ? new Date(raw) : null;
   const hasRealDate = d != null && !Number.isNaN(d.getTime());

@@ -17,6 +17,7 @@
 | Database | Prisma 7 + PostgreSQL (Vercel Postgres, both dev and prod) |
 | Auth | NextAuth.js v4 (Credentials provider, JWT strategy) + middleware.ts |
 | Public checkout | אין — הרשמה לסדנה דרך WhatsApp מדף `/workshops/[id]` |
+| Prices | **Never shown publicly.** `pricePerPerson` stays in the DB and the admin, but no public page, meta description or WhatsApp message shows it; template lines with `{{pricePerPerson}}` / `{{total}}` are dropped (`src/lib/workshop-whatsapp.ts`) |
 | Email | Resend API (via direct fetch, not resend npm package) |
 | Image Upload | Vercel Blob (`@vercel/blob`) — prod; local `public/uploads/` fallback in dev |
 | Analytics | `@vercel/analytics` (injected in root layout.tsx) |
@@ -410,8 +411,8 @@ The home page background image applies only to the **Hero section** (not the who
 `/info` page redirects to `/contact` — no background key needed.
 
 ### Layout adapts to whether an image exists
-Image slots must never render a placeholder box. `WorkshopCard` shows the photo with the price as a
-badge when one is set, and an accent stripe with the price beside the title when not; `AboutSection`
+Image slots must never render a placeholder box. `WorkshopCard` shows the photo when one is set, and
+an accent stripe when not; `AboutSection`
 switches from a two-column grid to centred text plus a stats bar. With no photographs in the database
 a placeholder is most of what a visitor sees, and it reads as broken rather than empty.
 

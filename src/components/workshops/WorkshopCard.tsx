@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Workshop, Booking } from "@prisma/client";
 import { Clock, MessageCircle, Users } from "lucide-react";
-import { formatPrice, formatWorkshopSeatsAvailability, getAvailableSeats } from "@/lib/utils";
+import { formatWorkshopSeatsAvailability, getAvailableSeats } from "@/lib/utils";
 
 type WorkshopWithBookings = Workshop & { bookings: Pick<Booking, "seats" | "paymentStatus">[] };
 
@@ -31,13 +31,10 @@ export function WorkshopCard({ workshop }: Props) {
             className="object-cover group-hover:scale-[1.03] transition-transform duration-300"
             sizes="(max-width: 768px) 100vw, 33vw"
           />
-          <span className="absolute bottom-3 start-3 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur text-amber-800 font-extrabold text-lg shadow-sm">
-            {formatPrice(workshop.pricePerPerson)}
-          </span>
         </Link>
       ) : (
-        /* בלי תמונה לא מציגים מלבן ריק עם אימוג'י — פס מבטא צר והמחיר
-           כגיבור הכרטיס. הכרטיס נראה מוגמר, לא חסר. */
+        /* בלי תמונה לא מציגים מלבן ריק עם אימוג'י — פס מבטא צר.
+           הכרטיס נראה מוגמר, לא חסר. */
         <div className="h-1.5 bg-gradient-to-l from-amber-500 via-amber-600 to-orange-500" aria-hidden="true" />
       )}
 
@@ -51,11 +48,6 @@ export function WorkshopCard({ workshop }: Props) {
               {workshop.name}
             </h2>
           </Link>
-          {!hasImage && (
-            <span className="text-2xl font-extrabold text-amber-800 shrink-0 leading-none pt-0.5">
-              {formatPrice(workshop.pricePerPerson)}
-            </span>
-          )}
         </div>
 
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-stone-500">

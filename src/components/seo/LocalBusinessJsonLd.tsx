@@ -42,7 +42,6 @@ export async function LocalBusinessJsonLd() {
       longitude: 34.78527685110109,
     },
     areaServed: { "@type": "City", name: STUDIO_CITY },
-    priceRange: "₪₪",
     telephone: formatStudioPhone(),
     email: STUDIO_EMAIL,
     openingHours: "Su-Th 09:00-20:00",

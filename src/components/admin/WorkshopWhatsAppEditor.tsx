@@ -11,8 +11,6 @@ const INSERT_FIELDS: { label: string; token: string }[] = [
   { label: "שם הסדנה", token: "{{workshopName}}" },
   { label: "שם הלקוח", token: "{{customerName}}" },
   { label: "מספר מקומות", token: "{{seats}}" },
-  { label: "מחיר לאדם", token: "{{pricePerPerson}}" },
-  { label: "סכום משוער", token: "{{total}}" },
   { label: "משך (שעות)", token: "{{durationHours}}" },
 ];
 
@@ -109,7 +107,7 @@ export function WorkshopWhatsAppEditor({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={adminInputClass + " resize-y text-base leading-relaxed"}
-        placeholder={`לדוגמה:\nשלום! אשמח להירשם ל{{workshopName}}\nשם: {{customerName}}\nמקומות: {{seats}}\nסכום משוער: {{total}}`}
+        placeholder={`לדוגמה:\nשלום! אשמח להירשם ל{{workshopName}}\nשם: {{customerName}}\nמקומות: {{seats}}`}
         dir="rtl"
       />
 

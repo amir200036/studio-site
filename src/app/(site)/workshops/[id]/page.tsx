@@ -9,7 +9,6 @@ import { prisma } from "@/lib/prisma";
 import {
   formatDate,
   formatTime,
-  formatPrice,
   formatWorkshopSeatsAvailability,
   getAvailableSeats,
   pageBackground,
@@ -39,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const when = workshop.date
     ? `${formatDate(workshop.date)} · `
     : `${workshop.durationHours} שעות · מועד ב-WhatsApp · `;
-  const description = `${when}${formatPrice(workshop.pricePerPerson)} לאדם · ${workshop.description.slice(0, 100)}${workshop.description.length > 100 ? "…" : ""}`;
+  const description = `${when}${workshop.description.slice(0, 100)}${workshop.description.length > 100 ? "…" : ""}`;
   return {
     title,
     description,
@@ -122,11 +121,7 @@ export default async function WorkshopDetailPage({ params }: Props) {
                 ⏱️ משך כ־{workshop.durationHours} שעות · המועד יתואם ב-WhatsApp · {formatWorkshopSeatsAvailability(available)}
               </p>
             )}
-            <p className="text-stone-600 leading-relaxed whitespace-pre-line mb-6">{workshop.description}</p>
-            <div className="flex flex-wrap items-baseline gap-3 py-4 border-t border-stone-100">
-              <span className="text-sm text-stone-500">מחיר לאדם</span>
-              <span className="text-3xl font-extrabold text-amber-800">{formatPrice(workshop.pricePerPerson)}</span>
-            </div>
+            <p className="text-stone-600 leading-relaxed whitespace-pre-line">{workshop.description}</p>
           </div>
         </div>
 

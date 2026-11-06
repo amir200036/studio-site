@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { Workshop, Booking } from "@prisma/client";
-import { formatPrice, getAvailableSeats } from "@/lib/utils";
+import { getAvailableSeats } from "@/lib/utils";
 import { workshopWhatsAppHref } from "@/lib/workshop-whatsapp";
 
 type WorkshopWithBookings = Workshop & { bookings: Pick<Booking, "seats" | "paymentStatus">[] };
@@ -82,13 +82,6 @@ export function WorkshopWhatsAppForm({ workshop, whatsappNumber, onSubmitted }: 
           </select>
         </div>
 
-        <div className="bg-amber-50 rounded-xl p-4 flex justify-between items-center">
-          <span className="text-stone-600 text-sm">
-            {seats} × {formatPrice(workshop.pricePerPerson)}
-          </span>
-          <span className="font-extrabold text-xl text-amber-800">{formatPrice(total)}</span>
-        </div>
-
         <label className="flex items-start gap-2.5 cursor-pointer">
           <input
             type="checkbox"
@@ -111,10 +104,10 @@ export function WorkshopWhatsAppForm({ workshop, whatsappNumber, onSubmitted }: 
           type="submit"
           className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-colors flex items-center justify-center gap-2"
         >
-          שליחה ב-WhatsApp — {formatPrice(total)}
+          שליחה ב-WhatsApp
         </button>
         <p className="text-xs text-stone-400 text-center">
-          נפתח חלון WhatsApp עם פרטי הבקשה. שמירת מקום ותשלום — מול הסטודיו.
+          נפתח חלון WhatsApp עם פרטי הבקשה, ונחזור אליכם עם כל הפרטים.
         </p>
       </form>
     </div>
