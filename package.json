@@ -55,7 +55,7 @@
     "prisma": "7.10.0"
   },
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "overrides": {
     "baseline-browser-mapping": "2.11.22",
