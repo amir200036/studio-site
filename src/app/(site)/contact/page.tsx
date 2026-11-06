@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { pageBackground } from "@/lib/utils";
 import { ContactForm } from "@/components/contact/ContactForm";
-import { getSiteUrl } from "@/lib/site-url";
+import { getSiteUrl, OG_IMAGE } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { STUDIO_ADDRESS, STUDIO_EMAIL, STUDIO_GOOGLE_MAPS_URL, STUDIO_MAP_EMBED_URL, STUDIO_PHONE, STUDIO_WAZE_URL, formatStudioPhone, studioWhatsAppUrl } from "@/lib/studio-contact";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
@@ -23,6 +23,7 @@ export const metadata: Metadata = {
     canonical: `${siteUrl}/contact`,
   },
   openGraph: {
+    images: [OG_IMAGE],
     title: "יצירת קשר | יד יוצרת — סדנת קדרות בנס ציונה",
     description:
       "צרו קשר עם סדנת הקדרות יד יוצרת בנס ציונה — טלפון, WhatsApp, מייל וטופס יצירת קשר. אבנר בן יהודה 41, נס ציונה.",

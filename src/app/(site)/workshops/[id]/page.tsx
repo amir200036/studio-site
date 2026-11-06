@@ -15,7 +15,7 @@ import {
 } from "@/lib/utils";
 import { WorkshopInterestLink } from "@/components/workshops/WorkshopInterestLink";
 import { CalendarDays, Clock, Users } from "lucide-react";
-import { getSiteUrl } from "@/lib/site-url";
+import { getSiteUrl, OG_IMAGE } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
 
@@ -45,6 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: { canonical: `${base}/workshops/${id}` },
     openGraph: {
+      images: [workshop.imageUrl?.trim() ? { url: workshop.imageUrl, alt: workshop.name } : OG_IMAGE],
       title,
       description,
       url: `${base}/workshops/${id}`,

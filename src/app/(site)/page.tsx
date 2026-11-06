@@ -10,7 +10,7 @@ import { AboutSection } from "@/components/home/AboutSection";
 import { GallerySection } from "@/components/home/GallerySection";
 import { ReviewsSection } from "@/components/home/ReviewsSection";
 import { WorkshopsPreview } from "@/components/home/WorkshopsPreview";
-import { getSiteUrl } from "@/lib/site-url";
+import { getSiteUrl, OG_IMAGE } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { toJsonLd } from "@/lib/sanitize";
 
@@ -24,6 +24,7 @@ export const metadata: Metadata = {
     canonical: siteUrl,
   },
   openGraph: {
+    images: [OG_IMAGE],
     title: "סדנת קדרות בנס ציונה | יד יוצרת",
     description:
       "סדנאות קדרות וקרמיקה בנס ציונה — חוויה יצירתית לזוגות, משפחות, ימי הולדת וגיבוש. מדריכים מנוסים, אווירה חמה.",

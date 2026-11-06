@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Assistant, Rubik } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
-import { getSiteUrl } from "@/lib/site-url";
+import { getSiteUrl, OG_IMAGE } from "@/lib/site-url";
 import "./globals.css";
 
 const assistant = Assistant({
@@ -28,6 +28,7 @@ export const metadata: Metadata = {
   keywords: "קדרות, סדנאות קדרות, קרמיקה, נס ציונה, יצירה, חמר, גיבוש, יום הולדת, סדנה",
   metadataBase: new URL(siteUrl),
   openGraph: {
+    images: [OG_IMAGE],
     siteName: "יד יוצרת — סדנת קדרות",
     locale: "he_IL",
     type: "website",

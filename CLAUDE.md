@@ -474,6 +474,18 @@ Public queries go through `safeDbQuery`. Only transient connection errors (P1001
 fall back to empty content; anything else is rethrown, so a failed ISR regeneration keeps serving the
 last good page instead of caching an empty one. Every failure is logged through `securityLog`.
 
+### Share image and icons
+`public/og-image.jpg` (1200×630, studio photo + Rubik text) is the WhatsApp / social preview. A page's
+`openGraph` replaces the layout's entirely, so **every** `openGraph` block lists `OG_IMAGE` from
+`src/lib/site-url.ts`; a workshop page uses its own photo when it has one. `src/app/icon.png` and
+`apple-icon.png` are the "יד" tile — there is no `favicon.ico` on purpose (it was the Next.js default).
+
+### Keeping the free Supabase project awake
+A free Supabase project pauses after about a week without activity, and the site then shows empty
+pages. `vercel.json` runs `/api/cron/keepalive` daily (`SELECT 1`). With `CRON_SECRET` set in Vercel
+the route accepts only the Cron's bearer token; without it, it is open but rate-limited (it returns
+no data).
+
 ### Canonical site URL:
 Use `getSiteUrl()` from `src/lib/site-url.ts` anywhere you need an absolute URL (metadata `alternates`, OpenGraph, sitemap, JSON-LD). Order: `NEXT_PUBLIC_SITE_URL` → `https://${VERCEL_URL}` → `http://localhost:3000`.
 

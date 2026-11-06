@@ -20,3 +20,15 @@ export function getSiteUrl(): string {
 
   return "http://localhost:3000";
 }
+
+/**
+ * תמונת השיתוף (WhatsApp, פייסבוק). כל עמוד שמגדיר openGraph משלו חייב לכלול אותה
+ * במפורש — openGraph של עמוד מחליף את זה של ה-layout במלואו, כולל התמונה.
+ * נוצרה מתמונת הסטודיו שבגלריה; ליצירה מחדש ראו CLAUDE.md.
+ */
+export const OG_IMAGE = {
+  url: "/og-image.jpg",
+  width: 1200,
+  height: 630,
+  alt: "יד יוצרת — סטודיו לקדרות וקרמיקה בנס ציונה",
+};

@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { pageBackground } from "@/lib/utils";
 import { FAQAccordion } from "@/components/faq/FAQAccordion";
-import { getSiteUrl } from "@/lib/site-url";
+import { getSiteUrl, OG_IMAGE } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { toJsonLd } from "@/lib/sanitize";
 
@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     canonical: `${siteUrl}/faq`,
   },
   openGraph: {
+    images: [OG_IMAGE],
     title: "שאלות נפוצות | יד יוצרת — סדנת קדרות בנס ציונה",
     description:
       "תשובות לשאלות הנפוצות ביותר על סדנאות קדרות בנס ציונה — רמות ניסיון, מדיניות ביטול, גיל מינימלי ועוד.",

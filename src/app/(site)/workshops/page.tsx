@@ -7,7 +7,7 @@ import { visiblePublicWorkshopsWhere } from "@/lib/workshop-filters";
 import { getAvailableSeats, pageBackground } from "@/lib/utils";
 import { WorkshopCard } from "@/components/workshops/WorkshopCard";
 import { cardGrid } from "@/lib/card-grid";
-import { getSiteUrl } from "@/lib/site-url";
+import { getSiteUrl, OG_IMAGE } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 
 const siteUrl = getSiteUrl().replace(/\/$/, "");
@@ -20,6 +20,7 @@ export const metadata: Metadata = {
     canonical: `${siteUrl}/workshops`,
   },
   openGraph: {
+    images: [OG_IMAGE],
     title: "סדנאות קדרות בנס ציונה | יד יוצרת — הרשמה ב-WhatsApp",
     description:
       "כל סדנאות הקדרות הקרובות בנס ציונה — פרטים והרשמה ישירה ב-WhatsApp. מתאים למתחילים ומנוסים כאחד.",

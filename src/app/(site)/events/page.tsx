@@ -7,7 +7,7 @@ import { MessageCircle } from "lucide-react";
 import { cardGrid } from "@/lib/card-grid";
 import { prisma } from "@/lib/prisma";
 import { buildWhatsAppUrl, pageBackground } from "@/lib/utils";
-import { getSiteUrl } from "@/lib/site-url";
+import { getSiteUrl, OG_IMAGE } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { resolveWhatsAppNumber } from "@/lib/whatsapp-number";
 
@@ -21,6 +21,7 @@ export const metadata: Metadata = {
     canonical: `${siteUrl}/events`,
   },
   openGraph: {
+    images: [OG_IMAGE],
     title: "אירועים מיוחדים וגיבוש חברה | יד יוצרת — סדנת קדרות בנס ציונה",
     description:
       "ימי הולדת, גיבוש חברה ואירועים מיוחדים בסדנת קדרות בנס ציונה. חוויה ייחודית שכולם ייזכרו — צרו קשר לפרטים.",

@@ -3,7 +3,7 @@
 export const revalidate = 300;
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { getSiteUrl } from "@/lib/site-url";
+import { getSiteUrl, OG_IMAGE } from "@/lib/site-url";
 import { safeDbQuery } from "@/lib/safe-db";
 import { DEFAULT_TERMS, TERMS_LAST_UPDATED } from "@/lib/default-terms";
 
@@ -17,6 +17,7 @@ export const metadata: Metadata = {
     canonical: `${siteUrl}/terms`,
   },
   openGraph: {
+    images: [OG_IMAGE],
     title: "תנאי שימוש | יד יוצרת — סדנת קדרות בנס ציונה",
     description:
       "תקנון ותנאי שימוש של סדנת קדרות יד יוצרת — מדיניות ביטול, החזרים, תשלומים ופרטיות.",
